@@ -1,4 +1,4 @@
-#include "pressure_solver.h"
+#include "pressure_solver/pressure_solver.h"
 
 
 
@@ -6,6 +6,10 @@ PressureSolver::PressureSolver(std::shared_ptr< Discretization >  discretization
 :discretization_(discretization), epsilon_(epsilon), maximumNumberOfIterations_(maximumNumberOfIterations)
 {
 
+}
+
+void PressureSolver::solve()
+{
 }
 
 void PressureSolver::setBoundaryValues()

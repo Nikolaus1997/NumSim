@@ -2,7 +2,14 @@
 #include "output_writer/output_writer.h"
 
 #include <vtkSmartPointer.h>
+#include <vtkImageData.h>
 #include <vtkXMLImageDataWriter.h>
+#include <vtkDoubleArray.h>
+#include <vtkPointData.h>
+
+#include <cstdlib>
+#include <iostream>
+#include <memory>
 
 class OutputWriterParaview : public OutputWriter
 { 

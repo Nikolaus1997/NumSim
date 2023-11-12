@@ -1,9 +1,4 @@
-#include "output_writer/write_paraview_output.h"
-#include "discretization/central_differences.h"
-#include "settings/settings.h" 
-#include "pressure_solver/pressure_solver.h"
-#include "pressure_solver/gauss_seidel.h"
-#include "pressure_solver/sor.h"
+
 #include "computation/computation.h"
 #include <iostream>
 #include <cstdlib>
@@ -28,17 +23,9 @@ int main(int argc, char *argv[])
   // read in the first argument
   std::string filename = argv[1];
   
-  // print message
-  std::cout << "Filename: \"" << filename << "\"" << std::endl;
-  Settings settings;
-  settings.loadFromFile(filename);
-  settings.printSettings();
- 
-  // write 5 output files
-  for (int i = 0; i < 5; i++)
-  {
-    writeParaviewOutput(i);
-  }
+  auto computation = Computation();
+  computation.initialize(filename);
+  computation.runSimulation();
 
   return EXIT_SUCCESS;
 }

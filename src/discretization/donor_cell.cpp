@@ -1,4 +1,4 @@
-#include "donor_cell.h"
+#include "discretization/donor_cell.h"
 #include <cmath>
 
 DonorCell::DonorCell(std::array<int, 2> nCells, std::array<double, 2> meshWidth, double alpha): 

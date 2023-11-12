@@ -1,5 +1,5 @@
-#include "field_variable.h"
-#include "array2d.h"
+#include "storage/field_variable.h"
+#include "storage/array2d.h"
 #include <tgmath.h>
 #include "settings/settings.h"
 
@@ -13,26 +13,29 @@ double FieldVariable::interpolateAt(double x, double y) const {
     int i = floor((x-origin_[0])/meshWidth_[0]);
     int j = floor((y-origin_[1])/meshWidth_[1]);
     
-    double left_value = (*this)(i,j);
-    double right_value = (*this)(i+1,j);
+    if(i==size_[0]-1)
+        i--;
     
-    double left_pos = i*meshWidth_[0];
-    double right_pos = j*meshWidth_[1];
+    if(j==size_[1]-1)
+        j--;
+
+    double left         =       (*this)(i,j);
+    double right        =       (*this)(i+1,j);
+    double upper_left   =       (*this)(i,j+1);
+    double upper_right  =       (*this)(i+1,j+1);
+
+    double x_left   = i*meshWidth_[0] + origin_[0];
+    double x_right   = meshWidth_[0] + x_left;
+
+    double y_left   = j*meshWidth_[1] + origin_[1];
+    double y_right   = meshWidth_[1] + y_left;
     
-    double interp_value = left_value + (right_value-left_value)/(right_pos - left_pos)*(x-left_pos);
+    double const interp_value = 1.0/(meshWidth_[0]*meshWidth_[1])*(
+                                                                    left*(x_right-x)*(y_right-y)+
+                                                                    right*(x-x_left)*(y_right-y)+
+                                                                    upper_left*(x_right-x)*(y-y_left)+
+                                                                    upper_right*(x-x_left)*(y-y_left)
+        );
     
     return interp_value;
-}
-
-double FieldVariable::maxAbs()
-{
-    double max_abs = 0;
-
-    for(int i = 0, i < size_[0],i++){
-        for(int j = 0, j < size_[1],j++){
-            if(abs((*this)(i,j)) > max_abs){
-                max_abs = abs((*this)(i,j));
-            }
-        }
-    }
 }

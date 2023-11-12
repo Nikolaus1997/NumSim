@@ -1,4 +1,4 @@
-#include "settings.h"
+#include "settings/settings.h"
 #include <fstream>   // for file operations
 #include <iostream>  // for cout
 #include <iomanip>
@@ -98,52 +98,52 @@ void Settings::loadFromFile(std::string filename)
 
     if (parameterName=="dirichletBottomX")
     {
-     dirichletBcBottom[0] = atoi(parameterValue.c_str());  
+     dirichletBcBottom[0] = atof(parameterValue.c_str());  
     }
 
     if (parameterName=="dirichletBottomY")
     {
-      dirichletBcBottom[1] = atoi(parameterValue.c_str());  
+      dirichletBcBottom[1] = atof(parameterValue.c_str());  
     }    
 
     if (parameterName=="dirichletTopX")
     {
-        dirichletBcTop[0] = atoi(parameterValue.c_str());  
+        dirichletBcTop[0] = atof(parameterValue.c_str());  
     }
 
     if (parameterName=="dirichletTopY")
     {
-        dirichletBcTop[1] = atoi(parameterValue.c_str());      
+        dirichletBcTop[1] = atof(parameterValue.c_str());      
     }
 
     if (parameterName=="dirichletLeftX")
     {
-      dirichletBcLeft[0] = atoi(parameterValue.c_str());
+      dirichletBcLeft[0] = atof(parameterValue.c_str());
     }
 
     if (parameterName=="dirichletLeftY")
     {
-        dirichletBcLeft[1] = atoi(parameterValue.c_str());
+        dirichletBcLeft[1] = atof(parameterValue.c_str());
     }
 
     if (parameterName=="dirichletRightX")
     {
-       dirichletBcRight[0] = atoi(parameterValue.c_str()); 
+       dirichletBcRight[0] = atof(parameterValue.c_str()); 
     }
 
     if (parameterName=="dirichletRightY")
     {
-       dirichletBcRight[1] = atoi(parameterValue.c_str()); 
+       dirichletBcRight[1] = atof(parameterValue.c_str()); 
     }
 
     if (parameterName=="nCellsX")
     {
-         nCells[0] = atoi(parameterValue.c_str());
+         nCells[0] = atof(parameterValue.c_str());
     }
 
     if (parameterName=="nCellsY")
     {
-         nCells[1] = atoi(parameterValue.c_str());
+         nCells[1] = atof(parameterValue.c_str());
     }
 
     if (parameterName=="useDonorCell")

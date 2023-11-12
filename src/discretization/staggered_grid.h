@@ -2,9 +2,9 @@
 
 #include "storage/field_variable.h"
 
-class StaggeredGrid : public FieldVariable
+class StaggeredGrid 
 {
-    public:
+public:
     // constructor
     StaggeredGrid(std::array< int, 2 > nCells, std::array< double, 2 > meshWidth);
 
@@ -27,6 +27,8 @@ class StaggeredGrid : public FieldVariable
 
     double &rhs(int i, int j);
     double &f(int i, int j);
+    const FieldVariable & f() const;
+    double f(int i, int j) const;
     double &g(int i, int j);
 
     double dx() const;

@@ -1,5 +1,5 @@
-#include "output_writer.h"
-
+#include "output_writer/output_writer.h"
+#include <iostream>
 OutputWriter::OutputWriter(std::shared_ptr<Discretization> discretization)
 :discretization_(discretization), fileNo_(-1)
 {
@@ -9,3 +9,6 @@ OutputWriter::OutputWriter(std::shared_ptr<Discretization> discretization)
     std::cout << "Could not create subdirectory \"out\"." << std::endl;
 }
 
+void OutputWriter::writeFile(double currentTime)
+{
+}
