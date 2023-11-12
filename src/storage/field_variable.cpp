@@ -23,3 +23,16 @@ double FieldVariable::interpolateAt(double x, double y) const {
     
     return interp_value;
 }
+
+double FieldVariable::maxAbs()
+{
+    double max_abs = 0;
+
+    for(int i = 0, i < size_[0],i++){
+        for(int j = 0, j < size_[1],j++){
+            if(abs((*this)(i,j)) > max_abs){
+                max_abs = abs((*this)(i,j));
+            }
+        }
+    }
+}

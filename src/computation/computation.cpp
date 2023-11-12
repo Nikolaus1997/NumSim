@@ -16,9 +16,11 @@ void Computation::computeTimeStepWidth()
 {
     double dt_diffusion = settings_.re/2*(pow(discretization_->dx(),2)*pow(discretization_->dy(),2))/(pow(discretization_->dx(),2)+pow(discretization_->dy(),2));
     
-    double dt_u = discretization_->dx()/discretization_->u().absMax();
 
-    double dt_v = discretization_->dy()/discretization_->v().absMax();
+
+    double dt_u = discretization_->dx()/discretization_->u().maxAbs();
+
+    double dt_v = discretization_->dy()/discretization_->v().maxAbs();
 
     dt_ = settings_.tau*std::min(dt_diffusion,dt_u,dt_v);
 }
@@ -79,3 +81,4 @@ void Computation::computeVelocities()
 {
     //TODO
 }
+

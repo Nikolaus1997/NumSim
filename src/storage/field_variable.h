@@ -17,6 +17,8 @@ public:
     //get the value at the Cartesian coordinate (x,y). The value is linearly interpolated between stored points.
     double interpolateAt(double x, double y) const;
 
+    double maxAbs();
+    
 private:
     const std::array<double,2> origin_;
     const std::array<double,2> meshWidth_;
