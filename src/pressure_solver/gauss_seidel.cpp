@@ -1,5 +1,4 @@
 #include "gauss_seidel.h"
-#include <cmath>
 
 GaussSeidel::GaussSeidel(std::shared_ptr<Discretization> discretization, double epsilon, int maximumNumberOfIterations)
 : PressureSolver(discretization, epsilon, maximumNumberOfIterations)
@@ -38,7 +37,7 @@ void GaussSeidel::solve()
         {
             for (int j = discretization_->pJBegin()+1; j < discretization_->pJBegin(); j++)
             {
-                    double d2pdxX = (discretization_->p(i-1,j) - 2 * discretization_->p(i, j) + discretization_->p(i+1,j))/dxdx;
+                    double d2pdxx = (discretization_->p(i-1,j) - 2 * discretization_->p(i, j) + discretization_->p(i+1,j))/dxdx;
                     double d2pdyy = (discretization_->p(i,j-1) - 2 * discretization_->p(i, j) + discretization_->p(i,j+1))/dydy; 
 
                     residuum = std::max(std::abs(d2pdxx+d2pdyy - discretization_->rhs(i,j)), residuum);

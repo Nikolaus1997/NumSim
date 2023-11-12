@@ -1,5 +1,6 @@
 #pragma once
 #include "pressure_solver/pressure_solver.h"
+#include <cmath>
 
 class SOR : public PressureSolver
 {
@@ -10,5 +11,4 @@ class SOR : public PressureSolver
     
     private:
         double omega_;
-}
-
+};

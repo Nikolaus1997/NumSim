@@ -1,11 +1,12 @@
 #pragma once
 #include <memory>
+#include "discretization/discretization.h"
 
 class PressureSolver
 {
     public:
         
-        PressureSolver (std::shared_ptr< Discretization > discretization, double epsilon, int maximumNumberOfIterations);
+        PressureSolver (std::shared_ptr<Discretization> discretization, double epsilon, int maximumNumberOfIterations);
 
         virtual void solve();
 

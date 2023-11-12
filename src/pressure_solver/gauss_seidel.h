@@ -1,7 +1,7 @@
 #pragma once
 #include "pressure_solver.h"
 #include <cmath>
-#include <algorithm>
+
 
 class GaussSeidel : public PressureSolver
 {

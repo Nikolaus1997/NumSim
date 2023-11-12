@@ -3,6 +3,7 @@
 #include "settings/settings.h" 
 #include "pressure_solver/pressure_solver.h"
 #include "pressure_solver/gauss_seidel.h"
+#include "pressure_solver/sor.h"
 #include "computation/computation.h"
 #include <iostream>
 #include <cstdlib>
