@@ -10,8 +10,6 @@ void Computation::initialize(std::string filename)
 
     meshWidth_[0] = settings_.physicalSize[0]/settings_.nCells[0];
     meshWidth_[1] = settings_.physicalSize[1]/settings_.nCells[1];
-
-    std::cout<<settings_.nCells[0]<<std::endl;
     
     std::cout<<"==========================================================================================================================="<<std::endl;
     if (settings_.useDonorCell) {
@@ -44,9 +42,7 @@ void Computation::runSimulation()
     double time = 0.0;
     while(time<settings_.endTime){
         t_i++;
-        //std::cout << "Before applyBoundaryValues: " << discretization_->f(1,1) << std::endl;
         applyBoundaryValues();
-        //std::cout << "After applyBoundaryValues: " << discretization_->f(1,1) << std::endl;
         applyBoundaryValuesFandG();
 
         computeTimeStepWidth();
@@ -112,6 +108,15 @@ void Computation::computeTimeStepWidth()
 
 void Computation::applyBoundaryValues()
 {
+    for(int j = discretization_->uJBegin(); j <discretization_->uJEnd();j++)
+    {
+        //left boundary conditions u
+        discretization_->u(discretization_->uIBegin(),j) = settings_.dirichletBcLeft[0];
+
+        //right boundary conditions u
+        discretization_->u(discretization_->uIEnd()-1,j) = settings_.dirichletBcRight[0];
+
+    }
 
     for(int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++)
     {
@@ -124,13 +129,13 @@ void Computation::applyBoundaryValues()
 
     }
 
-    for(int j = discretization_->uJBegin(); j <discretization_->uJEnd();j++)
+    for(int j = discretization_->vJBegin(); j < discretization_->vJEnd(); j++)
     {
-        //left boundary conditions u
-        discretization_->u(discretization_->uIBegin(),j) = settings_.dirichletBcLeft[0];
+        //left boundary condition
+        discretization_->v(discretization_->vIBegin(),j) = 2.0*settings_.dirichletBcLeft[1]-discretization_->v(discretization_->vIBegin()+1,j);
 
-        //right boundary conditions u
-        discretization_->u(discretization_->uIEnd()-1,j) = settings_.dirichletBcRight[0];
+        //right boundary condition
+        discretization_->v(discretization_->vIEnd()-1,j)  = 2.0*settings_.dirichletBcRight[1]-discretization_->v(discretization_->vIEnd()-2,j);
     }
 
     for(int i = discretization_->vIBegin(); i < discretization_->vIEnd();i++)
@@ -141,16 +146,6 @@ void Computation::applyBoundaryValues()
         //bottom boundary conditions v
         discretization_->v(i, discretization_->vJBegin()) = settings_.dirichletBcBottom[1];
     }
-
-    for(int j = discretization_->vJBegin(); j < discretization_->vJEnd(); j++)
-    {
-        //left boundary condition
-        discretization_->v(discretization_->vIBegin(),j) = 2.0*settings_.dirichletBcLeft[1]-discretization_->v(discretization_->vIBegin()+1,j);
-
-        //right boundary condition
-        discretization_->v(discretization_->vIEnd()-1,j)  = 2.0*settings_.dirichletBcRight[1]-discretization_->v(discretization_->vIEnd()-2,j);
-    }
-
 }
 
 void Computation::applyBoundaryValuesFandG(){

@@ -12,7 +12,6 @@ StaggeredGrid::StaggeredGrid(std::array< int, 2 > nCells, std::array< double, 2 
         rhs_({nCells_[0]+2, nCells_[1]+2},           {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth)
 
     {
-        std::cout<<f_(1,1)<<std::endl;
 };
 
 const std::array<double, 2> StaggeredGrid::meshWidth() const
@@ -48,7 +47,7 @@ double & StaggeredGrid::f(int i, int j)
 
 double & StaggeredGrid::g(int i, int j)
 {
-    return g_(i-vIBegin(),j-uJBegin());
+    return g_(i-vIBegin(),j-vJBegin());
 }
 
 double StaggeredGrid::p(int i, int j) const

@@ -10,8 +10,8 @@ FieldVariable::FieldVariable(std::array<int,2> size, std::array<double, 2> origi
 
 double FieldVariable::interpolateAt(double x, double y) const {
     
-    int i = floor((x-origin_[0])/meshWidth_[0]);
-    int j = floor((y-origin_[1])/meshWidth_[1]);
+    int i = floor((x-origin_[0])/meshWidth_[0])+1;
+    int j = floor((y-origin_[1])/meshWidth_[1])+1;
     
     if(i==size_[0]-1)
         i--;
