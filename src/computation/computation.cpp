@@ -34,7 +34,7 @@ void Computation::initialize(std::string filename)
     } else {
         std::cout << "Solver not found!" << std::endl;
     }
-
+    outputWriterText_ = std::make_unique<OutputWriterText>(discretization_);
     outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_);
 }
 
@@ -61,11 +61,11 @@ void Computation::runSimulation()
 
         computeRightHandSide();
 
-         computePressure();
+        computePressure();
 
-         computeVelocities();
-
-        //outputWriterParaview_->writeFile(time);
+        computeVelocities();
+        outputWriterText_->writeFile(time);
+        outputWriterParaview_->writeFile(time);
     }
 }
 
@@ -113,81 +113,81 @@ void Computation::computeTimeStepWidth()
 void Computation::applyBoundaryValues()
 {
 
-    for(int i = discretization_->uIBegin(); i <= discretization_->uIEnd(); i++)
+    for(int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++)
     {
         //bottom boundary conditions u
         discretization_->u(i,discretization_->uJBegin()) = 2*settings_.dirichletBcBottom[0]-discretization_->u(i,discretization_->uJBegin()+1);
     
 
         //top boundary conditions u
-        discretization_->u(i,discretization_->uJEnd()) = 2*settings_.dirichletBcTop[0]-discretization_->u(i,discretization_->uJEnd()-1);
+        discretization_->u(i,discretization_->uJEnd()-1) = 2*settings_.dirichletBcTop[0]-discretization_->u(i,discretization_->uJEnd()-2);
 
     }
 
-    for(int j = discretization_->uJBegin(); j <=discretization_->uJEnd();j++)
+    for(int j = discretization_->uJBegin(); j <discretization_->uJEnd();j++)
     {
         //left boundary conditions u
         discretization_->u(discretization_->uIBegin(),j) = settings_.dirichletBcLeft[0];
 
         //right boundary conditions u
-        discretization_->u(discretization_->uIEnd(),j) = settings_.dirichletBcRight[0];
+        discretization_->u(discretization_->uIEnd()-1,j) = settings_.dirichletBcRight[0];
     }
 
-    for(int i = discretization_->vIBegin(); i <= discretization_->vIEnd();i++)
+    for(int i = discretization_->vIBegin(); i < discretization_->vIEnd();i++)
     {
         //top boundary conditions v
-        discretization_->v(i,discretization_->vJEnd()) = settings_.dirichletBcTop[1];
+        discretization_->v(i,discretization_->vJEnd()-1) = settings_.dirichletBcTop[1];
 
         //bottom boundary conditions v
         discretization_->v(i, discretization_->vJBegin()) = settings_.dirichletBcBottom[1];
     }
 
-    for(int j = discretization_->vJBegin(); j <= discretization_->vJEnd(); j++)
+    for(int j = discretization_->vJBegin(); j < discretization_->vJEnd(); j++)
     {
         //left boundary condition
         discretization_->v(discretization_->vIBegin(),j) = 2.0*settings_.dirichletBcLeft[1]-discretization_->v(discretization_->vIBegin()+1,j);
 
         //right boundary condition
-        discretization_->v(discretization_->vIEnd(),j)  = 2.0*settings_.dirichletBcRight[1]-discretization_->v(discretization_->vIEnd()-1,j);
+        discretization_->v(discretization_->vIEnd()-1,j)  = 2.0*settings_.dirichletBcRight[1]-discretization_->v(discretization_->vIEnd()-2,j);
     }
 
 }
 
 void Computation::applyBoundaryValuesFandG(){
-    for (int i = discretization_->uIBegin(); i <=discretization_->uIEnd(); i++)
+    for (int i = discretization_->uIBegin(); i <discretization_->uIEnd(); i++)
     {
         //top boundary conditions for u
-        discretization_->f(i, discretization_->uJEnd()) = discretization_->u(i,discretization_->uJEnd());
+        discretization_->f(i, discretization_->uJEnd()-1) = discretization_->u(i,discretization_->uJEnd()-1);
 
         //bottom boundary conditions for u
         discretization_->f(i, discretization_->uJBegin()) = discretization_->u(i,discretization_->uJBegin());
     }
 
-    for (int j = discretization_->uJBegin(); j <= discretization_->uJEnd(); j++)
+    for (int j = discretization_->uJBegin(); j < discretization_->uJEnd(); j++)
     {   
         //left boundary condition for u
         discretization_->f(discretization_->uIBegin(), j) = discretization_->u(discretization_->uIBegin(),j);
 
         //right boundary condition for u
-        discretization_->f(discretization_->uIEnd(), j) = discretization_->u(discretization_->uIEnd(), j);
+        discretization_->f(discretization_->uIEnd()-1, j) = discretization_->u(discretization_->uIEnd()-1, j);
     }
 
-    for (int i = discretization_->vIBegin(); i <=discretization_->vIEnd(); i++)
+    for (int i = discretization_->vIBegin(); i <discretization_->vIEnd(); i++)
     {
         //top boundary conditions for v
-        discretization_->g(i, discretization_->vJEnd()) = discretization_->v(i,discretization_->vJEnd());
+        discretization_->g(i, discretization_->vJEnd()-1) = discretization_->v(i,discretization_->vJEnd()-1);
 
         //bottom boundary conditions for v
         discretization_->g(i, discretization_->vJBegin()) = discretization_->v(i,discretization_->vJBegin());
     }
     
-    for (int j = discretization_->vJBegin(); j <= discretization_->vJEnd(); j++)
+    for (int j = discretization_->vJBegin(); j < discretization_->vJEnd(); j++)
     {
         //left boundary conditions for v
         discretization_->g(discretization_->vIBegin(),j) = discretization_->v(discretization_->vIBegin(),j);
 
         //right boundary condtions for v
-        discretization_->g(discretization_->vIEnd(),j) = discretization_->v(discretization_->vIEnd(),j);
+        discretization_->g(discretization_->vIEnd()-1,j) = discretization_->v(discretization_->vIEnd()-1,j);
     }
 
 }
@@ -195,9 +195,9 @@ void Computation::applyBoundaryValuesFandG(){
 void Computation::computePreliminaryVelocities()
 {
 
-    for (int i = discretization_->uIBegin()+1; i < discretization_->uIEnd(); i++)
+    for (int i = discretization_->uIBegin()+1; i < discretization_->uIEnd()-1; i++)
     {
-        for (int j = discretization_->uJBegin()+1; j < discretization_->uJEnd(); j++)
+        for (int j = discretization_->uJBegin()+1; j < discretization_->uJEnd()-1; j++)
         {   
             double diffusion_u       = discretization_->computeD2uDx2(i,j) + discretization_->computeD2uDy2(i,j);
             double convection_u      = discretization_->computeDu2Dx(i,j)  + discretization_->computeDuvDy(i,j);
@@ -207,9 +207,9 @@ void Computation::computePreliminaryVelocities()
         
     }
 
-    for (int i = discretization_->vIBegin()+1; i < discretization_-> vIEnd(); i++)
+    for (int i = discretization_->vIBegin()+1; i < discretization_-> vIEnd()-1; i++)
     {
-        for (int j = discretization_->vJBegin()+1; j < discretization_-> vJEnd(); j++)
+        for (int j = discretization_->vJBegin()+1; j < discretization_-> vJEnd()-1; j++)
         {
             double diffusion_v  = discretization_->computeD2vDx2(i,j) + discretization_->computeD2vDy2(i,j);
             double convection_v = discretization_->computeDv2Dy(i,j)  + discretization_->computeDuvDx(i,j);
@@ -222,14 +222,14 @@ void Computation::computePreliminaryVelocities()
 
 void Computation::computeRightHandSide()
 {
-    for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd(); i++)
+    for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++)
     {
-        for (int j = discretization_->pJBegin()+1; j < discretization_-> pJEnd(); j++)
+        for (int j = discretization_->pJBegin()+1; j < discretization_-> pJEnd()-1; j++)
         {
             double dfdx = (discretization_->f(i,j) - discretization_-> f(i-1,j))/discretization_->dx();
             double dgdy = (discretization_->g(i,j) - discretization_-> g(i,j-1))/discretization_->dy();
 
-            discretization_->rhs(i,j) = 1/dt_*(dfdx + dgdy);
+            discretization_->rhs(i,j) = (dfdx + dgdy)/dt_;
         }
     }
 }
@@ -242,15 +242,15 @@ void Computation::computePressure()
 void Computation::computeVelocities()
 {
     //set values for u
-    for(int i = discretization_->uIBegin()+1; i < discretization_->uIEnd(); i++){
-        for(int j = discretization_->uJBegin()+1; j < discretization_->uJEnd(); j++){
+    for(int i = discretization_->uIBegin()+1; i < discretization_->uIEnd()-1; i++){
+        for(int j = discretization_->uJBegin()+1; j < discretization_->uJEnd()-1; j++){
             discretization_->u(i,j) = discretization_->f(i,j)-dt_*discretization_->computeDpDx(i,j);
         }
     }
 
     //set values for v
-    for(int i = discretization_->vIBegin()+1; i < discretization_->vIEnd(); i++){
-        for(int j = discretization_->vJBegin()+1; j < discretization_-> vJEnd(); j++){
+    for(int i = discretization_->vIBegin()+1; i < discretization_->vIEnd()-1; i++){
+        for(int j = discretization_->vJBegin()+1; j < discretization_-> vJEnd()-1; j++){
             discretization_->v(i,j) = discretization_->g(i,j)-dt_*discretization_->computeDpDy(i,j);
         }
     }
