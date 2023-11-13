@@ -6,7 +6,7 @@
 #include "discretization/central_differences.h"
 #include "pressure_solver/pressure_solver.h"
 #include "output_writer/output_writer_paraview.h"
-#include "output_writer/output_writer_text.h"
+//#include "output_writer/output_writer_text.h"
 
 #include <memory>
 #include <cmath>

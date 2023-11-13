@@ -5,7 +5,6 @@
 
 void Computation::initialize(std::string filename)
 {
-    Settings settings_;
     settings_.loadFromFile(filename);
     settings_.printSettings();
 
@@ -43,25 +42,28 @@ void Computation::runSimulation()
 {
     int t_i = 0;
     double time = 0.0;
-    while(time<=settings_.endTime){
+    while(time<settings_.endTime){
         t_i++;
+        //std::cout << "Before applyBoundaryValues: " << discretization_->f(1,1) << std::endl;
         applyBoundaryValues();
+        //std::cout << "After applyBoundaryValues: " << discretization_->f(1,1) << std::endl;
         applyBoundaryValuesFandG();
 
         computeTimeStepWidth();
 
+        std::cout << "Time: " << time << ", dt: " << dt_ << std::endl;
         if (time + dt_>settings_.endTime){
             dt_ = settings_.endTime-time;
         }
-        time = time +dt_;
+        time = time + dt_;
 
         computePreliminaryVelocities();
 
         computeRightHandSide();
 
-        computePressure();
+         computePressure();
 
-        computeVelocities();
+         computeVelocities();
 
         //outputWriterParaview_->writeFile(time);
     }
@@ -73,26 +75,39 @@ void Computation::computeTimeStepWidth()
     
     double max_abs_u = 0.0;
     double max_abs_v = 0.0;
-    for(int i = discretization_->uIBegin()+1; i <discretization_->uIEnd() ;i++){
-        for(int j = discretization_->uJBegin()+1; j < discretization_->uJEnd() ;j++){
+    double dt_u = 0.0;
+    double dt_v = 0.0;
+    double min_vel = 0.0;
+
+    for(int i = discretization_->uIBegin(); i <=discretization_->uIEnd() ;i++){
+        for(int j = discretization_->uJBegin(); j <= discretization_->uJEnd() ;j++){
             if(abs(discretization_->u(i,j)) > max_abs_u){
                 max_abs_u = abs(discretization_->u(i,j));
             }
         }
     }
 
-    for(int i = discretization_->vIBegin()+1; i <discretization_->vIEnd() ;i++){
-        for(int j = discretization_->vJBegin()+1; j < discretization_->vJEnd() ;j++){
+    for(int i = discretization_->vIBegin()+1; i <=discretization_->vIEnd() ;i++){
+        for(int j = discretization_->vJBegin()+1; j <= discretization_->vJEnd() ;j++){
             if(abs(discretization_->v(i,j)) > max_abs_v){
                 max_abs_v = abs(discretization_->v(i,j));
             }
     }
     }
-    double dt_u = discretization_->dx()/max_abs_u;
+    if(max_abs_u!=0.0){
+        dt_u = discretization_->dx()/max_abs_u;
+    }
 
-    double dt_v = discretization_->dy()/max_abs_v;
+    if(max_abs_v!=0.0){
+        dt_v = discretization_->dy()/max_abs_v;
+    }
 
-    dt_ = settings_.tau*std::min(dt_diffusion,std::min(dt_u,dt_v));
+    min_vel = std::min(dt_u,dt_v);
+    if(min_vel == 0.0){
+        dt_ = dt_diffusion*settings_.tau;
+    }else{
+        dt_ = settings_.tau*std::min(dt_diffusion,min_vel);
+    }
 }
 
 void Computation::applyBoundaryValues()
@@ -130,10 +145,10 @@ void Computation::applyBoundaryValues()
     for(int j = discretization_->vJBegin(); j <= discretization_->vJEnd(); j++)
     {
         //left boundary condition
-        discretization_->v(discretization_->vIBegin(),j) = 2*settings_.dirichletBcLeft[1]-discretization_->v(discretization_->vIBegin()+1,j);
+        discretization_->v(discretization_->vIBegin(),j) = 2.0*settings_.dirichletBcLeft[1]-discretization_->v(discretization_->vIBegin()+1,j);
 
         //right boundary condition
-        discretization_->v(discretization_->vIEnd(),j)  = 2*settings_.dirichletBcRight[1]-discretization_->v(discretization_->vIEnd()-1,j);
+        discretization_->v(discretization_->vIEnd(),j)  = 2.0*settings_.dirichletBcRight[1]-discretization_->v(discretization_->vIEnd()-1,j);
     }
 
 }

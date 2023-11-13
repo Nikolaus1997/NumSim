@@ -48,7 +48,7 @@ void GaussSeidel::solve()
         {
             doGaussSeidel = false;
         }
-        else if(iterations = maximumNumberOfIterations_)
+        else if(iterations == maximumNumberOfIterations_)
         {
             doGaussSeidel = false;
         }

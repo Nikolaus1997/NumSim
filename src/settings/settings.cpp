@@ -1,6 +1,5 @@
 #include "settings/settings.h"
 #include <fstream>   // for file operations
-#include <iostream>  // for cout
 #include <iomanip>
 
 

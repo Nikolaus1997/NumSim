@@ -4,7 +4,7 @@
 StaggeredGrid::StaggeredGrid(std::array< int, 2 > nCells, std::array< double, 2 > meshWidth):
     nCells_(nCells),    
     meshWidth_(meshWidth),
-        f_({uIEnd()-uIBegin(), uJEnd()-uJBegin()}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
+        f_({nCells_[0], nCells_[1]+1}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
         g_({vIEnd()-vIBegin(), vJEnd()-vJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
         p_({pIEnd()-pIBegin(), pJEnd()-pJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth),
         u_({uIEnd()-uIBegin(), uJEnd()-uJBegin()}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
@@ -42,33 +42,23 @@ double StaggeredGrid::dy() const
 
 double & StaggeredGrid::f(int i, int j)
 {
-    return f_(i,j);
-}
-
-const FieldVariable & StaggeredGrid::f()const
-{
-    return f_;
-}
-
-double StaggeredGrid::f(int i, int j) const
-{
-    return f_(i,j);
+    return f_(i-uIBegin(),j-uJBegin());
 }
 
 
 double & StaggeredGrid::g(int i, int j)
 {
-    return g_(i,j);
+    return g_(i-vIBegin(),j-uJBegin());
 }
 
 double StaggeredGrid::p(int i, int j) const
 {
-    return p_(i,j);
+    return p_(i-pIBegin(),j-pJBegin());
 }
 
 double &StaggeredGrid::p(int i, int j)
 {
-    return p_(i,j);
+    return p_(i-pIBegin(),j-pJBegin());
 }
 
 int StaggeredGrid::pIBegin() const
@@ -93,7 +83,7 @@ int StaggeredGrid::pJEnd() const
 
 double & StaggeredGrid::rhs(int i, int j)
 {
-    return rhs_(i,j);
+    return rhs_(i+1,j+1);
 }
 
 const FieldVariable & StaggeredGrid::u() const
@@ -103,12 +93,12 @@ const FieldVariable & StaggeredGrid::u() const
 
 double StaggeredGrid::u(int i, int j) const
 {
-    return u_(i,j);
+    return u_(i-uIBegin(),j-uJBegin());
 }
 
 double & StaggeredGrid::u(int i, int j)
 {
-   return u_(i,j);
+   return u_(i-uIBegin(),j-uJBegin());
 }
 
 int StaggeredGrid::uIBegin() const
@@ -138,12 +128,12 @@ const FieldVariable & StaggeredGrid::v() const
 
 double StaggeredGrid::v(int i, int j) const
 {
-    return v_(i,j);
+    return v_(i-vIBegin(),j-vJBegin());
 }
 
 double & StaggeredGrid::v(int i, int j) 
 {
-    return v_(i,j);
+    return v_(i-vIBegin(),j-vJBegin());
 }
 
 int StaggeredGrid::vIBegin() const

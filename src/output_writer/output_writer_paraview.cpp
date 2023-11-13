@@ -9,14 +9,21 @@ OutputWriterParaview::OutputWriterParaview(std::shared_ptr<Discretization> discr
 {
     // Create a vtkWriter_
     vtkWriter_ = vtkSmartPointer<vtkXMLImageDataWriter>::New();
-}
+};
 
 void OutputWriterParaview::writeFile(double currentTime)
 {
     // Assemble the filename
     std::stringstream fileName;
-    fileName << "out/output_" << std::setw(4) << setfill('0') << fileNo_ << "." << vtkWriter_->GetDefaultFileExtension();
+    if (vtkWriter_ != nullptr) {
+    vtkWriter_->GetDefaultFileExtension();
+    } else {
+    std::cout << "vtkWriter_ is null" << std::endl;
+    }
+    fileName << "out/output_" << std::setw(4) << setfill('0')<< fileNo_  << "." << vtkWriter_->GetDefaultFileExtension();
 
+    // increment fileNo
+    fileNo_++;
     std::cout << "Write file \"" << fileName.str() << "\"." << std::endl;
 
     // assign the new file name to the output vtkWriter
@@ -61,46 +68,11 @@ void OutputWriterParaview::writeFile(double currentTime)
         }
     }
 
+    // now, we should have added as many values as there are points in the vtk data structure
+    assert(index == dataSet->GetNumberOfPoints());  
+    
     // Add the field variable to the data set
     dataSet->GetPointData()->AddArray(arrayPressure);
-
-
-    // add velocity field variable
-    // ---------------------------
-    vtkSmartPointer<vtkDoubleArray> arrayVelocity = vtkDoubleArray::New();
-
-    // here we have two components (u,v), but ParaView will only allow vector glyphs if we have an ℝ^3 vector, 
-    // therefore we use a 3-dimensional vector and set the 3rd component to zero
-    arrayVelocity->SetNumberOfComponents(3);
-
-    // set the number of values
-    arrayVelocity->SetNumberOfTuples(dataSet->GetNumberOfPoints());
-    
-    arrayVelocity->SetName("velocity");
-
-    // loop over the mesh where p is defined and assign the values in the vtk data structure
-    index = 0;   // index for the vtk data structure
-    for (int j = 0; j < nCells[1]+1; j++)
-    {
-        const double y = j*dy;
-
-        for (int i = 0; i < nCells[0]+1; i++, index++)
-        {
-        const double x = i*dx;
-
-        std::array<double,3> velocityVector;
-        velocityVector[0] = discretization_->u().interpolateAt(x,y);
-        velocityVector[1] = discretization_->v().interpolateAt(x,y);
-        velocityVector[2] = 0.0;    // z-direction is 0
-
-        arrayVelocity->SetTuple(index, velocityVector.data());
-        }
-    }
-    // now, we should have added as many values as there are points in the vtk data structure
-    assert(index == dataSet->GetNumberOfPoints());
-
-    // add the field variable to the data set
-    dataSet->GetPointData()->AddArray(arrayVelocity);
     
     // add current time 
     vtkSmartPointer<vtkDoubleArray> arrayTime = vtkDoubleArray::New();

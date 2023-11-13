@@ -27,8 +27,6 @@ public:
 
     double &rhs(int i, int j);
     double &f(int i, int j);
-    const FieldVariable & f() const;
-    double f(int i, int j) const;
     double &g(int i, int j);
 
     double dx() const;

@@ -39,3 +39,7 @@ double FieldVariable::interpolateAt(double x, double y) const {
     
     return interp_value;
 }
+double FieldVariable::maxAbs()
+{
+    return 0.0;
+}
