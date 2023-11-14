@@ -24,10 +24,10 @@ double FieldVariable::interpolateAt(double x, double y) const {
     double upper_left   =       (*this)(i,j+1);
     double upper_right  =       (*this)(i+1,j+1);
 
-    double x_left   = i*meshWidth_[0] + origin_[0];
+    double x_left   = (i-1)*meshWidth_[0] + origin_[0];
     double x_right   = meshWidth_[0] + x_left;
 
-    double y_left   = j*meshWidth_[1] + origin_[1];
+    double y_left   = (j-1)*meshWidth_[1] + origin_[1];
     double y_right   = meshWidth_[1] + y_left;
     
     double const interp_value = 1.0/(meshWidth_[0]*meshWidth_[1])*(
@@ -38,8 +38,6 @@ double FieldVariable::interpolateAt(double x, double y) const {
         );
     
     return interp_value;
+
 }
-double FieldVariable::maxAbs()
-{
-    return 0.0;
-}
+

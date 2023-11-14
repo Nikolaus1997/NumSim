@@ -4,8 +4,8 @@
 StaggeredGrid::StaggeredGrid(std::array< int, 2 > nCells, std::array< double, 2 > meshWidth):
     nCells_(nCells),    
     meshWidth_(meshWidth),
-        f_({uIEnd()-uIBegin(), uJEnd()-uJBegin()}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
-        g_({vIEnd()-vIBegin(), vJEnd()-vJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
+        f_({fIEnd()-fIBegin(), fJEnd()-fJBegin()}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
+        g_({gIEnd()-gIBegin(), gJEnd()-gJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
         p_({pIEnd()-pIBegin(), pJEnd()-pJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth),
         u_({uIEnd()-uIBegin(), uJEnd()-uJBegin()}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
         v_({vIEnd()-vIBegin(), vJEnd()-vJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
@@ -41,13 +41,13 @@ double StaggeredGrid::dy() const
 
 double & StaggeredGrid::f(int i, int j)
 {
-    return f_(i-uIBegin(),j-uJBegin());
+    return f_(i-fIBegin(),j-fJBegin());
 }
 
 
 double & StaggeredGrid::g(int i, int j)
 {
-    return g_(i-vIBegin(),j-vJBegin());
+    return g_(i-gIBegin(),j-gJBegin());
 }
 
 double StaggeredGrid::p(int i, int j) const
@@ -120,6 +120,26 @@ int StaggeredGrid::uJEnd() const
     return nCells_[1]+1;
 }
 
+int StaggeredGrid::fIBegin() const
+{
+    return -1;
+}
+
+int StaggeredGrid::fIEnd() const
+{
+    return nCells_[0];
+}
+
+int StaggeredGrid::fJBegin() const
+{
+    return -1;
+}
+
+int StaggeredGrid::fJEnd() const
+{
+    return nCells_[1]+1;
+}
+
 const FieldVariable & StaggeredGrid::v() const
 {
     return v_;
@@ -151,6 +171,26 @@ int StaggeredGrid::vJBegin() const
 }
 
 int StaggeredGrid::vJEnd() const
+{
+    return nCells_[1];
+}
+
+int StaggeredGrid::gIBegin() const
+{
+    return -1;
+}
+
+int StaggeredGrid::gIEnd() const
+{
+    return nCells_[1]+1;
+}
+
+int StaggeredGrid::gJBegin() const
+{
+    return -1;
+}
+
+int StaggeredGrid::gJEnd() const
 {
     return nCells_[1];
 }

@@ -37,6 +37,16 @@ public:
     int uJBegin() const;
     int uJEnd() const;
 
+    int fIBegin() const;
+    int fIEnd() const;
+    int fJBegin() const;
+    int fJEnd() const;
+
+    int gIBegin() const;
+    int gIEnd() const;
+    int gJBegin() const;
+    int gJEnd() const;
+
     int vIBegin() const;
     int vIEnd() const;
     int vJBegin() const;
@@ -46,6 +56,8 @@ public:
     int pIEnd() const;
     int pJBegin() const;
     int pJEnd() const;
+
+
 
     protected:
         const std::array<int, 2> nCells_;
