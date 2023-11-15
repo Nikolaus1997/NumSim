@@ -21,6 +21,7 @@ double DonorCell::computeDu2Dx(int i, int j) const
     const double solution   =  first_term + alpha_*secod_term;
 
     return solution;
+
 }
 
 double DonorCell::computeDv2Dy(int i, int j) const
@@ -37,6 +38,7 @@ double DonorCell::computeDv2Dy(int i, int j) const
     const double solution   =  first_term + alpha_*secod_term;
 
     return solution;
+
 }
 
 double DonorCell::computeDuvDy(int i, int j) const
@@ -75,4 +77,6 @@ double DonorCell::computeDuvDx(int i, int j) const
     const double solution = 1/dx()*(first_term + alpha_*second_term);
 
     return solution;
+
+
 }

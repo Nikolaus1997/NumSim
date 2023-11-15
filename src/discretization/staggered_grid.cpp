@@ -4,11 +4,11 @@
 StaggeredGrid::StaggeredGrid(std::array< int, 2 > nCells, std::array< double, 2 > meshWidth):
     nCells_(nCells),    
     meshWidth_(meshWidth),
-        f_({fIEnd()-fIBegin(), fJEnd()-fJBegin()}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
-        g_({gIEnd()-gIBegin(), gJEnd()-gJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
-        p_({pIEnd()-pIBegin(), pJEnd()-pJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth),
-        u_({uIEnd()-uIBegin(), uJEnd()-uJBegin()}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
-        v_({vIEnd()-vIBegin(), vJEnd()-vJBegin()}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
+        f_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
+        g_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
+        p_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth),
+        u_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
+        v_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
         rhs_({nCells_[0]+2, nCells_[1]+2},           {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth)
 
     {
@@ -47,7 +47,7 @@ double & StaggeredGrid::f(int i, int j)
 
 double & StaggeredGrid::g(int i, int j)
 {
-    return g_(i-gIBegin(),j-gJBegin());
+    return g_(i-vIBegin(),j-vJBegin());
 }
 
 double StaggeredGrid::p(int i, int j) const
