@@ -1,4 +1,3 @@
-#include "discretization/staggered_grid.h"
 #include "discretization/discretization.h"
 
 Discretization::Discretization(std::array<int, 2> nCells, std::array<double, 2> meshWidth):
