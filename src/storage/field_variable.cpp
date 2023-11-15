@@ -13,12 +13,13 @@ double FieldVariable::interpolateAt(double x, double y) const {
     int i = floor((x-origin_[0])/meshWidth_[0])+1;
     int j = floor((y-origin_[1])/meshWidth_[1])+1;
     
-    if(i==size_[0]-1)
+    if(i==size_[0]-1){
         i--;
-    
-    if(j==size_[1]-1)
+    }
+    if(j==size_[1]-1){
         j--;
-
+    }
+    
     double left         =       (*this)(i,j);
     double right        =       (*this)(i+1,j);
     double upper_left   =       (*this)(i,j+1);
