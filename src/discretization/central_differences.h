@@ -1,11 +1,14 @@
 #pragma once
 #include "discretization/discretization.h"
 
+/**
+ * This class overrides the derivatives for the convection terms using central differences.
+*/
+
 class CentralDifferences : public Discretization
 {
 public:
-    /* data */
-
+    //constructor
     CentralDifferences(std::array<int,2> nCells, std::array<double,2> meshWidth);
     
     //compute the 1st derivative ∂ u^2 / ∂x

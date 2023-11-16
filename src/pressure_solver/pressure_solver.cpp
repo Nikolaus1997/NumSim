@@ -1,21 +1,19 @@
 #include "pressure_solver/pressure_solver.h"
 
-
-
-
 PressureSolver::PressureSolver(std::shared_ptr< Discretization >  discretization, double epsilon, int maximumNumberOfIterations)
 :discretization_(discretization), epsilon_(epsilon), maximumNumberOfIterations_(maximumNumberOfIterations)
 {
     N_= discretization_->nCells()[0]*discretization_->nCells()[1];
 }
 
+// implemented in GaussSeidel and SOR
 void PressureSolver::solve()
 {
 }
 
+//set boundary values as homogeneous Neumann boundary values
 void PressureSolver::setBoundaryValues()
 {
-       
     for (int i = discretization_->pIBegin(); i < discretization_->pIEnd(); i++)
     {
         //p bottom  boundary condition

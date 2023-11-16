@@ -5,6 +5,7 @@ GaussSeidel::GaussSeidel(std::shared_ptr<Discretization> discretization, double 
 {
 }
 
+//solve the Poisson problem for the pressure, using the Gauss-Seidel method
 void GaussSeidel::solve()
 {
     double dxdx = pow(discretization_->dx(),2);
@@ -18,6 +19,7 @@ void GaussSeidel::solve()
 
     bool doGaussSeidel = true;
 
+    //Gauss Seidel method
     while(doGaussSeidel == true)
     {
         for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++)
@@ -33,8 +35,10 @@ void GaussSeidel::solve()
         
         
         iterations++;
+        // set boundary values after each iteration
         setBoundaryValues();
 
+        //calculate residuum and check for convergence
         computeResiduum();  
         residuum_norm = residuum_/N_;
         if(residuum_norm < eps2)

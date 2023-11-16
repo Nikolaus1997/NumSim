@@ -9,10 +9,11 @@ FieldVariable::FieldVariable(std::array<int,2> size, std::array<double, 2> origi
 }
 
 double FieldVariable::interpolateAt(double x, double y) const {
-    
+    //compute indices i and j of the cell at position x and y
     int i = floor((x-origin_[0])/meshWidth_[0])+1;
     int j = floor((y-origin_[1])/meshWidth_[1])+1;
     
+    //if cell is at top or right boundary, move inside
     if(i==size_[0]-1){
         i--;
     }
@@ -31,6 +32,7 @@ double FieldVariable::interpolateAt(double x, double y) const {
     double y_left   = (j-1)*meshWidth_[1] + origin_[1];
     double y_right   = meshWidth_[1] + y_left;
     
+    //bilinear interpolation formula
     double const interp_value = 1.0/(meshWidth_[0]*meshWidth_[1])*(
                                                                     left*(x_right-x)*(y_right-y)+
                                                                     right*(x-x_left)*(y_right-y)+

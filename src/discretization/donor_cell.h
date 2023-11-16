@@ -1,6 +1,10 @@
 #pragma once
 #include "discretization/discretization.h"
 
+/**
+ * This class overrides the derivatives for the convection terms using the donor cell method.
+*/
+
 class DonorCell : public Discretization
 {
     public:

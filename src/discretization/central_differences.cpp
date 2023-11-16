@@ -1,14 +1,12 @@
 #include "discretization/central_differences.h"
 #include <cmath>
 
-
-
 CentralDifferences::CentralDifferences(std::array<int,2> nCells, std::array<double,2> meshWidth)
 : Discretization(nCells, meshWidth)
 {
-
 };
 
+//compute the 1st derivative ∂ u^2 / ∂x
 double CentralDifferences::computeDu2Dx(int i, int j) const
 {
     const double u_half       = (u(i+1,j)+u(i,j))/2.0;
@@ -18,6 +16,7 @@ double CentralDifferences::computeDu2Dx(int i, int j) const
     return solution;
 }
 
+//compute the 1st derivative ∂ v^2 / ∂x
 double 	CentralDifferences::computeDv2Dy (int i, int j) const
 {
     const double v_half       = (v(i,j+1)+v(i,j))/2.0;
@@ -28,6 +27,7 @@ double 	CentralDifferences::computeDv2Dy (int i, int j) const
     return solution;
 }
 
+//compute the 1st derivative ∂ (uv) / ∂y
 double 	CentralDifferences::computeDuvDy (int i, int j) const
 {
     const double u_half       = (u(i,j+1)+u(i,j))/2.0;
@@ -41,6 +41,7 @@ double 	CentralDifferences::computeDuvDy (int i, int j) const
     return solution;
 }
 
+//compute the 1st derivative ∂ (uv) / ∂x
 double CentralDifferences::computeDuvDx(int i, int j) const
 {
     const double u_half       = (u(i,j)+u(i,j+1))/2.0;

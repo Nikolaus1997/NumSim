@@ -16,8 +16,6 @@ public:
 
     //get the value at the Cartesian coordinate (x,y). The value is linearly interpolated between stored points.
     double interpolateAt(double x, double y) const;
-
-
     
 private:
     const std::array<double,2> origin_;
