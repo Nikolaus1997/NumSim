@@ -52,31 +52,27 @@ double DonorCell::computeDuvDy(int i, int j) const
     const double u_first_minus_minus  = (u(i,j)-u(i,j+1))/2.0;
     const double u_second_minus_minus = (u(i,j-1)-u(i,j))/2.0; 
     
-    const double first_term = v_first*u_second - v_first_minus*u_second_minus;
-    const double secod_term = fabs(v_first)*u_first_minus_minus - fabs(v_first_minus)*u_second_minus_minus;
+    const double first_term = (v_first*u_second - v_first_minus*u_second_minus) /dy();
+    const double secod_term = (fabs(v_first)*u_first_minus_minus - fabs(v_first_minus)*u_second_minus_minus)/dy();
 
-    const double solution   =  1/dy() * (first_term + alpha_*secod_term);
+    const double solution   =  first_term + alpha_*secod_term;
 
     return solution;
 }
+double DonorCell::computeDuvDx(int i, int j) const {
+    const double u_donor_right= (u(i,j+1) + u(i,j)) / 2.0;
+    const double u_donor_left =  (u(i-1,j+1) + u(i-1,j)) / 2.0;
 
-double DonorCell::computeDuvDx(int i, int j) const
-{
-    const double u_first    = (u(i,j)+u(i,j+1))/2.0;
-    const double v_second   = (v(i,j)+v(i+1,j))/2.0;
+    const double v_donor_right = (v(i,j) + v(i+1,j)) / 2.0;
+    const double v_donor_left = (v(i-1,j) + v(i,j)) / 2.0;
 
-    const double u_second_minus = (u(i-1,j)+u(i-1,j+1))/2.0;
-    const double v_second_minus = (v(i-1,j)+v(i,j))/2.0;
+    const double v_minus_donor_right = (v(i,j) - v(i+1,j)) / 2.0;
+    const double v_minus_donor_left = (v(i-1,j) - v(i,j)) / 2.0;
 
-    const double v_second_minus_minus       = (v(i,j)-v(i+1,j))/2.0;
-    const double v_second_minus_minus_minus = (v(i-1,j)-v(i,j))/2.0;
+    const double first_term = (u_donor_right* v_donor_right - u_donor_left * v_donor_left) / dx();
+    const double second_term = (fabs(u_donor_right) * v_minus_donor_right - fabs(u_donor_left) * v_minus_donor_left) / dx();
 
-    const double first_term  = u_first*v_second-u_second_minus*v_second_minus;
-    const double second_term = fabs(u_first)*v_second_minus_minus-fabs(u_second_minus*v_second_minus_minus_minus);
+    const double solution = first_term + alpha_ * second_term;
     
-    const double solution = 1/dx()*(first_term + alpha_*second_term);
-
     return solution;
-
-
 }

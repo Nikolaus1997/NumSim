@@ -73,12 +73,12 @@ void Settings::loadFromFile(std::string filename)
 
     if (parameterName=="physicalSizeX")
     {
-      physicalSize[0] = atoi(parameterValue.c_str());
+      physicalSize[0] = atof(parameterValue.c_str());
     }
 
     if (parameterName=="physicalSizeY")
     {
-      physicalSize[1] = atoi(parameterValue.c_str());
+      physicalSize[1] = atof(parameterValue.c_str());
     }
     if (parameterName=="re")
     {
