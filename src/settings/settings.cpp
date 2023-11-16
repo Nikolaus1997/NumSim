@@ -47,7 +47,7 @@ void Settings::loadFromFile(std::string filename)
     }
     
     parameterName = line.substr(0,line.find_first_of('='));
-    
+    //remove spaces
     if (parameterName.find_first_of(" \t") != std::string::npos)
     {
       parameterName.erase(parameterName.find_first_of(" \t"));
@@ -55,17 +55,19 @@ void Settings::loadFromFile(std::string filename)
     
     
     parameterValue = line.substr(line.find_first_of('=')+1);
-    
+    //remove spaces
     while(parameterValue.find(' ')!= std::string::npos)
     {
       parameterValue.erase(parameterValue.find_first_of(' '),1);
     }
 
+    //remove comments at the end of the line
     if(parameterValue.find('#')!= std::string::npos)
     {
       parameterValue.erase(parameterValue.find('#'));
     }
 
+    //find corresponding parameter name in settings struct and set the correct value
     if (parameterName=="endTime")
     {
       endTime = atoi(parameterValue.c_str());
@@ -190,12 +192,10 @@ void Settings::loadFromFile(std::string filename)
     {
        maximumNumberOfIterations = atof(parameterValue.c_str());
     }
-
-    // print line
-    std::cout << "line " << lineNo << ": " << line << std::endl;
   }
 }
 
+//output all settings to console
 void Settings::printSettings()
 {
   std::cout << "Settings: " << std::endl

@@ -5,6 +5,7 @@ SOR::SOR(std::shared_ptr<Discretization> discretization, double epsilon, int max
 {
 }
 
+//solve the system of the Poisson equation for pressure using SOR
 void SOR::solve()
 {
     double dxdx = pow(discretization_->dx(),2);
@@ -31,7 +32,9 @@ void SOR::solve()
         }
         
         iterations++;
+        //set boundaries after each iteration
         setBoundaryValues();
+        //compute residuum and check for convergence
         computeResiduum();  
         residuum_norm = residuum_/N_;
         if(residuum_norm < eps2)
