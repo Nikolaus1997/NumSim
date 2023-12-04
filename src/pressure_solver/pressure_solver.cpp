@@ -18,7 +18,6 @@ void PressureSolver::setBoundaryValues()
     {
         //p bottom  boundary condition
         discretization_->p(i,discretization_->pJBegin()) = discretization_->p(i,discretization_->pJBegin()+1);
-
         //p top boundary condition
         discretization_->p(i,discretization_->pJEnd()-1)= discretization_->p(i,discretization_->pJEnd()-2);
     }
@@ -27,7 +26,6 @@ void PressureSolver::setBoundaryValues()
     {
         //p left boundary condition
         discretization_->p(discretization_->pIBegin(),j) = discretization_->p(discretization_->pIBegin()+1, j);
-
         //p right boundary condition
         discretization_->p(discretization_->pIEnd()-1, j)= discretization_->p(discretization_->pIEnd()-2, j);
     }

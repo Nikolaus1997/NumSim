@@ -18,12 +18,9 @@ void SOR::solve()
 
     bool doSor = true;
 
-    while(doSor)
-    {
-        for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++)
-        {
-            for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++)
-            {
+    while(doSor){
+        for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++){
+            for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
                     double dpdx = (discretization_->p(i-1,j) + discretization_->p(i+1,j))/dxdx;
                     double dpdy = (discretization_->p(i,j-1) + discretization_->p(i,j+1))/dydy; 
 
@@ -37,11 +34,7 @@ void SOR::solve()
         //compute residuum and check for convergence
         computeResiduum();  
         residuum_norm = residuum_/N_;
-        if(residuum_norm < eps2)
-        {
-            doSor = false;
-        }
-        else if(iterations == maximumNumberOfIterations_)
+        if(residuum_norm < eps2 || iterations == maximumNumberOfIterations_)
         {
             doSor = false;
         }

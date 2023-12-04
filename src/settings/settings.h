@@ -9,7 +9,7 @@ struct Settings
 {
   std::array<int,2> nCells;          //< number of cells in x and y direction
   std::array<double,2> physicalSize; //< physical size of the domain
-  double re = 1000;                  //< reynolds number
+  double re = 100;                  //< reynolds number
   double endTime = 10.0;             //< end time of the simulation
   double tau = 0.5;                  //< safety factor for time step width
   double maximumDt = 0.1;            //< maximum time step width
