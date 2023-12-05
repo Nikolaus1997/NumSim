@@ -2,8 +2,9 @@
 #include "iostream"
 
 // construct staggered grid 
-StaggeredGrid::StaggeredGrid(std::array< int, 2 > nCells, std::array< double, 2 > meshWidth):
-    nCells_(nCells),    
+StaggeredGrid::StaggeredGrid(std::shared_ptr<Partitioning> partitioning, std::array< double, 2 > meshWidth):
+    partitioning_(partitioning),
+    nCells_(partitioning->getNCellsLocal()),    
     meshWidth_(meshWidth),
         f_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
         g_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
@@ -48,7 +49,7 @@ double StaggeredGrid::dy() const
 //access value of F in element (i,j) 
 double & StaggeredGrid::f(int i, int j)
 {
-    return f_(i-fIBegin(),j-fJBegin());
+    return f_(i-uIBegin(),j-uJBegin());
 }
 
 //access value of G in element (i,j) 
@@ -120,13 +121,17 @@ double & StaggeredGrid::u(int i, int j)
 //first valid index for u in x direction 
 int StaggeredGrid::uIBegin() const
 {
-    return -1;
+    if(partitioning_->checkLeftBoundary())
+        return -1;
+    return -2;
 }
 
 //last valid index for u in x direction 
 int StaggeredGrid::uIEnd() const
 {
-    return nCells_[0];
+    if(partitioning_->checkRightBoundary())
+        return nCells_[0];
+    return nCells_[0]+1;
 }
 
 //first valid index for u in y direction 
@@ -137,30 +142,6 @@ int StaggeredGrid::uJBegin() const
 
 //last valid index for u in y direction 
 int StaggeredGrid::uJEnd() const
-{
-    return nCells_[1]+1;
-}
-
-//first valid index for f in x direction 
-int StaggeredGrid::fIBegin() const
-{
-    return -1;
-}
-
-//last valid index for f in x direction 
-int StaggeredGrid::fIEnd() const
-{
-    return nCells_[0];
-}
-
-//first valid index for f in y direction 
-int StaggeredGrid::fJBegin() const
-{
-    return -1;
-}
-
-//last valid index for f in y direction 
-int StaggeredGrid::fJEnd() const
 {
     return nCells_[1]+1;
 }
@@ -198,35 +179,15 @@ int StaggeredGrid::vIEnd() const
 //first valid index for v in y direction 
 int StaggeredGrid::vJBegin() const
 {
-    return -1;
+    if(partitioning_->checkBottomBoundary())
+        return -1;
+    return -2;
 }
 
 //last valid index for v in y direction 
 int StaggeredGrid::vJEnd() const
-{
-    return nCells_[1];
-}
-
-//first valid index for g in x direction 
-int StaggeredGrid::gIBegin() const
-{
-    return -1;
-}
-
-//last valid index for g in x direction 
-int StaggeredGrid::gIEnd() const
-{
+{   
+    if(partitioning_->checkTopBoundary())
+        return nCells_[1];
     return nCells_[1]+1;
-}
-
-//first valid index for g in y direction 
-int StaggeredGrid::gJBegin() const
-{
-    return -1;
-}
-
-//last valid index for g in y direction 
-int StaggeredGrid::gJEnd() const
-{
-    return nCells_[1];
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "storage/field_variable.h"
+#include "partitioning/partitioning.h"
 
 /**
  * The pressure p and velocities u and v are stored in a staggered grid.
@@ -11,7 +12,7 @@ class StaggeredGrid
 {
 public:
     // construct staggered grid
-    StaggeredGrid(std::array< int, 2 > nCells, std::array< double, 2 > meshWidth);
+    StaggeredGrid(std::shared_ptr<Partitioning> partitioning, std::array< double, 2 > meshWidth);
 
     //get the mesh width, i.e. the length of a single cell in x and y direction 
     const std::array<double, 2> meshWidth() const;
@@ -104,4 +105,5 @@ public:
         FieldVariable rhs_;
         FieldVariable f_;
         FieldVariable g_;
+        std::shared_ptr<Partitioning> partitioning_;
 };

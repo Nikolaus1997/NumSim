@@ -95,81 +95,65 @@ void Computation::computeTimeStepWidth()
     //set time step width
     dt_u = discretization_->dx()/max_abs_u;
     dt_v = discretization_->dy()/max_abs_v;
-    dt_ = settings_.tau * std::min({dt_diffusion, dt_u, dt_v});
-}
+    dt_ = 0.05;//settings_.tau * std::min({dt_diffusion, dt_u, dt_v});
+ }
 
-//set boundary values of u and v to correct values 
+//set boundary values of u and v 
 void Computation::applyBoundaryValues()
 {
-    // set boundary values for u at bottom and top side (lower priority)
+    // set boundary values u at bottom and top
     for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++) {
-        // set boundary values for u at bottom side
         discretization_->u(i, discretization_->uJBegin()) =
                 2.0 * settings_.dirichletBcBottom[0] - discretization_->u(i, discretization_->uJBegin()+1);
-        // set boundary values for u at top side
         discretization_->u(i, discretization_->uJEnd() - 1) =
                 2.0 * settings_.dirichletBcTop[0] - discretization_->u(i, discretization_->uJEnd() - 2);
     }
 
-    // set boundary values for v at bottom and top side (lower priority)
+    // set boundary values v at bottom and top
     for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++) {
-        // set boundary values for v at bottom side
         discretization_->v(i, discretization_->vJBegin()) = settings_.dirichletBcBottom[1];
-        // set boundary values for v at top side
         discretization_->v(i, discretization_->vJEnd() - 1) = settings_.dirichletBcTop[1];
     }
 
-    // set boundary values for u at left and right side (higher priority)
+    // set boundary values u left and right
     for (int j = discretization_->uJBegin(); j < discretization_->uJEnd(); j++) {
-        // set boundary values for u at left side
         discretization_->u(discretization_->uIBegin(), j) = settings_.dirichletBcLeft[0];
-        // set boundary values for u at right side
         discretization_->u(discretization_->uIEnd() - 1, j) = settings_.dirichletBcRight[0];
     }
 
-    // set boundary values for v at left and right side (higher priority)
+    // set boundary values v left and right
     for (int j = discretization_->vJBegin(); j < discretization_->vJEnd(); j++) {
-        // set boundary values for v at left side
         discretization_->v(discretization_->vIBegin(), j) =
                 2.0 * settings_.dirichletBcLeft[1] - discretization_->v(discretization_->vIBegin() + 1, j);
-        // set boundary values for v at right side
         discretization_->v(discretization_->vIEnd() - 1, j) =
                 2.0 * settings_.dirichletBcRight[1] - discretization_->v(discretization_->vIEnd() - 2, j);
     }
    
 }
 
-//set boundary values of F and G to correct values 
+//set boundary values of F and G 
 void Computation::applyBoundaryValuesFandG(){
-    // set boundary values for f at bottom and top side (lower priority)
+    // set boundary values f bottom and top
     for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++) {
-        // set boundary values for f at bottom side
         discretization_->f(i, discretization_->uJBegin()) = discretization_->u(i, discretization_->uJBegin());
-        // set boundary values for f at top side
         discretization_->f(i, discretization_->uJEnd() - 1) = discretization_->u(i, discretization_->uJEnd() - 1);
     }
 
-    // set boundary values for g at bottom and top side (lower priority)
+    // set boundary values g bottom and top
     for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++) {
-        // set boundary values for g at bottom side
         discretization_->g(i, discretization_->vJBegin()) = discretization_->v(i, discretization_->vJBegin());
-        // set boundary values for g at top side
         discretization_->g(i, discretization_->vJEnd() - 1) = discretization_->v(i, discretization_->vJEnd() - 1);
     }
 
-    // set boundary values for f at left and right side (higher priority)
+    // set boundary values f left and right
     for (int j = discretization_->uJBegin(); j < discretization_->uJEnd(); j++) {
-        // set boundary values for f at left side
         discretization_->f(discretization_->uIBegin(), j) = discretization_->u(discretization_->uIBegin(), j);
-        // set boundary values for f at right side
         discretization_->f(discretization_->uIEnd() - 1, j) = discretization_->u(discretization_->uIEnd() - 1, j);
     }
 
-    // set boundary values for g at left and right side (higher priority)
+    // set boundary values g left and right
     for (int j = discretization_->vJBegin(); j < discretization_->vJEnd(); j++) {
-        // set boundary values for g at left side
         discretization_->g(discretization_->vIBegin(), j) = discretization_->v(discretization_->vIBegin(), j);
-        // set boundary values for g at right side
         discretization_->g(discretization_->vIEnd() - 1, j) = discretization_->v(discretization_->vIEnd() - 1, j);
     }
 }
@@ -184,22 +168,17 @@ void Computation::computePreliminaryVelocities()
     double convection_u = 0.0;
 
     //compute g using finite differences in the interior of the domain
-    for (int i = discretization_->vIBegin()+1; i < discretization_-> vIEnd()-1; i++)
-    {
-        for (int j = discretization_->vJBegin()+1; j < discretization_-> vJEnd()-1; j++)
-        {
+    for (int i = discretization_->vIBegin()+1; i < discretization_-> vIEnd()-1; i++){
+        for (int j = discretization_->vJBegin()+1; j < discretization_-> vJEnd()-1; j++){
              diffusion_v  = discretization_->computeD2vDx2(i,j) + discretization_->computeD2vDy2(i,j);
              convection_v = discretization_->computeDv2Dy(i,j)  + discretization_->computeDuvDx(i,j);
              sol = discretization_->v(i,j) + dt_*(diffusion_v/settings_.re - convection_v + settings_.g[1]);
             discretization_->g(i,j) = sol;
-
         }
     }
     //compute f using finite differences in the interior of the domain
-    for (int i = discretization_->uIBegin()+1; i < discretization_->uIEnd()-1; i++)
-    {
-        for (int j = discretization_->uJBegin()+1; j < discretization_->uJEnd()-1; j++)
-        {   
+    for (int i = discretization_->uIBegin()+1; i < discretization_->uIEnd()-1; i++){
+        for (int j = discretization_->uJBegin()+1; j < discretization_->uJEnd()-1; j++){   
             diffusion_u       = discretization_->computeD2uDx2(i,j) + discretization_->computeD2uDy2(i,j);
             convection_u      = discretization_->computeDu2Dx(i,j)  + discretization_->computeDuvDy(i,j);
             
@@ -214,10 +193,8 @@ void Computation::computeRightHandSide()
     double dfdx;
     double dgdy;
     //compute rhs in the interior of the domain
-    for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++)
-    {
-        for (int j = discretization_->pJBegin()+1; j < discretization_-> pJEnd()-1; j++)
-        {
+    for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++){
+        for (int j = discretization_->pJBegin()+1; j < discretization_-> pJEnd()-1; j++){
              dfdx = (discretization_->f(i,j) - discretization_-> f(i-1,j))/discretization_->dx();
              dgdy = (discretization_->g(i,j) - discretization_-> g(i,j-1))/discretization_->dy();
 
