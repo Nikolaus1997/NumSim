@@ -1,5 +1,5 @@
 #pragma once
-
+#include <array>
 #include <memory>
 #include <array>
 #include <mpi.h>
@@ -7,7 +7,7 @@
 class Partitioning {
     public:
         Partitioning(std::array<int, 2> nCellsGlobal_);
-        int getRankID();
+        int ownRankNo() const;
         int getNProcs();
         std::array<int, 2> getDecomposition()   const;
         std::array<int, 2> getNCellsGlobal()    const;
@@ -30,15 +30,16 @@ class Partitioning {
         int getRightAdjacentRankID()            const;
         int getTopAdjacentRankID()              const;
         int getBottomAdjacentRankID()           const;
+        std::array<int,2> nodeOffset() const;
 
 
     private:
-        int nProcs_;
-        int rankID_;
+        int nRanks_;
+        int ownRankNo_;
         std::array<int, 2> Decomposition_;
         std::array<int, 2> nCellsGlobal_;
         std::array<int, 2> nCellsLocal_;
-        std::array<int, 2> nodestart_;
+        std::array<int, 2> nodeOffset_;
         std::array<int, 2> nodeposition_;
         int LeftNeighborRankID_;
         int RightNeighborRankID_;

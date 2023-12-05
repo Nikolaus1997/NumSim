@@ -5,43 +5,43 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     : nCellsGlobal_(nCellsGlobal), Decomposition_(std::array<int, 2> ()) 
 {
     //Get the number of processes
-    MPI_Comm_size(MPI_COMM_WORLD, &nProcs_);
+    MPI_Comm_size(MPI_COMM_WORLD, &nRanks_);
 
     //Get the ID of the process
-    MPI_Comm_rank(MPI_COMM_WORLD, &rankID_);
+    MPI_Comm_rank(MPI_COMM_WORLD, &ownRankNo_);
 
-    MPI_Dims_create(nProcs_, 2, Decomposition_.data());
+    MPI_Dims_create(nRanks_, 2, Decomposition_.data());
 
     //Berechnung der lokalen Zellenanzahl in interger wird abgerundet
     nCellsLocal_[0] = nCellsGlobal_[0] / Decomposition_[0];
     nCellsLocal_[1] = nCellsGlobal_[1] / Decomposition_[1];
 
     //Berechnung der Position der Subdomain
-    nodeposition_[0] = getColumnIndex(rankID_);
-    nodeposition_[1] = getRowIndex(rankID_);   
+    nodeposition_[0] = getColumnIndex(ownRankNo_);
+    nodeposition_[1] = getRowIndex(ownRankNo_);   
     
     //Berechnung des Rests der Zellenanzahl
     int remainderCol = nCellsGlobal_[0] % Decomposition_[0];
     int remainderRow = nCellsGlobal_[1] % Decomposition_[1];
 
     //Berechnung der globalen Startzelle der Subdomain als faktor
-    int columnDecomposition   = rankID_ % Decomposition_[0] ;
-    int rowDecomposistion     = floor(rankID_ / Decomposition_[0]) ;
+    int columnDecomposition   = ownRankNo_% Decomposition_[0];
+    int rowDecomposistion     = floor(ownRankNo_ / Decomposition_[0]);
 
     //Berechnung der globalen Startzelle
     int columnStart = columnDecomposition * nCellsLocal_[0];
     for(int i = 1; i<nodeposition_[0];i++)
     {
-        if(i< remainderCol) {
+        if(i<= remainderCol) {
         columnStart++;
     }
     }
 
     //Berechnung der globalen Startzelle
     int rowStart = rowDecomposistion * nCellsLocal_[1];
-    for(int i = 1; i<nodeposition_[0];i++)
+    for(int i = 1; i<nodeposition_[1];i++)
     {
-        if(i< remainderRow) {
+        if(i<= remainderRow) {
             rowStart++;
         }
     }
@@ -56,35 +56,35 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
 
     //setzen der Nachbarn
     if(checkLeftBoundary()) {
-        LeftNeighborRankID_ = rankID_;
+        LeftNeighborRankID_ = ownRankNo_;
     } else {
         LeftNeighborRankID_ = calcRankID(nodeposition_[0]-1, nodeposition_[1]);
     }
     if(checkRightBoundary()) {
-        RightNeighborRankID_ = rankID_;
+        RightNeighborRankID_ = ownRankNo_;
     } else {
         RightNeighborRankID_ = calcRankID(nodeposition_[0]+1, nodeposition_[1]);
     }
     if(checkBottomBoundary()) {
-        BottomNeighborRankID_ = rankID_;
+        BottomNeighborRankID_ = ownRankNo_;
     } else {
         BottomNeighborRankID_ = calcRankID(nodeposition_[0], nodeposition_[1]-1);
     }
     if(checkTopBoundary()) {
-        TopNeighborRankID_ = rankID_;
+        TopNeighborRankID_ = ownRankNo_;
     } else {
         TopNeighborRankID_ = calcRankID(nodeposition_[0], nodeposition_[1]+1);
     }
 
-    nodestart_ = {columnStart, rowStart};
+    nodeOffset_ = {columnStart, rowStart};
 };
 
-int Partitioning::getRankID() {
-    return rankID_;
+int Partitioning::ownRankNo() const{
+    return ownRankNo_;
 }
 
 int Partitioning::getNProcs() {
-    return nProcs_;
+    return ownRankNo_;
 }
 
 std::array<int, 2> Partitioning::getDecomposition() const {
@@ -115,8 +115,8 @@ int Partitioning::getRowIndex(int rankID) const{
     return calcRow(rankID)+1;
 }
 
-std::array<int, 2> Partitioning::getNodeIndeces() const{
-    return nodestart_;
+std::array<int, 2> Partitioning::nodeOffset() const{
+    return nodeOffset_;
 }
 
 int Partitioning::getDecompositionColumnOrigin() const{
