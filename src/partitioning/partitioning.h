@@ -21,15 +21,25 @@ class Partitioning {
         int getDecompositionRowOrigin()         const;   
         int getDecompositionColumnEnd()         const;
         int getDecompositionRowEnd()            const;   
-        bool checkLeftBoundary()                const;
-        bool checkRightBoundary()               const;
-        bool checkTopBoundary()                 const;
-        bool checkBottomBoundary()              const;
+        //! if the own partition has part of the bottom boundary of the whole domain
+        bool ownPartitionContainsBottomBoundary() const;
+        //! if the own partition has part of the top boundary of the whole domain
+        //! used in OutputWriterParaviewParallel
+        bool ownPartitionContainsTopBoundary() const;
+        //! if the own partition has part of the left boundary of the whole domain
+        bool ownPartitionContainsLeftBoundary() const;
+        //! if the own partition has part of the right boundary of the whole domain
+        //! used in OutputWriterParaviewParallel
+        bool ownPartitionContainsRightBoundary() const;
+        //! get the rank no of the left neighbouring rank
+        int leftNeighbourRankNo() const;
+        //! get the rank no of the right neighbouring rank
+        int rightNeighbourRankNo() const;
+        //! get the rank no of the top neighbouring rank
+        int topNeighbourRankNo() const;
+        //! get the rank no of the bottom neighbouring rank
+        int bottomNeighbourRankNo() const;
         int calcRankID(int row, int column)     const;
-        int getLeftAdjacentRankID()             const;
-        int getRightAdjacentRankID()            const;
-        int getTopAdjacentRankID()              const;
-        int getBottomAdjacentRankID()           const;
         std::array<int,2> nodeOffset() const;
 
 
@@ -41,7 +51,7 @@ class Partitioning {
         std::array<int, 2> nCellsLocal_;
         std::array<int, 2> nodeOffset_;
         std::array<int, 2> nodeposition_;
-        int LeftNeighborRankID_;
+        int LeftNeighborRankID_ ;
         int RightNeighborRankID_;
         int TopNeighborRankID_;
         int BottomNeighborRankID_;

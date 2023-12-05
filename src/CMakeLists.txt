@@ -10,7 +10,8 @@ add_executable(${PROJECT_NAME}
    settings/settings.cpp
    
    computation/computation.cpp
-   
+   computation/computation_parallel.cpp
+
    partitioning/partitioning.cpp
     
 
@@ -23,7 +24,8 @@ add_executable(${PROJECT_NAME}
    output_writer/output_writer.cpp
    output_writer/output_writer_text.cpp
    output_writer/output_writer_paraview.cpp 
-
+   output_writer/output_writer_paraview_parallel.cpp
+   output_writer/output_writer_text_parallel.cpp
 
    discretization/central_differences.cpp 
    discretization/discretization.cpp 

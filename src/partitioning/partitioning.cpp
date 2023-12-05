@@ -55,22 +55,22 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     }
 
     //setzen der Nachbarn
-    if(checkLeftBoundary()) {
+    if( ownPartitionContainsLeftBoundary()) {
         LeftNeighborRankID_ = ownRankNo_;
     } else {
         LeftNeighborRankID_ = calcRankID(nodeposition_[0]-1, nodeposition_[1]);
     }
-    if(checkRightBoundary()) {
+    if(ownPartitionContainsRightBoundary()) {
         RightNeighborRankID_ = ownRankNo_;
     } else {
         RightNeighborRankID_ = calcRankID(nodeposition_[0]+1, nodeposition_[1]);
     }
-    if(checkBottomBoundary()) {
+    if(ownPartitionContainsBottomBoundary()) {
         BottomNeighborRankID_ = ownRankNo_;
     } else {
         BottomNeighborRankID_ = calcRankID(nodeposition_[0], nodeposition_[1]-1);
     }
-    if(checkTopBoundary()) {
+    if(ownPartitionContainsTopBoundary()) {
         TopNeighborRankID_ = ownRankNo_;
     } else {
         TopNeighborRankID_ = calcRankID(nodeposition_[0], nodeposition_[1]+1);
@@ -84,7 +84,7 @@ int Partitioning::ownRankNo() const{
 }
 
 int Partitioning::getNProcs() {
-    return ownRankNo_;
+    return nRanks_;
 }
 
 std::array<int, 2> Partitioning::getDecomposition() const {
@@ -135,20 +135,41 @@ int Partitioning::getDecompositionRowEnd()       const{
     return Decomposition_[1];
 }
 
-bool Partitioning::checkLeftBoundary()const{
+bool Partitioning::ownPartitionContainsLeftBoundary()const{
     return  nodeposition_[0]== getDecompositionColumnOrigin();
 }
 
-bool Partitioning::checkRightBoundary() const{
+bool Partitioning::ownPartitionContainsRightBoundary() const{
     return  nodeposition_[0]== getDecompositionColumnEnd();
 }
 
-bool Partitioning::checkTopBoundary() const{
-    return  nodeposition_[1]== getDecompositionRowOrigin();
+int Partitioning::leftNeighbourRankNo() const
+{
+    return LeftNeighborRankID_;
 }
 
-bool Partitioning::checkBottomBoundary() const{
+int Partitioning::rightNeighbourRankNo() const
+{
+    return RightNeighborRankID_;
+}
+
+int Partitioning::topNeighbourRankNo() const
+{
+    return TopNeighborRankID_;
+}
+
+int Partitioning::bottomNeighbourRankNo() const
+{
+    return BottomNeighborRankID_;
+}   
+
+
+bool Partitioning::ownPartitionContainsTopBoundary() const{
     return  nodeposition_[1]== getDecompositionRowEnd();
+}
+
+bool Partitioning::ownPartitionContainsBottomBoundary() const{
+    return  nodeposition_[1]== getDecompositionRowOrigin();
 }
 
 //nehme immer den Block in x richtung (Decomposition_[0]) und multipliziere ihn mit der anzahl von reihen

@@ -2,7 +2,11 @@
 #include "pressure_solver/gauss_seidel.h"
 #include "pressure_solver/sor.h"
 #include "settings/settings.h"
-
+#include "discretization/discretization.h"
+#include "output_writer/output_writer_paraview.h"
+#include "output_writer/output_writer_text.h"
+#include "discretization/donor_cell.h"
+#include "discretization/central_differences.h"
 //initialize the computation object, parse the settings from file that is given as the only command line argument 
 void Computation::initialize(std::string filename)
 {   
