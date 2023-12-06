@@ -47,6 +47,7 @@ class Computation
 
 
         Settings settings_;
+        std::shared_ptr<Partitioning> partitioning_;
         std::shared_ptr<Discretization> discretization_;
         std::unique_ptr<PressureSolver> pressureSolver_;
         std::unique_ptr<OutputWriterParaview> outputWriterParaview_;

@@ -9,7 +9,7 @@
 #include <mpi.h>
 
 OutputWriterParaviewParallel::OutputWriterParaviewParallel(std::shared_ptr<Discretization> discretization, const Partitioning &partitioning) :
-  OutputWriter(discretization, partitioning),
+   OutputWriter(discretization, partitioning),
 
   nCellsGlobal_(partitioning_.nCellsGlobal()),
   nPointsGlobal_ {nCellsGlobal_[0]+1, nCellsGlobal_[1]+1},    // we have one point more than cells in every coordinate direction

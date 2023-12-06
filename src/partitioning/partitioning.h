@@ -10,8 +10,8 @@ class Partitioning {
         int ownRankNo() const;
         int getNProcs();
         std::array<int, 2> getDecomposition()   const;
-        std::array<int, 2> getNCellsGlobal()    const;
-        std::array<int, 2> getNCellsLocal()     const;
+        std::array<int, 2> nCellsGlobal()    const;
+        std::array<int, 2> nCellsLocal()     const;
         int calcColumn      (int rankID)        const;
         int getColumnIndex  (int rankID)        const;
         int calcRow         (int rankID)        const;

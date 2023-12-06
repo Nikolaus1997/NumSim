@@ -4,7 +4,7 @@
 // construct staggered grid 
 StaggeredGrid::StaggeredGrid(std::shared_ptr<Partitioning> partitioning, std::array< double, 2 > meshWidth):
     partitioning_(partitioning),
-    nCells_(partitioning->getNCellsLocal()),    
+    nCells_(partitioning->nCellsLocal()),    
     meshWidth_(meshWidth),
         f_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
         g_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),

@@ -1,8 +1,8 @@
 #include "discretization/central_differences.h"
 #include <cmath>
 
-CentralDifferences::CentralDifferences(std::array<int,2> nCells, std::array<double,2> meshWidth)
-: Discretization(nCells, meshWidth)
+CentralDifferences::CentralDifferences(std::shared_ptr<Partitioning> partitioning, std::array<double,2> meshWidth)
+: Discretization(partitioning, meshWidth)
 {
 };
 

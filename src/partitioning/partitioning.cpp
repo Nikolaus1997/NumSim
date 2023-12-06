@@ -87,15 +87,16 @@ int Partitioning::getNProcs() {
     return nRanks_;
 }
 
+
 std::array<int, 2> Partitioning::getDecomposition() const {
     return Decomposition_;
 }   
 
-std::array<int, 2> Partitioning::getNCellsGlobal() const{
+std::array<int, 2> Partitioning::nCellsGlobal() const{
     return nCellsGlobal_;
 }
 
-std::array<int, 2> Partitioning::getNCellsLocal() const{
+std::array<int, 2> Partitioning::nCellsLocal() const{
     return nCellsLocal_;
 }
 

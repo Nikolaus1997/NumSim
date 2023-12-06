@@ -1,8 +1,8 @@
 #include "discretization/discretization.h"
 
 //! construct the object with given number of cells in x and y direction
-Discretization::Discretization(std::array<int, 2> nCells, std::array<double, 2> meshWidth):
-    StaggeredGrid(nCells, meshWidth)
+Discretization::Discretization(std::shared_ptr<Partitioning> partitioning, std::array<double, 2> meshWidth):
+    StaggeredGrid(partitioning, meshWidth)
 {
 }
 

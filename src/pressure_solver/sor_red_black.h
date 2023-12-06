@@ -1,5 +1,5 @@
 #pragma once
-#include "pressure_solver_parallel/pressure_solver_parallel.h"
+#include "pressure_solver/pressure_solver_parallel.h"
 
 class SORRedBlack : public PressureSolverParallel {
     public:
@@ -15,4 +15,4 @@ class SORRedBlack : public PressureSolverParallel {
 
     private:
         double omega_;
-}
+};

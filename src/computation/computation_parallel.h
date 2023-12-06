@@ -4,7 +4,8 @@
 #include <array>
 #include <memory>
 #include "output_writer/output_writer_paraview_parallel.h"
-#include "partitioning/partitioning.h"
+
+
 
 class ComputationParallel: public Computation{
     public:
@@ -13,6 +14,4 @@ class ComputationParallel: public Computation{
     protected:
         void computeTimeStepWidth();
         void applyBoundaryValues();
-
-    std::shared_ptr<Partitioning> partitioning_;
 };

@@ -6,7 +6,7 @@ SORRedBlack::SORRedBlack(std::shared_ptr<Discretization> discretization,
                     int maximumNumberOfIterations, 
                     double omega,
                     std::shared_ptr<Partitioning> partitioning) :
-    PressureSolverParallel(std::shared_ptr<Discretization> discretization, double epsilon, int maximumNumberOfIterations),
+    PressureSolverParallel(discretization, epsilon, maximumNumberOfIterations, partitioning),
     omega_(omega) {
 }
 
@@ -19,23 +19,24 @@ void SORRedBlack::solve() {
     double eps2 = pow(epsilon_,2);
     double  residuum_norm = 0.;
     int     iterations = 0;
+    int    iStart = 0;
 
     while(doSor){
         //black
         for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
-            iStart = discretization_->pIBegin()+1
-            for (int i = iStart; i < discretization_->pIEnd()-1; i+=2){
+            iStart = discretization_->pIBegin()+1;
+            for(int i = iStart; i < discretization_->pIEnd()-1; i+=2){
                     double dpdx = (discretization_->p(i-1,j) + discretization_->p(i+1,j))/dxdx;
                     double dpdy = (discretization_->p(i,j-1) + discretization_->p(i,j+1))/dydy; 
                     discretization_->p(i,j) = factor_omega*discretization_->p(i,j)+factor_dx_dy * (dpdx+dpdy - discretization_->rhs(i,j));
-            } 
+            }
         }
 
         //communication
 
         //red
         for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
-            iStart = discretization_->pIBegin()+2
+            iStart = discretization_->pIBegin()+2;
             for (int i = iStart; i < discretization_->pIEnd()-1; i+=2){
                     double dpdx = (discretization_->p(i-1,j) + discretization_->p(i+1,j))/dxdx;
                     double dpdy = (discretization_->p(i,j-1) + discretization_->p(i,j+1))/dydy; 

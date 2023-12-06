@@ -19,6 +19,9 @@ add_executable(${PROJECT_NAME}
    storage/array2d.cpp
    storage/field_variable.cpp
 
+  
+   pressure_solver/sor_red_black.cpp
+   pressure_solver/pressure_solver_parallel.cpp
    pressure_solver/gauss_seidel.cpp
    pressure_solver/sor.cpp 
    pressure_solver/pressure_solver.cpp 

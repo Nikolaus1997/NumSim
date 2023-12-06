@@ -7,6 +7,7 @@
 #include "output_writer/output_writer_text.h"
 #include "discretization/donor_cell.h"
 #include "discretization/central_differences.h"
+#include "partitioning/partitioning.h"
 //initialize the computation object, parse the settings from file that is given as the only command line argument 
 void Computation::initialize(std::string filename)
 {   
@@ -16,15 +17,16 @@ void Computation::initialize(std::string filename)
     meshWidth_[0] = settings_.physicalSize[0]/settings_.nCells[0];
     meshWidth_[1] = settings_.physicalSize[1]/settings_.nCells[1];
     
+    partitioning_ = std::make_shared<Partitioning>(settings_.nCells);
     //initialize discretization
     std::cout<<"==========================================================================================================================="<<std::endl;
     if (settings_.useDonorCell) {
         std::cout<<"Using DonorCell..."<<std::endl;
-        discretization_ = std::make_shared<DonorCell>(settings_.nCells, meshWidth_, settings_.alpha);
+        discretization_ = std::make_shared<DonorCell>(partitioning_, meshWidth_, settings_.alpha);
     }
     else {
         std::cout<<"Using CentralDifferences..."<<std::endl;
-        discretization_ = std::make_shared<CentralDifferences>(settings_.nCells, meshWidth_);
+        discretization_ = std::make_shared<CentralDifferences>(partitioning_, meshWidth_);
     }
     
     //initialize the pressure solver
@@ -41,7 +43,7 @@ void Computation::initialize(std::string filename)
     }
     //initialize output writer
     //outputWriterText_ = std::make_unique<OutputWriterText>(discretization_);
-    outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_);
+    outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_, partitioning_);
 }
 
 //run the whole simulation until tend 
