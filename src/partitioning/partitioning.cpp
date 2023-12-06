@@ -1,6 +1,6 @@
 #include "partitioning.h"
 #include <cmath>
-#include <vector>
+
 
 Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     : nCellsGlobal_(nCellsGlobal), Decomposition_(std::array<int, 2> ()) 

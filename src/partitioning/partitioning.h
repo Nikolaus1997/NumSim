@@ -3,6 +3,7 @@
 #include <memory>
 #include <array>
 #include <mpi.h>
+#include <vector>
 
 class Partitioning {
     public:
