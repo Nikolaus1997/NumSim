@@ -2,6 +2,7 @@
 
 #include "output_writer/output_writer.h"
 #include "discretization/discretization.h"
+#include "partitioning/partitioning.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkXMLImageDataWriter.h>
@@ -18,7 +19,7 @@ class OutputWriterParaview :
 {
 public:
   //! constructor
-  OutputWriterParaview(std::shared_ptr<Discretization> discretization, const Partitioning &partitioning);
+  OutputWriterParaview(std::shared_ptr<Discretization> discretization);
 
   //! write current velocities to file, filename is output_<count>.vti
   void writeFile(double currentTime);

@@ -43,7 +43,7 @@ void Computation::initialize(std::string filename)
     }
     //initialize output writer
     //outputWriterText_ = std::make_unique<OutputWriterText>(discretization_);
-    outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_, partitioning_);
+    outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_);
 }
 
 //run the whole simulation until tend 

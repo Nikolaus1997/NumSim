@@ -1,5 +1,4 @@
 #include "output_writer/output_writer_paraview_parallel.h"
-
 #include "storage/field_variable.h"
 #include "discretization/discretization.h"
 
@@ -8,10 +7,9 @@
 #include <vtkPointData.h>
 #include <mpi.h>
 
-OutputWriterParaviewParallel::OutputWriterParaviewParallel(std::shared_ptr<Discretization> discretization, const Partitioning &partitioning) :
-   OutputWriter(discretization, partitioning),
-
-  nCellsGlobal_(partitioning_.nCellsGlobal()),
+OutputWriterParaviewParallel::OutputWriterParaviewParallel(std::shared_ptr<Discretization> discretization, std::shared_ptr<Partitioning> partitioning) :
+   OutputWriterParaview(discretization), partitioning_(partitioning),
+  nCellsGlobal_(partitioning_->nCellsGlobal()),
   nPointsGlobal_ {nCellsGlobal_[0]+1, nCellsGlobal_[1]+1},    // we have one point more than cells in every coordinate direction
   
   // create field variables for resulting values, only for local data as send buffer
@@ -30,8 +28,6 @@ OutputWriterParaviewParallel::OutputWriterParaviewParallel(std::shared_ptr<Discr
 
 void OutputWriterParaviewParallel::gatherData()
 {
- // std::array<int,2> size, std::array<double,2> origin, std::array<double,2> meshWidth
-
   int nPointsGlobalTotal = nPointsGlobal_[0] * nPointsGlobal_[1];
   const double dx = discretization_->meshWidth()[0];
   const double dy = discretization_->meshWidth()[1];
@@ -44,14 +40,14 @@ void OutputWriterParaviewParallel::gatherData()
   int iEnd = nCells[0];
 
   // add right-most points at ranks with right boundary
-  if (partitioning_.ownPartitionContainsRightBoundary())
+  if (partitioning_->ownPartitionContainsRightBoundary())
     iEnd += 1;
 
   // add right-most points at ranks with top boundary
-  if (partitioning_.ownPartitionContainsTopBoundary())
+  if (partitioning_->ownPartitionContainsTopBoundary())
     jEnd += 1;
 
-  std::array<int,2> nodeOffset = partitioning_.nodeOffset();
+  std::array<int,2> nodeOffset = partitioning_->nodeOffset();
 
   u_.setToZero();
   v_.setToZero();
@@ -71,8 +67,10 @@ void OutputWriterParaviewParallel::gatherData()
       u_(iGlobal,jGlobal) = discretization_->u().interpolateAt(x,y);
       v_(iGlobal,jGlobal) = discretization_->v().interpolateAt(x,y);
       p_(iGlobal,jGlobal) = discretization_->p().interpolateAt(x,y);
+
     }
   }
+
 
   // sum up values from all ranks, not set values are zero
   MPI_Reduce(u_.data(), uGlobal_.data(), nPointsGlobalTotal, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -87,7 +85,7 @@ void OutputWriterParaviewParallel::writeFile(double currentTime)
   gatherData();
 
   // only continue to write the file on rank 0
-  if (partitioning_.ownRankNo() != 0)
+  if (partitioning_->ownRankNo() != 0)
   {
     return;
   }
