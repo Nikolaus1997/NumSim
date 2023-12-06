@@ -2,6 +2,7 @@
 
 #include "output_writer/output_writer.h"
 #include "discretization/discretization.h"
+#include "partitioning/partitioning.h"
 
 #include <vtkSmartPointer.h>
 #include <vtkXMLImageDataWriter.h>
@@ -40,4 +41,6 @@ private:
   FieldVariable uGlobal_;    // on rank 0: field variable for u that gathers values from all ranks, on other ranks: nullptr
   FieldVariable vGlobal_;    // on rank 0: field variable for v that gathers values from all ranks, on other ranks: nullptr
   FieldVariable pGlobal_;    // on rank 0: field variable for p that gathers values from all ranks, on other ranks: nullptr
+
+  std::shared_ptr<Partitioning> partitioning_;
 };

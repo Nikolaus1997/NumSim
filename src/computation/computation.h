@@ -4,6 +4,12 @@
 #include <cmath>
 #include <algorithm>
 
+#include "discretization/discretization.h"
+#include "pressure_solver/pressure_solver.h"
+#include "output_writer/output_writer_paraview.h"
+#include "output_writer/output_writer_text.h"
+#include "settings/settings.h"
+
 /**
  * This class contains the main loop over all time steps of the simulation and all methods that are called in this loop.
 */
@@ -12,10 +18,10 @@ class Computation
 {
     public:
         //initialize the computation object, parse the settings from file that is given as the only command line argument 
-        void initialize(std::string filename);
+        virtual void initialize(std::string filename);
 
         //run the whole simulation until tend 
-        void runSimulation();
+        virtual void runSimulation();
     
     protected:
         //compute the time step width dt from maximum velocities 

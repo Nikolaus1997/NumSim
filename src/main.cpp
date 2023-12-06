@@ -1,5 +1,6 @@
 
 #include "computation/computation.h"
+#include "computation/computation_parallel.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -12,18 +13,10 @@ int main(int argc, char *argv[])
 
     return EXIT_FAILURE;
   }
- std::cout <<R"(=========================================================================================================================)"<<std::endl;
- std::cout <<R"( ____  __. ___.____    .____     _____________________     .____    ________  ___________ ______________________________ )"<<std::endl;
- std::cout <<R"(|    |/  /|   |    |   |    |    \_   _____/\______   \    |    |   \_____  \ \_   _____//   _____/\_   _____/\______   \)"<<std::endl;
- std::cout <<R"(|      <  |   |    |   |    |     |    __)_  |       _/    |    |    /   |   \ |    __)_ \_____  \  |    __)_  |       _/)"<<std::endl;
- std::cout <<R"(|    |  \ |   |    |___|    |___  |        \ |    |   \    |    |___/    |    \|        \/        \ |        \ |    |   \)"<<std::endl;
- std::cout <<R"(|____|__ \|___|_______ \_______ \/_______  / |____|_  /    |_______ \_______  /_______  /_______  //_______  / |____|_  /)"<<std::endl;
- std::cout <<R"(        \/            \/       \/        \/         \/             \/       \/        \/        \/         \/         \/)"<<std::endl;
- std::cout <<R"(=========================================================================================================================)"<<std::endl;
   // read in the first argument
   std::string filename = argv[1];
   
-  auto computation = Computation();
+  auto computation = ComputationParallel();
   computation.initialize(filename);
   computation.runSimulation();
 

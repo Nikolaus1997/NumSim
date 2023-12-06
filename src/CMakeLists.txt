@@ -13,7 +13,8 @@ add_executable(${PROJECT_NAME}
    computation/computation_parallel.cpp
 
    partitioning/partitioning.cpp
-    
+   pressure_solver/pressure_solver_parallel.cpp 
+   pressure_solver/sor_red_black.cpp 
 
    storage/array2d.cpp
    storage/field_variable.cpp
@@ -60,7 +61,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 find_package(MPI REQUIRED)
-
 
 include_directories(${MPI_INCLUDE_PATH})
 

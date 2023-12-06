@@ -3,13 +3,14 @@
 #include "pressure_solver/sor.h"
 #include "settings/settings.h"
 #include "discretization/discretization.h"
-#include "output_writer/output_writer_paraview.h"
+#include "output_writer/output_writer_paraview_parallel.h"
 #include "output_writer/output_writer_text.h"
 #include "discretization/donor_cell.h"
 #include "discretization/central_differences.h"
+#include "partitioning/partitioning.h"
 
 //initialize the computation object, parse the settings from file that is given as the only command line argument 
-void Computation_Parallel::initialize(std::string filename)
+void ComputationParallel::initialize(std::string filename)
 {   
     //load settings
     settings_ = Settings();
@@ -40,13 +41,15 @@ void Computation_Parallel::initialize(std::string filename)
     } else {
         std::cout << "Solver not found!" << std::endl;
     }
+    //initialize partitioning
+    partitioning_ = std::make_shared<Partitioning>(settings_.nCells);
     //initialize output writer
     //outputWriterText_ = std::make_unique<OutputWriterText>(discretization_);
-    //outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_);
+    outputWriterParaview_ = std::make_unique<OutputWriterParaviewParallel>(discretization_, partitioning_);
 }
 
 //run the whole simulation until tend 
-void Computation_Parallel::runSimulation()
+void ComputationParallel::runSimulation()
 {
     int t_i = 0;
     double time = 0.0;
@@ -71,7 +74,7 @@ void Computation_Parallel::runSimulation()
 }
 
 //compute the time step width dt from maximum velocities 
-void Computation::computeTimeStepWidth()
+void ComputationParallel::computeTimeStepWidth()
 {
     double dt_diffusion = settings_.re / 2 / (1 / (discretization_->dx() * discretization_->dx()) + 1 / (discretization_->dy() * discretization_->dy()) );
     
@@ -104,12 +107,8 @@ void Computation::computeTimeStepWidth()
  }
 
 //set boundary values of u and v 
-void Computation_Parallel::applyBoundaryValues()
+void ComputationParallel::applyBoundaryValues()
 {
    
    
 }
-
-
-
-

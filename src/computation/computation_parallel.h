@@ -1,17 +1,18 @@
 #pragma once
 
 #include "computation.h"
-
-
 #include <array>
 #include <memory>
+#include "output_writer/output_writer_paraview_parallel.h"
+#include "partitioning/partitioning.h"
 
-
-class Computation_Parallel: public Computation{
+class ComputationParallel: public Computation{
     public:
-        virtual void initialize(std::string filename);
-        virtual void runSimulation();
+        void initialize(std::string filename);
+        void runSimulation();
     protected:
         void computeTimeStepWidth();
         void applyBoundaryValues();
+
+    std::shared_ptr<Partitioning> partitioning_;
 };
