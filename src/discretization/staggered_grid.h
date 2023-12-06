@@ -60,24 +60,6 @@ public:
     //last valid index for u in y direction 
     int uJEnd() const;
 
-    //first valid index for f in x direction 
-    int fIBegin() const;
-    //last valid index for f in x direction 
-    int fIEnd() const;
-    //first valid index for f in y direction 
-    int fJBegin() const;
-    //last valid index for f in y direction 
-    int fJEnd() const;
-
-    //first valid index for g in x direction 
-    int gIBegin() const;
-    //last valid index for g in x direction 
-    int gIEnd() const;
-    //first valid index for g in y direction 
-    int gJBegin() const;
-    //last valid index for g in y direction 
-    int gJEnd() const;
-
     //first valid index for v in x direction 
     int vIBegin() const;
     //last valid index for v in x direction 
