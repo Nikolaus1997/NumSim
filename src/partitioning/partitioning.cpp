@@ -1,5 +1,6 @@
 #include "partitioning.h"
 #include <cmath>
+#include <vector>
 
 Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     : nCellsGlobal_(nCellsGlobal), Decomposition_(std::array<int, 2> ()) 
@@ -77,6 +78,15 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     }
 
     nodeOffset_ = {columnStart, rowStart};
+
+
+    MPI_Type_vector(nCellsLocal_[1], 1, nCellsLocal_[0], MPI_DOUBLE, &column);
+    MPI_Type_commit(&column);
+    MPI_Type_commit(&column);
+
+    MPI_Type_vector(nCellsLocal_[1], 1, 1, MPI_DOUBLE, &row);
+    MPI_Type_commit(&row);
+    MPI_Type_commit(&row);
 };
 
 int Partitioning::ownRankNo() const{
@@ -181,4 +191,50 @@ int Partitioning::calcRankID(int column, int row) const{
 }
 
 
+void Partitioning::mpiExchangeAll(std::vector<double> data, MPI_Request &request) const{
+    mpiExchangeTop(data, request);
+    mpiExchangeRight(data, request);
+    mpiExchangeLeft(data, request);
+    mpiExchangeBottom(data, request);
+}
 
+
+void Partitioning::mpiExchangeTop(std::vector<double> data, MPI_Request &request) const
+{   
+    if (topNeighbourRankNo() != ownRankNo()){
+        MPI_Isend(data.data(), 1, row, topNeighbourRankNo(), 00, MPI_COMM_WORLD, &request);
+    }
+    if (bottomNeighbourRankNo() != ownRankNo()){
+        MPI_Irecv(data.data()+(nCellsLocal_[1] - 1) * nCellsLocal_[0], 1, row, bottomNeighbourRankNo(), 00, MPI_COMM_WORLD, &request);
+    }
+}
+
+void Partitioning::mpiExchangeRight(std::vector<double> data, MPI_Request &request) const
+{
+    if(rightNeighbourRankNo() != ownRankNo()){
+        MPI_Isend(data.data(), 1, column, rightNeighbourRankNo(), 11, MPI_COMM_WORLD, &request);
+    }
+    if(leftNeighbourRankNo() != ownRankNo()){
+        MPI_Irecv(data.data()+nCellsLocal_[0] -1, 1, column, leftNeighbourRankNo(), 11, MPI_COMM_WORLD, &request);
+    }
+}
+
+void Partitioning::mpiExchangeLeft(std::vector<double> data, MPI_Request &request) const
+{
+    if(leftNeighbourRankNo() != ownRankNo()){
+        MPI_Isend(data.data()+nCellsLocal_[0] -1, 1, column, leftNeighbourRankNo(), 22, MPI_COMM_WORLD, &request);
+    }
+    if(rightNeighbourRankNo() != ownRankNo()){
+        MPI_Irecv(data.data(), 1, column, rightNeighbourRankNo(), 22, MPI_COMM_WORLD, &request);
+    }
+}
+
+void Partitioning::mpiExchangeBottom(std::vector<double> data, MPI_Request &request) const
+{
+    if (bottomNeighbourRankNo() != ownRankNo()){
+        MPI_Isend(data.data()+(nCellsLocal_[1] - 1) * nCellsLocal_[0], 1, row, bottomNeighbourRankNo(), 33, MPI_COMM_WORLD, &request);
+    }
+    if (topNeighbourRankNo() != ownRankNo()){
+        MPI_Irecv(data.data(), 1, row, topNeighbourRankNo(), 33, MPI_COMM_WORLD, &request);
+    }
+}

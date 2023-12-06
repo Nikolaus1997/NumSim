@@ -42,6 +42,17 @@ class Partitioning {
         int calcRankID(int row, int column)     const;
         std::array<int,2> nodeOffset() const;
 
+        //! set top
+        void mpiExchangeTop(std::vector<double> data, MPI_Request &request) const;
+        //! set left
+        void mpiExchangeLeft(std::vector<double> data, MPI_Request &request) const;
+        //! set right
+        void mpiExchangeRight(std::vector<double> data, MPI_Request &request) const;
+        //! set bottom
+        void mpiExchangeBottom(std::vector<double> data, MPI_Request &request) const;
+        //! Exchange all above
+        void mpiExchangeAll(std::vector<double> data, MPI_Request &request) const;
+
 
     private:
         int nRanks_;
@@ -55,5 +66,7 @@ class Partitioning {
         int RightNeighborRankID_;
         int TopNeighborRankID_;
         int BottomNeighborRankID_;
+        MPI_Datatype column;
+        MPI_Datatype row;
 
 };
