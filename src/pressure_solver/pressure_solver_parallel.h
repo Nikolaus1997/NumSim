@@ -10,7 +10,8 @@ public:
                     double epsilon, 
                     int maximumNumberOfIterations, 
                     std::shared_ptr<Partitioning> partitioning);
-    
+    void computeResiduum() ;
+
     protected:
     //communicate pressure boundaries
     void communicateBoundaries();

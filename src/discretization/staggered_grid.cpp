@@ -97,8 +97,34 @@ int StaggeredGrid::pJEnd() const
 //access value of rhs in element (i,j) 
 double & StaggeredGrid::rhs(int i, int j)
 {
-    return rhs_(i+1,j+1);
+    return rhs_(i-rhsIBegin(),j-rhsJBegin());
 }
+
+
+int StaggeredGrid::rhsIBegin() const
+{
+    return -1;
+};
+
+
+int StaggeredGrid::rhsIEnd() const
+{
+    return nCells_[0] + 1;
+};
+
+
+
+int StaggeredGrid::rhsJBegin() const
+{
+    return -1;
+};
+
+
+int StaggeredGrid::rhsJEnd() const
+{
+    return nCells_[1] + 1;
+};
+
 
 //get a reference to field variable u 
 const FieldVariable & StaggeredGrid::u() const

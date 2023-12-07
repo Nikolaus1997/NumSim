@@ -21,10 +21,18 @@ void SORRedBlack::solve() {
     int     iterations = 0;
     int    iStart = 0;
 
+    int offset;
+    if (((partitioning_->nodeOffset()[0] % 2) + (partitioning_->nodeOffset()[0] % 2)) % 2 == 0)
+    {
+        offset = 0;
+    } else {
+        offset = 1;
+    }
+
     while(doSor){
         //black
         for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
-            iStart = discretization_->pIBegin()+1;
+            iStart = discretization_->pIBegin()+1 + (j + offset) % 2;
             for(int i = iStart; i < discretization_->pIEnd()-1; i+=2){
                     double dpdx = (discretization_->p(i-1,j) + discretization_->p(i+1,j))/dxdx;
                     double dpdy = (discretization_->p(i,j-1) + discretization_->p(i,j+1))/dydy; 
@@ -33,10 +41,11 @@ void SORRedBlack::solve() {
         }
 
         //communication
+        communicateBoundaries();
 
         //red
         for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
-            iStart = discretization_->pIBegin()+2;
+            iStart = discretization_->pIBegin()+1 + (j + offset) % 2;
             for (int i = iStart; i < discretization_->pIEnd()-1; i+=2){
                     double dpdx = (discretization_->p(i-1,j) + discretization_->p(i+1,j))/dxdx;
                     double dpdy = (discretization_->p(i,j-1) + discretization_->p(i,j+1))/dydy; 
@@ -45,12 +54,14 @@ void SORRedBlack::solve() {
         }
 
         //communication
-
+        communicateBoundaries();
         iterations++;
         //set boundaries after each iteration
-        setBoundaryValues();
+        //setBoundaryValues();
         //compute residuum and check for convergence
-        computeResiduum();  
+        //computeResiduum();  
+        MPI_Allreduce(MPI_IN_PLACE, &residuum_, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);   
+        MPI_Allreduce(MPI_IN_PLACE, &iterations, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD); 
         residuum_norm = residuum_/N_;
         if(residuum_norm < eps2 || iterations == maximumNumberOfIterations_)
         {

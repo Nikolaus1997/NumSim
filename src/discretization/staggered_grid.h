@@ -60,6 +60,15 @@ public:
     //last valid index for u in y direction 
     int uJEnd() const;
 
+    //first valid index for u in x direction 
+    int rhsIBegin() const;
+    //last valid index for u in x direction 
+    int rhsIEnd() const;
+    //first valid index for u in y direction 
+    int rhsJBegin() const;
+    //last valid index for u in y direction 
+    int rhsJEnd() const;
+
     //first valid index for v in x direction 
     int vIBegin() const;
     //last valid index for v in x direction 

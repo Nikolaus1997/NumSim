@@ -1,10 +1,10 @@
 #!/bin/bash
-rm -r build/*
+sudo rm -r build/*
 cd build/
 cmake ..
 make -j
-make install
+sudo make install
 
 echo "======================================================================="
 echo "scenario: $1"
-time ./src/numsim ../$1
+time mpirun -n 4  ./src/numsim ../$1

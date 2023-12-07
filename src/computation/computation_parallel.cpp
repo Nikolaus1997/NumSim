@@ -6,6 +6,7 @@
 #include "discretization/discretization.h"
 #include "discretization/donor_cell.h"
 #include "discretization/central_differences.h"
+#include "pressure_solver/sor_red_black.h"
 
 // initialize the computation object, parse the settings from file that is given as the only command line argument
 void ComputationParallel::initialize(std::string filename)
@@ -47,6 +48,11 @@ void ComputationParallel::initialize(std::string filename)
     {
         pressureSolver_ = std::make_unique<GaussSeidel>(discretization_, settings_.epsilon,
                                                         settings_.maximumNumberOfIterations);
+    }else if(settings_.pressureSolver == "SORRedBlack")
+    {   
+        std::cout << "Using SORRedBlack..." << std::endl;
+        pressureSolver_ = std::make_unique<SORRedBlack>(discretization_, settings_.epsilon,
+                                                        settings_.maximumNumberOfIterations, settings_.omega, partitioning_ );
     }
     else
     {
@@ -70,7 +76,7 @@ void ComputationParallel::runSimulation()
         applyBoundaryValues();
         applyBoundaryValuesFandG();
         dt_=0.05;
-        //computeTimeStepWidth();
+        computeTimeStepWidth();
 
         if (time + dt_ > settings_.endTime)
         {
@@ -79,11 +85,11 @@ void ComputationParallel::runSimulation()
         MPI_Allreduce(MPI_IN_PLACE, &dt_, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
         MPI_Allreduce(MPI_IN_PLACE, &time, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
         time = time + dt_;
-        //computePreliminaryVelocities();
-        //computeRightHandSide();
-        //computePressure();
-        //computeVelocities();
-         outputWriterText_->writeFile(time);
+        computePreliminaryVelocities();
+        computeRightHandSide();
+        computePressure();
+        computeVelocities();
+        outputWriterText_->writeFile(time);
         outputWriterParaview_->writeFile(time);
     }
 }
@@ -122,6 +128,8 @@ void ComputationParallel::computeTimeStepWidth()
         }
     }
     // set time step width
+    MPI_Allreduce(MPI_IN_PLACE, &max_abs_u, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, &max_abs_v, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     dt_u = discretization_->dx() / max_abs_u;
     dt_v = discretization_->dy() / max_abs_v;
     dt_ = settings_.alpha * std::min(dt_u, dt_v);
