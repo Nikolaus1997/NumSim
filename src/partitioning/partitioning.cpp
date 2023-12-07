@@ -202,7 +202,7 @@ void Partitioning::mpiExchangeAll(Array2D data, MPI_Request &request) const{
 void Partitioning::mpiExchangeTop(Array2D data, MPI_Request &request) const
 {   
     if (topNeighbourRankNo() != ownRankNo()){
-        MPI_Isend(data.data(), 1, row, topNeighbourRankNo(), 00, MPI_COMM_WORLD, &request);
+        MPI_Isend(data.data()+nCellsLocal_[0], 1, row, topNeighbourRankNo(), 00, MPI_COMM_WORLD, &request);
     }
     if (bottomNeighbourRankNo() != ownRankNo()){
         MPI_Irecv(data.data()+(nCellsLocal_[1] - 1) * nCellsLocal_[0], 1, row, bottomNeighbourRankNo(), 00, MPI_COMM_WORLD, &request);
@@ -212,7 +212,7 @@ void Partitioning::mpiExchangeTop(Array2D data, MPI_Request &request) const
 void Partitioning::mpiExchangeRight(Array2D data, MPI_Request &request) const
 {
     if(rightNeighbourRankNo() != ownRankNo()){
-        MPI_Isend(data.data(), 1, column, rightNeighbourRankNo(), 11, MPI_COMM_WORLD, &request);
+        MPI_Isend(data.data()+1, 1, column, rightNeighbourRankNo(), 11, MPI_COMM_WORLD, &request);
     }
     if(leftNeighbourRankNo() != ownRankNo()){
         MPI_Irecv(data.data()+nCellsLocal_[0] -1, 1, column, leftNeighbourRankNo(), 11, MPI_COMM_WORLD, &request);
@@ -222,7 +222,7 @@ void Partitioning::mpiExchangeRight(Array2D data, MPI_Request &request) const
 void Partitioning::mpiExchangeLeft(Array2D data, MPI_Request &request) const
 {
     if(leftNeighbourRankNo() != ownRankNo()){
-        MPI_Isend(data.data()+nCellsLocal_[0] -1, 1, column, leftNeighbourRankNo(), 22, MPI_COMM_WORLD, &request);
+        MPI_Isend(data.data()+nCellsLocal_[0] -2, 1, column, leftNeighbourRankNo(), 22, MPI_COMM_WORLD, &request);
     }
     if(rightNeighbourRankNo() != ownRankNo()){
         MPI_Irecv(data.data(), 1, column, rightNeighbourRankNo(), 22, MPI_COMM_WORLD, &request);
@@ -232,7 +232,7 @@ void Partitioning::mpiExchangeLeft(Array2D data, MPI_Request &request) const
 void Partitioning::mpiExchangeBottom(Array2D data, MPI_Request &request) const
 {
     if (bottomNeighbourRankNo() != ownRankNo()){
-        MPI_Isend(data.data()+(nCellsLocal_[1] - 1) * nCellsLocal_[0], 1, row, bottomNeighbourRankNo(), 33, MPI_COMM_WORLD, &request);
+        MPI_Isend(data.data()+(nCellsLocal_[1] - 2) * nCellsLocal_[0], 1, row, bottomNeighbourRankNo(), 33, MPI_COMM_WORLD, &request);
     }
     if (topNeighbourRankNo() != ownRankNo()){
         MPI_Irecv(data.data(), 1, row, topNeighbourRankNo(), 33, MPI_COMM_WORLD, &request);

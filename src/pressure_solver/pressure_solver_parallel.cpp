@@ -8,7 +8,7 @@ PressureSolverParallel::PressureSolverParallel(std::shared_ptr< Discretization >
     PressureSolver(discretization, epsilon, maximumNumberOfIterations), partitioning_(partitioning)
 {
 }
-
+//TODO: implement communication
 void PressureSolverParallel::communicateBoundaries(){
     //calculate number of inner rows and columns
     int pIBegin_in = discretization_->pIBegin()+1;

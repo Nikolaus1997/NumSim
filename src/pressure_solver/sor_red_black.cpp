@@ -9,7 +9,7 @@ SORRedBlack::SORRedBlack(std::shared_ptr<Discretization> discretization,
     PressureSolverParallel(discretization, epsilon, maximumNumberOfIterations, partitioning),
     omega_(omega) {
 }
-
+//TODO: implement
 void SORRedBlack::solve() {
     bool doSor = true;
     double dxdx = pow(discretization_->dx(),2);

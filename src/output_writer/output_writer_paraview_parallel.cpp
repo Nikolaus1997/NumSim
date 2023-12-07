@@ -64,9 +64,9 @@ void OutputWriterParaviewParallel::gatherData()
       int iGlobal = nodeOffset[0] + i;
       int jGlobal = nodeOffset[1] + j;
 
-      u_(iGlobal,jGlobal) = discretization_->u().interpolateAt(x,y);
-      v_(iGlobal,jGlobal) = discretization_->v().interpolateAt(x,y);
-      p_(iGlobal,jGlobal) = discretization_->p().interpolateAt(x,y);
+      u_(iGlobal,jGlobal) = discretization_->u().interpolateAtParallel(x,y,partitioning_);
+      v_(iGlobal,jGlobal) = discretization_->v().interpolateAtParallel(x,y,partitioning_);
+      p_(iGlobal,jGlobal) = discretization_->p().interpolateAtParallel(x,y,partitioning_);
 
     }
   }

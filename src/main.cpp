@@ -3,6 +3,7 @@
 #include "computation/computation_parallel.h"
 #include <iostream>
 #include <cstdlib>
+#include <mpi.h>
 
 int main(int argc, char *argv[])
 {
@@ -15,10 +16,10 @@ int main(int argc, char *argv[])
   }
   // read in the first argument
   std::string filename = argv[1];
-  
+  MPI_Init(NULL, NULL);
   auto computation = ComputationParallel();
   computation.initialize(filename);
   computation.runSimulation();
-
+  MPI_Finalize();
   return EXIT_SUCCESS;
 }

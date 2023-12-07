@@ -4,6 +4,7 @@
 #include <array>
 #include <memory>
 #include "output_writer/output_writer_paraview_parallel.h"
+#include "output_writer/output_writer_text_parallel.h"
 
 
 
