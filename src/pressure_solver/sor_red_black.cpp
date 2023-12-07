@@ -45,7 +45,7 @@ void SORRedBlack::solve() {
 
         //red
         for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
-            iStart = discretization_->pIBegin()+1 + (j + offset) % 2;
+            iStart = discretization_->pIBegin()+1 + (j+ 1 + offset) % 2;
             for (int i = iStart; i < discretization_->pIEnd()-1; i+=2){
                     double dpdx = (discretization_->p(i-1,j) + discretization_->p(i+1,j))/dxdx;
                     double dpdy = (discretization_->p(i,j-1) + discretization_->p(i,j+1))/dydy; 
@@ -59,9 +59,9 @@ void SORRedBlack::solve() {
         //set boundaries after each iteration
         //setBoundaryValues();
         //compute residuum and check for convergence
+        //TODO: FIX RESIDUUM
         //computeResiduum();  
-        MPI_Allreduce(MPI_IN_PLACE, &residuum_, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);   
-        MPI_Allreduce(MPI_IN_PLACE, &iterations, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD); 
+
         residuum_norm = residuum_/N_;
         if(residuum_norm < eps2 || iterations == maximumNumberOfIterations_)
         {

@@ -1,6 +1,6 @@
 #include "partitioning.h"
 #include <cmath>
-
+#include <iostream>
 
 Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     : nCellsGlobal_(nCellsGlobal), Decomposition_(std::array<int, 2> ()) 
@@ -12,7 +12,7 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     MPI_Comm_rank(MPI_COMM_WORLD, &ownRankNo_);
 
     MPI_Dims_create(nRanks_, 2, Decomposition_.data());
-
+    std::cout<<"Decomposition: "<<Decomposition_[0]<<" "<<Decomposition_[1]<<std::endl;
     //Berechnung der lokalen Zellenanzahl in interger wird abgerundet
     nCellsLocal_[0] = nCellsGlobal_[0] / Decomposition_[0];
     nCellsLocal_[1] = nCellsGlobal_[1] / Decomposition_[1];

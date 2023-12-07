@@ -14,9 +14,9 @@ PressureSolverParallel::PressureSolverParallel(std::shared_ptr< Discretization >
 void PressureSolverParallel::communicateBoundaries(){
     //calculate number of inner rows and columns
     int pIBegin_in = discretization_->pIBegin()+1;
-    int pIEnd_in = discretization_->pIEnd()-2;
+    int pIEnd_in = discretization_->pIEnd()-1;
     int pJBegin_in = discretization_->pJBegin()+1;
-    int pJEnd_in = discretization_->pJEnd()-2;
+    int pJEnd_in = discretization_->pJEnd()-1;
     int NColumns = pIEnd_in-pIBegin_in;
     int NRows = pJEnd_in-pJBegin_in;
 
@@ -49,12 +49,12 @@ void PressureSolverParallel::communicateBoundaries(){
     } else {
         //write top row to buffer
         for (int i=pIBegin_in; i<pIEnd_in; i++){
-            topSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJEnd_in);
+            topSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJEnd_in-1);
         }
         //send top buffer to top neighbour
-        MPI_Isend(topSendBuffer.data(), topSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 00, MPI_COMM_WORLD, &topReceiveRequest);
+        MPI_Isend(topSendBuffer.data(), topSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 1, MPI_COMM_WORLD, &topReceiveRequest);
         //receive bottom row from top neighbour
-        MPI_Irecv(topReceiveBuffer.data(), topReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 00, MPI_COMM_WORLD, &topReceiveRequest);
+        MPI_Irecv(topReceiveBuffer.data(), topReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 1, MPI_COMM_WORLD, &topReceiveRequest);
 
     }
 
@@ -71,9 +71,9 @@ void PressureSolverParallel::communicateBoundaries(){
             bottomSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJBegin_in);
         }
         //send bottom buffer to bottom neighbour
-        MPI_Isend(bottomSendBuffer.data(), bottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 00, MPI_COMM_WORLD, &bottomReceiveRequest);
+        MPI_Isend(bottomSendBuffer.data(), bottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 1, MPI_COMM_WORLD, &bottomReceiveRequest);
         //receive top row from bottom neighbour
-        MPI_Irecv(bottomReceiveBuffer.data(), bottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 00, MPI_COMM_WORLD, &bottomReceiveRequest);
+        MPI_Irecv(bottomReceiveBuffer.data(), bottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 1, MPI_COMM_WORLD, &bottomReceiveRequest);
 
     }
 
@@ -90,9 +90,9 @@ void PressureSolverParallel::communicateBoundaries(){
             leftSendBuffer.at(j - pJBegin_in) = discretization_->p(pIBegin_in,j);
         }
         //send left buffer to left neighbour
-        MPI_Isend(leftSendBuffer.data(), leftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 00, MPI_COMM_WORLD, &leftReceiveRequest);
+        MPI_Isend(leftSendBuffer.data(), leftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 1, MPI_COMM_WORLD, &leftReceiveRequest);
         //receive right column from left neighbour
-        MPI_Irecv(leftReceiveBuffer.data(), leftReceiveBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 00, MPI_COMM_WORLD, &leftReceiveRequest);
+        MPI_Irecv(leftReceiveBuffer.data(), leftReceiveBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(),1, MPI_COMM_WORLD, &leftReceiveRequest);
 
     }
 
@@ -106,12 +106,12 @@ void PressureSolverParallel::communicateBoundaries(){
     } else {
         //write right column to buffer
         for (int j=pJBegin_in; j<pJEnd_in; j++){
-            rightSendBuffer.at(j - pJBegin_in) = discretization_->p(pIEnd_in,j);
+            rightSendBuffer.at(j - pJBegin_in) = discretization_->p(pIEnd_in-1,j);
         }
         //send right buffer to right neighbour
-        MPI_Isend(rightSendBuffer.data(), rightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 00, MPI_COMM_WORLD, &rightReceiveRequest);
+        MPI_Isend(rightSendBuffer.data(), rightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 1, MPI_COMM_WORLD, &rightReceiveRequest);
         //receive left column from right neighbour
-        MPI_Irecv(rightReceiveBuffer.data(), rightReceiveBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 00, MPI_COMM_WORLD, &rightReceiveRequest);
+        MPI_Irecv(rightReceiveBuffer.data(), rightReceiveBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 1, MPI_COMM_WORLD, &rightReceiveRequest);
 
     }
 
