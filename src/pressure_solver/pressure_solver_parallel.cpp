@@ -8,7 +8,7 @@ PressureSolverParallel::PressureSolverParallel(std::shared_ptr< Discretization >
                                                 std::shared_ptr<Partitioning> partitioning) : 
     PressureSolver(discretization, epsilon, maximumNumberOfIterations), partitioning_(partitioning)
 {
-    N_= partitioning_->nCellsGlobal()[0]*partitioning_->nCellsGlobal()[1];
+
 }
 //TODO: implement communication
 void PressureSolverParallel::communicateBoundaries(){
@@ -52,7 +52,7 @@ void PressureSolverParallel::communicateBoundaries(){
             topSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJEnd_in-1);
         }
         //send top buffer to top neighbour
-        MPI_Isend(topSendBuffer.data(), topSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 1, MPI_COMM_WORLD, &topReceiveRequest);
+        MPI_Isend(topSendBuffer.data(), topSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 1, MPI_COMM_WORLD, &topSendRequest);
         //receive bottom row from top neighbour
         MPI_Irecv(topReceiveBuffer.data(), topReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 1, MPI_COMM_WORLD, &topReceiveRequest);
 
@@ -71,7 +71,7 @@ void PressureSolverParallel::communicateBoundaries(){
             bottomSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJBegin_in);
         }
         //send bottom buffer to bottom neighbour
-        MPI_Isend(bottomSendBuffer.data(), bottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 1, MPI_COMM_WORLD, &bottomReceiveRequest);
+        MPI_Isend(bottomSendBuffer.data(), bottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 1, MPI_COMM_WORLD, &bottomSendRequest);
         //receive top row from bottom neighbour
         MPI_Irecv(bottomReceiveBuffer.data(), bottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 1, MPI_COMM_WORLD, &bottomReceiveRequest);
 
@@ -90,7 +90,7 @@ void PressureSolverParallel::communicateBoundaries(){
             leftSendBuffer.at(j - pJBegin_in) = discretization_->p(pIBegin_in,j);
         }
         //send left buffer to left neighbour
-        MPI_Isend(leftSendBuffer.data(), leftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 1, MPI_COMM_WORLD, &leftReceiveRequest);
+        MPI_Isend(leftSendBuffer.data(), leftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 1, MPI_COMM_WORLD, &leftSendRequest);
         //receive right column from left neighbour
         MPI_Irecv(leftReceiveBuffer.data(), leftReceiveBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(),1, MPI_COMM_WORLD, &leftReceiveRequest);
 
@@ -109,7 +109,7 @@ void PressureSolverParallel::communicateBoundaries(){
             rightSendBuffer.at(j - pJBegin_in) = discretization_->p(pIEnd_in-1,j);
         }
         //send right buffer to right neighbour
-        MPI_Isend(rightSendBuffer.data(), rightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 1, MPI_COMM_WORLD, &rightReceiveRequest);
+        MPI_Isend(rightSendBuffer.data(), rightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 1, MPI_COMM_WORLD, &rightSendRequest);
         //receive left column from right neighbour
         MPI_Irecv(rightReceiveBuffer.data(), rightReceiveBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 1, MPI_COMM_WORLD, &rightReceiveRequest);
 
@@ -117,6 +117,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (!partitioning_->ownPartitionContainsTopBoundary()) {
         //wait for send and receive calls to complete
+        //MPI_Wait(&topSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&topReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
         for (int i=pIBegin_in; i<pIEnd_in; i++){
@@ -126,6 +127,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (!partitioning_->ownPartitionContainsBottomBoundary()) {
         //wait for send and receive calls to complete
+        MPI_Wait(&bottomSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&bottomReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
         for (int i=pIBegin_in; i<pIEnd_in; i++){
@@ -135,6 +137,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (!partitioning_->ownPartitionContainsLeftBoundary()) {
         //wait for send and receive calls to complete
+        MPI_Wait(&leftSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&leftReceiveRequest, MPI_STATUS_IGNORE);
         //write right column from left neighbour into ghost layer on left
         for (int j=pJBegin_in; j<pJEnd_in; j++){
@@ -144,6 +147,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (!partitioning_->ownPartitionContainsRightBoundary()) {
         //wait for send and receive calls to complete
+        MPI_Wait(&rightSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&rightReceiveRequest, MPI_STATUS_IGNORE);
         //write left column from right neighbour into ghost layer on right
         for (int j=pJBegin_in; j<pJEnd_in; j++){
@@ -154,9 +158,11 @@ void PressureSolverParallel::communicateBoundaries(){
 
 void PressureSolverParallel::computeResiduum()
 {
+    N_= partitioning_->nCellsGlobal()[0]*partitioning_->nCellsGlobal()[1];
+    residuum_ = 0.;
+    double holder = 0.0;
     double dxdx = pow(discretization_->dx(),2);
     double dydy = pow(discretization_->dy(),2);
-    residuum_ = 0.;
         for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++){
             for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
                     double d2pdxx = (discretization_->p(i-1,j) - 2 * discretization_->p(i, j) + discretization_->p(i+1,j))/dxdx;
@@ -164,6 +170,9 @@ void PressureSolverParallel::computeResiduum()
 
                     residuum_ += pow(d2pdxx + d2pdyy - discretization_->rhs(i,j),2);
             } 
-            
-        }
+
+    //TODO: implement
+    //residuum_ = MPI_Allreduce(&holder, &residuum_, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    residuum_ = 10;//residuum_/N_;
 }
+}   

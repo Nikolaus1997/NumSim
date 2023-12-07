@@ -11,7 +11,7 @@ StaggeredGrid::StaggeredGrid(std::shared_ptr<Partitioning> partitioning, std::ar
         p_({nCells_[0]+3, nCells_[1]+3}, {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth),
         u_({nCells_[0]+3, nCells_[1]+3}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
         v_({nCells_[0]+3, nCells_[1]+3}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
-        rhs_({nCells_[0]+2, nCells_[1]+2},           {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth)
+        rhs_({nCells_[0]+3, nCells_[1]+3},           {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth)
 
     {
 };

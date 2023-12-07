@@ -27,7 +27,7 @@ struct Settings
   std::string pressureSolver = "SOR";      //< which pressure solver to use, "GaussSeidel" or "SOR"
   double omega = 1.0;                //< overrelaxation factor
   double epsilon = 1e-5;             //< tolerance for the residual in the pressure solver
-  int maximumNumberOfIterations = 1e5;    //< maximum number of iterations in the solver
+  int maximumNumberOfIterations = 1000;    //< maximum number of iterations in the solver
 
   //! parse a text file with settings, each line contains "<parameterName> = <value>"
   void loadFromFile(std::string filename);

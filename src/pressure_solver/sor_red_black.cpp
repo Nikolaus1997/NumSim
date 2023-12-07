@@ -60,9 +60,7 @@ void SORRedBlack::solve() {
         //setBoundaryValues();
         //compute residuum and check for convergence
         //TODO: FIX RESIDUUM
-        //computeResiduum();  
-
-        residuum_norm = residuum_/N_;
+        computeResiduum();  
         if(residuum_norm < eps2 || iterations == maximumNumberOfIterations_)
         {
             doSor = false;
