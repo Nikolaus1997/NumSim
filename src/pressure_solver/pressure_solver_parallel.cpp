@@ -52,11 +52,10 @@ void PressureSolverParallel::communicateBoundaries(){
             topSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJEnd_in);
         }
         //send top buffer to top neighbour
-        MPI_Isend(topSendBuffer.data(), topSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 00, MPI_COMM_WORLD, &topSendRequest);
+        MPI_Isend(topSendBuffer.data(), topSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 00, MPI_COMM_WORLD, &topReceiveRequest);
         //receive bottom row from top neighbour
         MPI_Irecv(topReceiveBuffer.data(), topReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 00, MPI_COMM_WORLD, &topReceiveRequest);
         //wait for send and receive calls to complete
-        MPI_Wait(&topSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&topReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
         for (int i=pIBegin_in; i<pIEnd_in; i++){
@@ -77,11 +76,10 @@ void PressureSolverParallel::communicateBoundaries(){
             bottomSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJBegin_in);
         }
         //send bottom buffer to bottom neighbour
-        MPI_Isend(bottomSendBuffer.data(), bottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 00, MPI_COMM_WORLD, &bottomSendRequest);
+        MPI_Isend(bottomSendBuffer.data(), bottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 00, MPI_COMM_WORLD, &bottomReceiveRequest);
         //receive top row from bottom neighbour
         MPI_Irecv(bottomReceiveBuffer.data(), bottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 00, MPI_COMM_WORLD, &bottomReceiveRequest);
         //wait for send and receive calls to complete
-        MPI_Wait(&bottomSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&bottomReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
         for (int i=pIBegin_in; i<pIEnd_in; i++){
@@ -102,11 +100,10 @@ void PressureSolverParallel::communicateBoundaries(){
             leftSendBuffer.at(j - pJBegin_in) = discretization_->p(pIBegin_in,j);
         }
         //send left buffer to left neighbour
-        MPI_Isend(leftSendBuffer.data(), leftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 00, MPI_COMM_WORLD, &leftSendRequest);
+        MPI_Isend(leftSendBuffer.data(), leftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 00, MPI_COMM_WORLD, &leftReceiveRequest);
         //receive right column from left neighbour
         MPI_Irecv(leftReceiveBuffer.data(), leftReceiveBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 00, MPI_COMM_WORLD, &leftReceiveRequest);
         //wait for send and receive calls to complete
-        MPI_Wait(&leftSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&leftReceiveRequest, MPI_STATUS_IGNORE);
         //write right column from left neighbour into ghost layer on left
         for (int j=pJBegin_in; j<pJEnd_in; j++){
@@ -127,11 +124,10 @@ void PressureSolverParallel::communicateBoundaries(){
             rightSendBuffer.at(j - pJBegin_in) = discretization_->p(pIEnd_in,j);
         }
         //send right buffer to right neighbour
-        MPI_Isend(rightSendBuffer.data(), rightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 00, MPI_COMM_WORLD, &rightSendRequest);
+        MPI_Isend(rightSendBuffer.data(), rightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 00, MPI_COMM_WORLD, &rightReceiveRequest);
         //receive left column from right neighbour
         MPI_Irecv(rightReceiveBuffer.data(), rightReceiveBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 00, MPI_COMM_WORLD, &rightReceiveRequest);
         //wait for send and receive calls to complete
-        MPI_Wait(&rightSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&rightReceiveRequest, MPI_STATUS_IGNORE);
         //write left column from right neighbour into ghost layer on right
         for (int j=pJBegin_in; j<pJEnd_in; j++){
