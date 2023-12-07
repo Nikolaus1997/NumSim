@@ -48,7 +48,7 @@ void PressureSolverParallel::communicateBoundaries(){
         }
     } else {
         //write top row to buffer
-        for (int i=pIBegin_in; i<=pIEnd_in; i++){
+        for (int i=pIBegin_in; i<pIEnd_in; i++){
             topSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJEnd_in);
         }
         //send top buffer to top neighbour
@@ -59,7 +59,7 @@ void PressureSolverParallel::communicateBoundaries(){
         MPI_Wait(&topSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&topReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
-        for (int i=pIBegin_in; i<=pIEnd_in; i++){
+        for (int i=pIBegin_in; i<pIEnd_in; i++){
             discretization_->p(i,discretization_->pJEnd()-1) = topReceiveBuffer.at(i - pIBegin_in); 
         }
     }
@@ -73,7 +73,7 @@ void PressureSolverParallel::communicateBoundaries(){
         }   
     } else {
         //write bottom row to buffer
-        for (int i=pIBegin_in; i<=pIEnd_in; i++){
+        for (int i=pIBegin_in; i<pIEnd_in; i++){
             bottomSendBuffer.at(i - pIBegin_in) = discretization_->p(i,pJBegin_in);
         }
         //send bottom buffer to bottom neighbour
@@ -84,7 +84,7 @@ void PressureSolverParallel::communicateBoundaries(){
         MPI_Wait(&bottomSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&bottomReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
-        for (int i=pIBegin_in; i<=pIEnd_in; i++){
+        for (int i=pIBegin_in; i<pIEnd_in; i++){
             discretization_->p(i,discretization_->pJBegin()) = bottomReceiveBuffer.at(i - pIBegin_in); 
         }
     }
@@ -98,7 +98,7 @@ void PressureSolverParallel::communicateBoundaries(){
         }
     } else {
         //write left row to buffer
-        for (int j=pJBegin_in; j<=pJEnd_in; j++){
+        for (int j=pJBegin_in; j<pJEnd_in; j++){
             leftSendBuffer.at(j - pJBegin_in) = discretization_->p(pIBegin_in,j);
         }
         //send left buffer to left neighbour
@@ -109,7 +109,7 @@ void PressureSolverParallel::communicateBoundaries(){
         MPI_Wait(&leftSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&leftReceiveRequest, MPI_STATUS_IGNORE);
         //write right column from left neighbour into ghost layer on left
-        for (int j=pJBegin_in; j<=pJEnd_in; j++){
+        for (int j=pJBegin_in; j<pJEnd_in; j++){
             discretization_->p(discretization_->pIBegin(),j) = leftReceiveBuffer.at(j - pJBegin_in); 
         }
     }
@@ -123,7 +123,7 @@ void PressureSolverParallel::communicateBoundaries(){
         }
     } else {
         //write right column to buffer
-        for (int j=pJBegin_in; j<=pJEnd_in; j++){
+        for (int j=pJBegin_in; j<pJEnd_in; j++){
             rightSendBuffer.at(j - pJBegin_in) = discretization_->p(pIEnd_in,j);
         }
         //send right buffer to right neighbour
@@ -134,7 +134,7 @@ void PressureSolverParallel::communicateBoundaries(){
         MPI_Wait(&rightSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&rightReceiveRequest, MPI_STATUS_IGNORE);
         //write left column from right neighbour into ghost layer on right
-        for (int j=pJBegin_in; j<=pJEnd_in; j++){
+        for (int j=pJBegin_in; j<pJEnd_in; j++){
             discretization_->p(discretization_->pIEnd()-1,j) = rightReceiveBuffer.at(j - pJBegin_in); 
         }
     }
