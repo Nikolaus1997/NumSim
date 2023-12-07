@@ -20,6 +20,7 @@ void SORRedBlack::solve() {
     double  residuum_norm = 0.;
     int     iterations = 0;
     int    iStart = 0;
+    double residuum = 10.;
 
     int offset;
     if (((partitioning_->nodeOffset()[0] % 2) + (partitioning_->nodeOffset()[0] % 2)) % 2 == 0)
@@ -61,7 +62,7 @@ void SORRedBlack::solve() {
         //compute residuum and check for convergence
         //TODO: FIX RESIDUUM
         computeResiduum();  
-        if(residuum_norm < eps2 || iterations == maximumNumberOfIterations_)
+        if(residuum_< eps2 || iterations == maximumNumberOfIterations_)
         {
             doSor = false;
         }

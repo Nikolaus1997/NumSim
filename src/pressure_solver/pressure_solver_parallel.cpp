@@ -159,7 +159,6 @@ void PressureSolverParallel::communicateBoundaries(){
 void PressureSolverParallel::computeResiduum()
 {
     N_= partitioning_->nCellsGlobal()[0]*partitioning_->nCellsGlobal()[1];
-    residuum_ = 0.;
     double holder = 0.0;
     double dxdx = pow(discretization_->dx(),2);
     double dydy = pow(discretization_->dy(),2);
@@ -172,7 +171,7 @@ void PressureSolverParallel::computeResiduum()
             } 
 
     //TODO: implement
-    //residuum_ = MPI_Allreduce(&holder, &residuum_, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-    residuum_ = 10;//residuum_/N_;
+    MPI_Allreduce(&residuum_, &holder,  1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    residuum_ = holder/N_;
 }
 }   

@@ -22,8 +22,8 @@ class Partitioning {
         int getDecompositionColumnOrigin()      const;                     
         int getDecompositionRowOrigin()         const;   
         int getDecompositionColumnEnd()         const;
-        int getDecompositionRowEnd()            const;   
-        //! if the own partition has part of the bottom boundary of the whole domain
+        int getDecompositionRowEnd()            const;  
+                //! if the own partition has part of the bottom boundary of the whole domain
         bool ownPartitionContainsBottomBoundary() const;
         //! if the own partition has part of the top boundary of the whole domain
         //! used in OutputWriterParaviewParallel
