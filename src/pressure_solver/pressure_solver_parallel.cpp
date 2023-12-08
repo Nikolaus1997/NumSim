@@ -20,7 +20,7 @@ void PressureSolverParallel::communicateBoundaries(){
     int pJEnd_in = discretization_->pJEnd()-1;
     int NColumns = pIEnd_in-pIBegin_in+1;
     int NRows = pJEnd_in-pJBegin_in+1;
-    std::cout << "NColumns " << NColumns << "NRows " << NRows << "pIBegin_in " << pIBegin_in << "pIEnd_in " << pIEnd_in << std::endl;
+    //std::cout << "NColumns " << NColumns << "NRows " << NRows << "pIBegin_in " << pIBegin_in << "pIEnd_in " << pIEnd_in << std::endl;
 
     MPI_Request topSendRequest;
     MPI_Request topReceiveRequest;

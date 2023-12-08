@@ -175,25 +175,25 @@ void ComputationParallel::applyBoundaryValues()
     int vRowSizeInter = uJEndInter-uJBeginInter;
 
 
-    std::vector<double> uBottomSendBuffer(uColSizeInter,0);
-    std::vector<double> uTopSendBuffer(uColSizeInter,0);
-    std::vector<double> uLeftSendBuffer(uRowSizeInter,0);
-    std::vector<double> uRightSendBuffer(uRowSizeInter,0);
+    std::vector<double> uBottomSendBuffer(uColSizeInter,7);
+    std::vector<double> uTopSendBuffer(uColSizeInter,7);
+    std::vector<double> uLeftSendBuffer(uRowSizeInter,7);
+    std::vector<double> uRightSendBuffer(uRowSizeInter,7);
 
-    std::vector<double> uBottomReceiveBuffer(uColSizeInter,0);
-    std::vector<double> uTopReceiveBuffer(uColSizeInter,0);
-    std::vector<double> uLeftReceiveBuffer(uRowSizeInter,0);
-    std::vector<double> uRightReceiveBuffer(uRowSizeInter,0);
+    std::vector<double> uBottomReceiveBuffer(uColSizeInter,7);
+    std::vector<double> uTopReceiveBuffer(uColSizeInter,7);
+    std::vector<double> uLeftReceiveBuffer(uRowSizeInter,7);
+    std::vector<double> uRightReceiveBuffer(uRowSizeInter,7);
 
-    std::vector<double> vBottomSendBuffer(uColSizeInter,0);
-    std::vector<double> vTopSendBuffer(uColSizeInter,0);
-    std::vector<double> vLeftSendBuffer(uRowSizeInter,0);
-    std::vector<double> vRightSendBuffer(uRowSizeInter,0);
+    std::vector<double> vBottomSendBuffer(uColSizeInter,7);
+    std::vector<double> vTopSendBuffer(uColSizeInter,7);
+    std::vector<double> vLeftSendBuffer(uRowSizeInter,7);
+    std::vector<double> vRightSendBuffer(uRowSizeInter,7);
 
-    std::vector<double> vBottomReceiveBuffer(uColSizeInter,0);
-    std::vector<double> vTopReceiveBuffer(uColSizeInter,0);
-    std::vector<double> vLeftReceiveBuffer(uRowSizeInter,0);
-    std::vector<double> vRightReceiveBuffer(uRowSizeInter,0);
+    std::vector<double> vBottomReceiveBuffer(uColSizeInter,7);
+    std::vector<double> vTopReceiveBuffer(uColSizeInter,7);
+    std::vector<double> vLeftReceiveBuffer(uRowSizeInter,7);
+    std::vector<double> vRightReceiveBuffer(uRowSizeInter,7);
 
 
     if(partitioning_->ownPartitionContainsTopBoundary())
@@ -220,7 +220,7 @@ void ComputationParallel::applyBoundaryValues()
 
         //write top row to buffer
         for (int i=vIBeginInter; i<vIEndInter; i++){
-            vTopSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJEndInter-2);
+            vTopSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJEndInter-1);
         }
         //send top buffer to top neighbour
         MPI_Isend(vTopSendBuffer.data(), vTopSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &vTopSendRequest);
@@ -243,7 +243,7 @@ void ComputationParallel::applyBoundaryValues()
         {
         //write bottom row to buffer
         for (int i=uIBeginInter; i<uIEndInter; i++){
-            uTopSendBuffer.at(i - uIBeginInter) = discretization_->u(i,uJBeginInter);
+            uBottomSendBuffer.at(i - uIBeginInter) = discretization_->u(i,uJBeginInter);
         }
         //send bottom buffer to bottom neighbour
         MPI_Isend(uBottomSendBuffer.data(), uBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &uBottomSendRequest);
@@ -252,7 +252,7 @@ void ComputationParallel::applyBoundaryValues()
 
         //write bottom row to buffer
         for (int i=vIBeginInter; i<vIEndInter; i++){
-            vBottomSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJBeginInter+1);
+            vBottomSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJBeginInter);
         }
         //send bottom buffer to bottom neighbour
         MPI_Isend(vBottomSendBuffer.data(), vBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &vBottomSendRequest);
@@ -277,7 +277,7 @@ void ComputationParallel::applyBoundaryValues()
     {
         //write left row to buffer
         for (int j=uJBeginInter; j<uJEndInter; j++){
-            uLeftSendBuffer.at(j - uJBeginInter) = discretization_->u(uIBeginInter+1,j);
+            uLeftSendBuffer.at(j - uJBeginInter) = discretization_->u(uIBeginInter,j);
         }
         //send left buffer to left neighbour
         MPI_Isend(uLeftSendBuffer.data(), uLeftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 0, MPI_COMM_WORLD, &uLeftSendRequest);
@@ -310,7 +310,7 @@ void ComputationParallel::applyBoundaryValues()
     {
         //write right column to buffer
         for (int j=uJBeginInter; j<uJEndInter; j++){
-            uRightSendBuffer.at(j - uJBeginInter) = discretization_->u(uIEndInter-2,j);
+            uRightSendBuffer.at(j - uJBeginInter) = discretization_->u(uIEndInter-1,j);
         }
         //send right buffer to right neighbour
         MPI_Isend(uRightSendBuffer.data(), uRightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 0, MPI_COMM_WORLD, &uRightSendRequest);
@@ -385,7 +385,7 @@ void ComputationParallel::applyBoundaryValues()
             discretization_->u(i,discretization_->uJBegin()) = uBottomReceiveBuffer.at(i - uIBeginInter); 
         }
         for (int i=vIBeginInter; i<vIEndInter; i++){
-            discretization_->v(i,discretization_->vJBegin()) = vTopReceiveBuffer.at(i - vIBeginInter); 
+            discretization_->v(i,discretization_->vJBegin()) = vBottomReceiveBuffer.at(i - vIBeginInter); 
         }
     }
 
