@@ -43,7 +43,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (partitioning_->ownPartitionContainsTopBoundary()) {
         //set top boundary values
-        for(int i = pIBegin_in-1; i < pIEnd_in; i++)
+        for(int i = discretization_->pIBegin(); i < discretization_->pIEnd(); i++)
         {
             //p top boundary condition
             discretization_->p(i,discretization_->pJEnd()-1)= discretization_->p(i,discretization_->pJEnd()-2);
@@ -64,7 +64,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (partitioning_->ownPartitionContainsBottomBoundary()) {
         //set bottom boundary values
-        for (int i = pIBegin_in-1; i < pIEnd_in; i++)
+        for(int i = discretization_->pIBegin(); i < discretization_->pIEnd(); i++)
         {
             //p bottom  boundary condition
             discretization_->p(i,discretization_->pJBegin()) = discretization_->p(i,discretization_->pJBegin()+1);
@@ -83,7 +83,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (partitioning_->ownPartitionContainsLeftBoundary()) {
         //set left boundary values
-        for (int j = pJBegin_in-1; j < pJEnd_in; j++)
+        for(int j = discretization_->pJBegin(); j < discretization_->pJEnd(); j++)
         {
             //p left boundary condition
             discretization_->p(discretization_->pIBegin(),j) = discretization_->p(discretization_->pIBegin()+1, j);
@@ -102,7 +102,7 @@ void PressureSolverParallel::communicateBoundaries(){
 
     if (partitioning_->ownPartitionContainsRightBoundary()) {
         //set right boundary values
-        for (int j = pJBegin_in-1; j < pJEnd_in; j++)
+        for(int j = discretization_->pJBegin(); j < discretization_->pJEnd(); j++)
         {
             //p right boundary condition
             discretization_->p(discretization_->pIEnd()-1, j)= discretization_->p(discretization_->pIEnd()-2, j);
