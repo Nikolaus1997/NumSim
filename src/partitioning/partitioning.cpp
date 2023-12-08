@@ -18,42 +18,31 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     nCellsLocal_[1] = nCellsGlobal_[1] / Decomposition_[1];
 
     //Berechnung der Position der Subdomain
-    nodeposition_[0] = getColumnIndex(ownRankNo_);
-    nodeposition_[1] = getRowIndex(ownRankNo_);   
+    nodeposition_[0] = ownRankNo_ % Decomposition_[0]+1;
+    nodeposition_[1] = (int) ownRankNo_ / Decomposition_[0]+1;   
     
     //Berechnung des Rests der Zellenanzahl
     int remainderCol = nCellsGlobal_[0] % Decomposition_[0];
     int remainderRow = nCellsGlobal_[1] % Decomposition_[1];
 
-    //Berechnung der globalen Startzelle der Subdomain als faktor
-    int columnDecomposition   = ownRankNo_% Decomposition_[0];
-    int rowDecomposistion     = floor(ownRankNo_ / Decomposition_[0]);
-
-    //Berechnung der globalen Startzelle
-    int columnStart = columnDecomposition * nCellsLocal_[0];
-    for(int i = 1; i<nodeposition_[0];i++)
-    {
-        if(i<= remainderCol) {
-        columnStart++;
-    }
+    int columnStart = 0;
+    for (int i = 1; i < nodeposition_[0]; i++) {
+        columnStart += nCellsLocal_[0];
+        if (i <= remainderCol)
+            columnStart++;
     }
 
-    //Berechnung der globalen Startzelle
-    int rowStart = rowDecomposistion * nCellsLocal_[1];
-    for(int i = 1; i<nodeposition_[1];i++)
-    {
-        if(i<= remainderRow) {
+    int rowStart = 0;
+    for (int j = 1; j < nodeposition_[1]; j++) {
+        rowStart += nCellsLocal_[1];
+        if (j <= remainderRow)
             rowStart++;
-        }
     }
-    //erweitern der lokalen Zellenanzahl um 1 falls nicht perfekte Aufteilung für die domains die am Anfang sind
-    if(nodeposition_[0] <= remainderCol) {
-        nCellsLocal_[0] += 1;
-    }
-    //erweitern der lokalen Zellenanzahl um 1 falls nicht perfekte Aufteilung für die domains die am Anfang sind
-    if(nodeposition_[1] <= remainderRow) {
-        nCellsLocal_[1] += 1;
-    }
+    if (nodeposition_[0] <= remainderCol)
+        nCellsLocal_[0]++;
+    if (nodeposition_[1] <= remainderRow)
+        nCellsLocal_[1]++;
+
 
     //setzen der Nachbarn
     if( ownPartitionContainsLeftBoundary()) {

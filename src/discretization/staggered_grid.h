@@ -87,6 +87,8 @@ public:
     //last valid index for p in y direction 
     int pJEnd() const;
 
+    std::array<int, 2> uSize() const;
+    std::array<int, 2> vSize() const;
     protected:
         const std::array<int, 2> nCells_;
         const std::array<double, 2> meshWidth_;

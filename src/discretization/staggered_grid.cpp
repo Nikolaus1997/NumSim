@@ -22,6 +22,16 @@ const std::array<double, 2> StaggeredGrid::meshWidth() const
     return meshWidth_;
 }
 
+std::array<int, 2> StaggeredGrid::uSize() const{
+
+    return {uIEnd()-uIBegin(), uJEnd()-uJBegin()};
+}
+std::array<int, 2> StaggeredGrid::vSize() const{
+
+    return {vIEnd()-vIBegin(), vJEnd()-vJBegin()};
+}
+
+
 //get number of cells in each coordinate direction 
 const std::array<int, 2> StaggeredGrid::nCells() const
 {
@@ -147,19 +157,19 @@ double & StaggeredGrid::u(int i, int j)
 //first valid index for u in x direction 
 int StaggeredGrid::uIBegin() const
 {
-    if(partitioning_->ownPartitionContainsLeftBoundary()){
-        return -1;
-    }
-    return -2;
+    // if(partitioning_->ownPartitionContainsLeftBoundary()){
+    //     return -1;
+    // }
+    return -1;
 }
 
 //last valid index for u in x direction 
 int StaggeredGrid::uIEnd() const
 {
-    if(partitioning_->ownPartitionContainsRightBoundary()){
-        return nCells_[0];
-    }
-    return nCells_[0]+1;
+    // if(partitioning_->ownPartitionContainsRightBoundary()){
+    //     return nCells_[0];
+    // }
+    return nCells_[0];
 }
 
 //first valid index for u in y direction 
@@ -207,17 +217,17 @@ int StaggeredGrid::vIEnd() const
 //first valid index for v in y direction 
 int StaggeredGrid::vJBegin() const
 {
-    if(partitioning_->ownPartitionContainsBottomBoundary()){
-        return -1;
-    }
-    return -2;
+    // if(partitioning_->ownPartitionContainsBottomBoundary()){
+    //     return -1;
+    // }
+    return -1;
 }
 
 //last valid index for v in y direction 
 int StaggeredGrid::vJEnd() const
 {   
-    if(partitioning_->ownPartitionContainsTopBoundary()){
-        return nCells_[1];
-    }
-    return nCells_[1]+1;
+    // if(partitioning_->ownPartitionContainsTopBoundary()){
+    //     return nCells_[1];
+    // }
+    return nCells_[1];
 }
