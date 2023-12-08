@@ -28,8 +28,8 @@ void ComputationParallel::initialize(std::string filename)
     {
         if(partitioning_->ownRankNo()==0)
             std::cout << "Using DonorCell..." << std::endl;
+        
         discretization_ = std::make_shared<DonorCell>(partitioning_, meshWidth_, settings_.alpha);
-
     }
     else
     {
@@ -53,7 +53,6 @@ void ComputationParallel::initialize(std::string filename)
         std::cout << "Using SORRedBlack..." << std::endl;
         pressureSolver_ = std::make_unique<SORRedBlack>(discretization_, settings_.epsilon,
                                                         settings_.maximumNumberOfIterations, settings_.omega, partitioning_ );
-
     }
     else
     {
@@ -63,7 +62,6 @@ void ComputationParallel::initialize(std::string filename)
     // initialize output writer
     outputWriterText_ = std::make_unique<OutputWriterTextParallel>(discretization_,partitioning_);
     outputWriterParaview_ = std::make_unique<OutputWriterParaviewParallel>(discretization_, partitioning_);
-
 }
 
 // run the whole simulation until tend
@@ -76,8 +74,6 @@ void ComputationParallel::runSimulation()
     {
         t_i++;
         applyBoundaryValues();
-        outputWriterText_->writeFile(time);
-        outputWriterParaview_->writeFile(time);
         applyBoundaryValuesFandG();
         computeTimeStepWidth();
 
@@ -92,6 +88,8 @@ void ComputationParallel::runSimulation()
         computeRightHandSide();
         computePressure();
         computeVelocities();
+        outputWriterText_->writeFile(time);
+        outputWriterParaview_->writeFile(time);
     }
 }
 
@@ -162,42 +160,105 @@ void ComputationParallel::applyBoundaryValues()
 
     int uIBeginInter = discretization_->uIBegin()+1;
     int uIEndInter = discretization_->uIEnd()-1;    
-    int uColSizeInter = uIEndInter-uIBeginInter+2;
+    int uColSizeInter = uIEndInter-uIBeginInter;
 
     int uJBeginInter = discretization_->uJBegin()+1;
     int uJEndInter = discretization_->uJEnd()-1;
-    int uRowSizeInter = uJEndInter-uJBeginInter+2;
+    int uRowSizeInter = uJEndInter-uJBeginInter;
 
     int vIBeginInter = discretization_->vIBegin()+1;
     int vIEndInter = discretization_->vIEnd()-1;    
-    int vColSizeInter = vIEndInter-vIBeginInter+2;
+    int vColSizeInter = vIEndInter-vIBeginInter;
 
     int vJBeginInter = discretization_->vJBegin()+1;
     int vJEndInter = discretization_->vJEnd()-1;
-    int vRowSizeInter = uJEndInter-uJBeginInter+2;
-        
-    std::vector<double> uBottomSendBuffer(uColSizeInter,0);
-    std::vector<double> uTopSendBuffer(uColSizeInter,0);
-    std::vector<double> uLeftSendBuffer(uRowSizeInter,0);
-    std::vector<double> uRightSendBuffer(uRowSizeInter,0);
-
-    std::vector<double> uBottomReceiveBuffer(uColSizeInter,0);
-    std::vector<double> uTopReceiveBuffer(uColSizeInter,0);
-    std::vector<double> uLeftReceiveBuffer(uRowSizeInter,0);
-    std::vector<double> uRightReceiveBuffer(uRowSizeInter,0);
-
-    std::vector<double> vBottomSendBuffer(uColSizeInter,0);
-    std::vector<double> vTopSendBuffer(uColSizeInter,0);
-    std::vector<double> vLeftSendBuffer(uRowSizeInter,0);
-    std::vector<double> vRightSendBuffer(uRowSizeInter,0);
-
-    std::vector<double> vBottomReceiveBuffer(uColSizeInter,0);
-    std::vector<double> vTopReceiveBuffer(uColSizeInter,0);
-    std::vector<double> vLeftReceiveBuffer(uRowSizeInter,0);
-    std::vector<double> vRightReceiveBuffer(uRowSizeInter,0);
+    int vRowSizeInter = uJEndInter-uJBeginInter;
 
 
+    std::vector<double> uBottomSendBuffer(uColSizeInter,7);
+    std::vector<double> uTopSendBuffer(uColSizeInter,7);
+    std::vector<double> uLeftSendBuffer(uRowSizeInter,7);
+    std::vector<double> uRightSendBuffer(uRowSizeInter,7);
 
+    std::vector<double> uBottomReceiveBuffer(uColSizeInter,7);
+    std::vector<double> uTopReceiveBuffer(uColSizeInter,7);
+    std::vector<double> uLeftReceiveBuffer(uRowSizeInter,7);
+    std::vector<double> uRightReceiveBuffer(uRowSizeInter,7);
+
+    std::vector<double> vBottomSendBuffer(uColSizeInter,7);
+    std::vector<double> vTopSendBuffer(uColSizeInter,7);
+    std::vector<double> vLeftSendBuffer(uRowSizeInter,7);
+    std::vector<double> vRightSendBuffer(uRowSizeInter,7);
+
+    std::vector<double> vBottomReceiveBuffer(uColSizeInter,7);
+    std::vector<double> vTopReceiveBuffer(uColSizeInter,7);
+    std::vector<double> vLeftReceiveBuffer(uRowSizeInter,7);
+    std::vector<double> vRightReceiveBuffer(uRowSizeInter,7);
+
+
+    if(partitioning_->ownPartitionContainsTopBoundary())
+    {
+        // set boundary values u at top
+        for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++) {
+                    discretization_->u(i, discretization_->uJEnd() - 1) =
+                2.0 * settings_.dirichletBcTop[0] - discretization_->u(i, discretization_->uJEnd() - 2);
+        }
+        // set boundary values v at top
+        for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++) {
+            discretization_->v(i, discretization_->vJEnd() - 1) = settings_.dirichletBcTop[1];
+        }
+    }else
+    {   
+        //write top row to buffer
+        for (int i=uIBeginInter; i<uIEndInter; i++){
+            uTopSendBuffer.at(i - uIBeginInter) = discretization_->u(i,uJEndInter-1);
+        }
+        //send top buffer to top neighbour
+        MPI_Isend(uTopSendBuffer.data(), uTopSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &uTopSendRequest);
+        //receive bottom row from top neighbour
+        MPI_Irecv(uTopReceiveBuffer.data(), uTopReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &uTopReceiveRequest);
+
+        //write top row to buffer
+        for (int i=vIBeginInter; i<vIEndInter; i++){
+            vTopSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJEndInter-2);
+        }
+        //send top buffer to top neighbour
+        MPI_Isend(vTopSendBuffer.data(), vTopSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &vTopSendRequest);
+        //receive bottom row from top neighbour
+        MPI_Irecv(vTopReceiveBuffer.data(), vTopReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &vTopReceiveRequest);
+    }
+
+    if(partitioning_->ownPartitionContainsBottomBoundary())
+        {
+                // set boundary values u at bottom
+                for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++) {
+                    discretization_->u(i, discretization_->uJBegin()) =
+                    2.0 * settings_.dirichletBcBottom[0] - discretization_->u(i, discretization_->uJBegin()+1);
+                }
+                // set boundary values v at bottom
+                for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++) {
+                    discretization_->v(i, discretization_->vJBegin()) = settings_.dirichletBcBottom[1];
+                }
+        }else
+        {
+        //write bottom row to buffer
+        for (int i=uIBeginInter; i<uIEndInter; i++){
+            uBottomSendBuffer.at(i - uIBeginInter) = discretization_->u(i,uJBeginInter);
+        }
+        //send bottom buffer to bottom neighbour
+        MPI_Isend(uBottomSendBuffer.data(), uBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &uBottomSendRequest);
+        //receive bottom row from top neighbour
+        MPI_Irecv(uBottomReceiveBuffer.data(), uBottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &uBottomReceiveRequest);
+
+        //write bottom row to buffer
+        for (int i=vIBeginInter; i<vIEndInter; i++){
+            vBottomSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJBeginInter+1);
+        }
+        //send bottom buffer to bottom neighbour
+        MPI_Isend(vBottomSendBuffer.data(), vBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &vBottomSendRequest);
+        //receive bottom row from bottom neighbour
+        MPI_Irecv(vBottomReceiveBuffer.data(), vBottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &vBottomReceiveRequest);
+        }
 
 
     if(partitioning_->ownPartitionContainsLeftBoundary())
@@ -215,8 +276,8 @@ void ComputationParallel::applyBoundaryValues()
     }else
     {
         //write left row to buffer
-        for (int j=discretization_->uJBegin(); j<discretization_->uJEnd(); j++){
-            uLeftSendBuffer.at(j - discretization_->uJBegin()) = discretization_->u(discretization_->uIBegin()+1,j);
+        for (int j=uJBeginInter; j<uJEndInter; j++){
+            uLeftSendBuffer.at(j - uJBeginInter) = discretization_->u(uIBeginInter+1,j);
         }
         //send left buffer to left neighbour
         MPI_Isend(uLeftSendBuffer.data(), uLeftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 0, MPI_COMM_WORLD, &uLeftSendRequest);
@@ -224,8 +285,8 @@ void ComputationParallel::applyBoundaryValues()
         MPI_Irecv(uLeftReceiveBuffer.data(), uLeftReceiveBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 0, MPI_COMM_WORLD, &uLeftReceiveRequest);
 
         //write left row to buffer
-        for (int j=discretization_->vJBegin(); j<discretization_->vJEnd(); j++){
-            vLeftSendBuffer.at(j - discretization_->vJBegin()) = discretization_->v(discretization_->vIBegin()+1,j);
+        for (int j=vJBeginInter; j<vJEndInter; j++){
+            vLeftSendBuffer.at(j - vJBeginInter) = discretization_->v(vIBeginInter,j);
         }
         //send left buffer to left neighbour
         MPI_Isend(vLeftSendBuffer.data(), vLeftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 0, MPI_COMM_WORLD, &vLeftSendRequest);
@@ -248,18 +309,17 @@ void ComputationParallel::applyBoundaryValues()
     }else
     {
         //write right column to buffer
-        for (int j=discretization_->uJBegin(); j<discretization_->uJEnd(); j++){
-            uRightSendBuffer.at(j - discretization_->uJBegin()) = discretization_->u(discretization_->uIEnd()-2,j);
+        for (int j=uJBeginInter; j<uJEndInter; j++){
+            uRightSendBuffer.at(j - uJBeginInter) = discretization_->u(uIEndInter-2,j);
         }
         //send right buffer to right neighbour
         MPI_Isend(uRightSendBuffer.data(), uRightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 0, MPI_COMM_WORLD, &uRightSendRequest);
-
         //receive left column from right neighbour
         MPI_Irecv(uRightReceiveBuffer.data(), uRightReceiveBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 0, MPI_COMM_WORLD, &uRightReceiveRequest);
 
         //write right column to buffer
-        for (int j=discretization_->vJBegin(); j<discretization_->vJEnd(); j++){
-            vRightSendBuffer.at(j - discretization_->vJBegin()) = discretization_->v(discretization_->vIEnd()-2,j);
+        for (int j=vJBeginInter; j<vJEndInter; j++){
+            vRightSendBuffer.at(j - vJBeginInter) = discretization_->v(vIEndInter-1,j);
         }
         //send right buffer to right neighbour
         MPI_Isend(vRightSendBuffer.data(), vRightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 0, MPI_COMM_WORLD, &vRightSendRequest);
@@ -267,127 +327,67 @@ void ComputationParallel::applyBoundaryValues()
         MPI_Irecv(vRightReceiveBuffer.data(), vRightReceiveBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 0, MPI_COMM_WORLD, &vRightReceiveRequest);
     }
 
-    if(partitioning_->ownPartitionContainsTopBoundary())
-    {
-        // set boundary values u at top
-        for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++) {
-                    discretization_->u(i, discretization_->uJEnd() - 1) =
-                2.0 * settings_.dirichletBcTop[0] - discretization_->u(i, discretization_->uJEnd() - 2);
-        }
-        // set boundary values v at top
-        for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++) {
-            discretization_->v(i, discretization_->vJEnd() - 1) = settings_.dirichletBcTop[1];
-        }
-    }else
-    {   
-        //write top row to buffer
-        for (int i=discretization_->uIBegin(); i<discretization_->uIEnd()-1; i++){
-            uTopSendBuffer.at(i - discretization_->uIBegin()) = discretization_->u(i,discretization_->uJEnd()-2);
-        }
-        //send top buffer to top neighbour
-        MPI_Isend(uTopSendBuffer.data(), uTopSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &uTopSendRequest);
-        //receive bottom row from top neighbour
-        MPI_Irecv(uTopReceiveBuffer.data(), uTopReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &uTopReceiveRequest);
-
-        //write top row to buffer
-        for (int i=discretization_->vIBegin(); i<discretization_->vIEnd()-1; i++){
-            vTopSendBuffer.at(i - discretization_->vIBegin()) = discretization_->v(i,discretization_->vJEnd()-2);
-        }
-        //send top buffer to top neighbour
-        MPI_Isend(vTopSendBuffer.data(), vTopSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &vTopSendRequest);
-        //receive bottom row from top neighbour
-        MPI_Irecv(vTopReceiveBuffer.data(), vTopReceiveBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &vTopReceiveRequest);
-    }
-
-    if(partitioning_->ownPartitionContainsBottomBoundary())
-        {
-                // set boundary values u at bottom
-                for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++) {
-                    discretization_->u(i, discretization_->uJBegin()) =
-                    2.0 * settings_.dirichletBcBottom[0] - discretization_->u(i, discretization_->uJBegin()+1);
-                }
-                // set boundary values v at bottom
-                for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++) {
-                    discretization_->v(i, discretization_->vJBegin()) = settings_.dirichletBcBottom[1];
-                }
-        }else
-        {
-        //write bottom row to buffer
-        for (int i=discretization_->uIBegin(); i<discretization_->uIEnd()-1; i++){
-            uBottomSendBuffer.at(i - discretization_->uIBegin()) = discretization_->u(i,discretization_->uJBegin()+1);
-        }
-        //send bottom buffer to bottom neighbour
-        MPI_Isend(uBottomSendBuffer.data(), uBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &uBottomSendRequest);
-        //receive bottom row from top neighbour
-        MPI_Irecv(uBottomReceiveBuffer.data(), uBottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &uBottomReceiveRequest);
-
-        //write bottom row to buffer
-        for (int i=discretization_->vIBegin(); i<discretization_->vIEnd()-1; i++){
-            vBottomSendBuffer.at(i - discretization_->vIBegin()) = discretization_->v(i,discretization_->vJBegin()+1);
-        }
-        //send bottom buffer to bottom neighbour
-        MPI_Isend(vBottomSendBuffer.data(), vBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &vBottomSendRequest);
-        //receive bottom row from bottom neighbour
-        MPI_Irecv(vBottomReceiveBuffer.data(), vBottomReceiveBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &vBottomReceiveRequest);
-        }
 
     if(!partitioning_->ownPartitionContainsLeftBoundary()){
-        //wait for send and receive calls to complete
-        MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&uLeftReceiveRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&vLeftReceiveRequest, MPI_STATUS_IGNORE);
-        //write right column from left neighbour into ghost layer on left
-        for (int j=discretization_->uJBegin(); j<discretization_->uJEnd(); j++){
-            discretization_->u(discretization_->uIBegin(),j) = uLeftReceiveBuffer.at(j - discretization_->uJBegin()); 
-        }
-        for (int j=discretization_->vJBegin(); j<discretization_->vJEnd(); j++){
-            discretization_->v(discretization_->vIBegin(),j) = vLeftReceiveBuffer.at(j - discretization_->vJBegin()); 
-        }
+    //wait for send and receive calls to complete
+    MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
+    MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
+    MPI_Wait(&uLeftReceiveRequest, MPI_STATUS_IGNORE);
+    MPI_Wait(&vLeftReceiveRequest, MPI_STATUS_IGNORE);
+    //write right column from left neighbour into ghost layer on left
+    for (int j=uJBeginInter; j<uJEndInter; j++){
+        discretization_->u(discretization_->uIBegin(),j) = uLeftReceiveBuffer.at(j - uJBeginInter); 
+    }
+    for (int j=vJBeginInter; j<vJEndInter; j++){
+        discretization_->v(discretization_->vIBegin(),j) = vLeftReceiveBuffer.at(j - vJBeginInter); 
+    }
     }
 
     if(!partitioning_->ownPartitionContainsRightBoundary()){
         //wait for send and receive calls to complete
-        MPI_Wait(&vRightSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uRightSendRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&vRightSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uRightReceiveRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&vRightReceiveRequest, MPI_STATUS_IGNORE);
         //write left column from right neighbour into ghost layer on right
-        for (int j=discretization_->uJBegin(); j<discretization_->uJEnd(); j++){
-            discretization_->u(discretization_->uIEnd()-1,j) = uRightReceiveBuffer.at(j - discretization_->uJBegin()); 
+        for (int j=uJBeginInter; j<uJEndInter; j++){
+            discretization_->u(discretization_->uIEnd()-1,j) = uRightReceiveBuffer.at(j - uJBeginInter); 
         }
-        for (int j=discretization_->vJBegin(); j<discretization_->vJEnd(); j++){
-            discretization_->v(discretization_->vIEnd()-1,j) = vRightReceiveBuffer.at(j - discretization_->vJBegin()); 
+        for (int j=vJBeginInter; j<vJEndInter; j++){
+            discretization_->v(discretization_->vIEnd()-1,j) = vRightReceiveBuffer.at(j - vJBeginInter); 
         }
     }
 
+
     if(!partitioning_->ownPartitionContainsTopBoundary()){
         //wait for send and receive calls to complete
-        MPI_Wait(&vTopSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uTopSendRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&vTopSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uTopReceiveRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&vTopReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
-        for (int i=discretization_->uIBegin(); i<discretization_->uIEnd()-1; i++){
-            discretization_->u(i,discretization_->uJEnd()-1) = uTopReceiveBuffer.at(i - discretization_->uIBegin()); 
+        for (int i=uIBeginInter; i<uIEndInter; i++){
+            discretization_->u(i,discretization_->uJEnd()-1) = uTopReceiveBuffer.at(i - uIBeginInter); 
         }
-        for (int i=discretization_->vIBegin(); i<discretization_->vIEnd()-1; i++){
-            discretization_->v(i,discretization_->vJEnd()-1) = vTopReceiveBuffer.at(i - discretization_->vIBegin()); 
+        for (int i=vIBeginInter; i<vIEndInter; i++){
+            discretization_->v(i,discretization_->vJEnd()-1) = vTopReceiveBuffer.at(i - vIBeginInter); 
         }
     }
 
     if(!partitioning_->ownPartitionContainsBottomBoundary()){
         //wait for send and receive calls to complete
-        MPI_Wait(&vBottomSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uBottomSendRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&vBottomSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uBottomReceiveRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&vBottomReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
-        for (int i=discretization_->uIBegin(); i<discretization_->uIEnd()-1; i++){
-            discretization_->u(i,discretization_->uJBegin()) = uBottomReceiveBuffer.at(i - discretization_->uIBegin()); 
+        for (int i=uIBeginInter; i<uIEndInter; i++){
+            discretization_->u(i,discretization_->uJBegin()) = uBottomReceiveBuffer.at(i - uIBeginInter); 
         }
-        for (int i=discretization_->vIBegin(); i<discretization_->vIEnd()-1; i++){
-            discretization_->v(i,discretization_->vJBegin()) = vBottomReceiveBuffer.at(i - discretization_->vIBegin()); 
+        for (int i=vIBeginInter; i<vIEndInter; i++){
+            discretization_->v(i,discretization_->vJBegin()) = vBottomReceiveBuffer.at(i - vIBeginInter); 
         }
     }
+
+
 }
