@@ -76,8 +76,8 @@ void ComputationParallel::runSimulation()
     {
         t_i++;
         applyBoundaryValues();
-        outputWriterText_->writeFile(time);
-        outputWriterParaview_->writeFile(time);
+                    outputWriterText_->writeFile(time);
+            outputWriterParaview_->writeFile(time);
         applyBoundaryValuesFandG();
         computeTimeStepWidth();
         MPI_Allreduce(MPI_IN_PLACE, &dt_, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
@@ -93,9 +93,10 @@ void ComputationParallel::runSimulation()
         computePressure();
         computeVelocities();
 
-        //if(time-timelast>=1){
+        //if(time-timelast>=timeprint){
 
-          //  timelast+=1;
+        //    timelast+=1;
+        //    timeprint = 1;
         //}   
     }
 }
@@ -182,25 +183,25 @@ void ComputationParallel::applyBoundaryValues()
     int vRowSizeInter = uJEndInter-uJBeginInter;
 
 
-    std::vector<double> uBottomSendBuffer(uColSizeInter,7);
-    std::vector<double> uTopSendBuffer(uColSizeInter,7);
-    std::vector<double> uLeftSendBuffer(uRowSizeInter,7);
-    std::vector<double> uRightSendBuffer(uRowSizeInter,7);
+    std::vector<double> uBottomSendBuffer(uColSizeInter,0);
+    std::vector<double> uTopSendBuffer(uColSizeInter,0);
+    std::vector<double> uLeftSendBuffer(uRowSizeInter,0);
+    std::vector<double> uRightSendBuffer(uRowSizeInter,0);
 
-    std::vector<double> uBottomReceiveBuffer(uColSizeInter,7);
-    std::vector<double> uTopReceiveBuffer(uColSizeInter,7);
-    std::vector<double> uLeftReceiveBuffer(uRowSizeInter,7);
-    std::vector<double> uRightReceiveBuffer(uRowSizeInter,7);
+    std::vector<double> uBottomReceiveBuffer(uColSizeInter,0);
+    std::vector<double> uTopReceiveBuffer(uColSizeInter,0);
+    std::vector<double> uLeftReceiveBuffer(uRowSizeInter,0);
+    std::vector<double> uRightReceiveBuffer(uRowSizeInter,0);
 
-    std::vector<double> vBottomSendBuffer(uColSizeInter,7);
-    std::vector<double> vTopSendBuffer(uColSizeInter,7);
-    std::vector<double> vLeftSendBuffer(uRowSizeInter,7);
-    std::vector<double> vRightSendBuffer(uRowSizeInter,7);
+    std::vector<double> vBottomSendBuffer(uColSizeInter,0);
+    std::vector<double> vTopSendBuffer(uColSizeInter,0);
+    std::vector<double> vLeftSendBuffer(uRowSizeInter,0);
+    std::vector<double> vRightSendBuffer(uRowSizeInter,0);
 
-    std::vector<double> vBottomReceiveBuffer(uColSizeInter,7);
-    std::vector<double> vTopReceiveBuffer(uColSizeInter,7);
-    std::vector<double> vLeftReceiveBuffer(uRowSizeInter,7);
-    std::vector<double> vRightReceiveBuffer(uRowSizeInter,7);
+    std::vector<double> vBottomReceiveBuffer(uColSizeInter,0);
+    std::vector<double> vTopReceiveBuffer(uColSizeInter,0);
+    std::vector<double> vLeftReceiveBuffer(uRowSizeInter,0);
+    std::vector<double> vRightReceiveBuffer(uRowSizeInter,0);
 
 
     if(partitioning_->ownPartitionContainsTopBoundary())
@@ -227,7 +228,7 @@ void ComputationParallel::applyBoundaryValues()
 
         //write top row to buffer
         for (int i=vIBeginInter; i<vIEndInter; i++){
-            vTopSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJEndInter-2);
+            vTopSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJEndInter-1);
         }
         //send top buffer to top neighbour
         MPI_Isend(vTopSendBuffer.data(), vTopSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &vTopSendRequest);
@@ -259,7 +260,7 @@ void ComputationParallel::applyBoundaryValues()
 
         //write bottom row to buffer
         for (int i=vIBeginInter; i<vIEndInter; i++){
-            vBottomSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJBeginInter+1);
+            vBottomSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJBeginInter);
         }
         //send bottom buffer to bottom neighbour
         MPI_Isend(vBottomSendBuffer.data(), vBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &vBottomSendRequest);
@@ -284,7 +285,7 @@ void ComputationParallel::applyBoundaryValues()
     {
         //write left row to buffer
         for (int j=uJBeginInter; j<uJEndInter; j++){
-            uLeftSendBuffer.at(j - uJBeginInter) = discretization_->u(uIBeginInter+1,j);
+            uLeftSendBuffer.at(j - uJBeginInter) = discretization_->u(uIBeginInter,j);
         }
         //send left buffer to left neighbour
         MPI_Isend(uLeftSendBuffer.data(), uLeftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 0, MPI_COMM_WORLD, &uLeftSendRequest);
@@ -317,7 +318,7 @@ void ComputationParallel::applyBoundaryValues()
     {
         //write right column to buffer
         for (int j=uJBeginInter; j<uJEndInter; j++){
-            uRightSendBuffer.at(j - uJBeginInter) = discretization_->u(uIEndInter-2,j);
+            uRightSendBuffer.at(j - uJBeginInter) = discretization_->u(uIEndInter-1,j);
         }
         //send right buffer to right neighbour
         MPI_Isend(uRightSendBuffer.data(), uRightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 0, MPI_COMM_WORLD, &uRightSendRequest);
@@ -339,8 +340,8 @@ void ComputationParallel::applyBoundaryValues()
 
     if(!partitioning_->ownPartitionContainsTopBoundary()){
         //wait for send and receive calls to complete
-        MPI_Wait(&uTopSendRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&vTopSendRequest, MPI_STATUS_IGNORE);
+        // MPI_Wait(&uTopSendRequest, MPI_STATUS_IGNORE);
+        // MPI_Wait(&vTopSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uTopReceiveRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&vTopReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
@@ -354,8 +355,8 @@ void ComputationParallel::applyBoundaryValues()
 
     if(!partitioning_->ownPartitionContainsBottomBoundary()){
         //wait for send and receive calls to complete
-        MPI_Wait(&uBottomSendRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&vBottomSendRequest, MPI_STATUS_IGNORE);
+        // MPI_Wait(&uBottomSendRequest, MPI_STATUS_IGNORE);
+        // MPI_Wait(&vBottomSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uBottomReceiveRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&vBottomReceiveRequest, MPI_STATUS_IGNORE);
         //write bottom row from top neighbour into ghost layer on top
@@ -368,8 +369,8 @@ void ComputationParallel::applyBoundaryValues()
     }
      if(!partitioning_->ownPartitionContainsLeftBoundary()){
     //wait for send and receive calls to complete
-    MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
-    MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
+    // MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
+    // MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
     MPI_Wait(&uLeftReceiveRequest, MPI_STATUS_IGNORE);
     MPI_Wait(&vLeftReceiveRequest, MPI_STATUS_IGNORE);
     //write right column from left neighbour into ghost layer on left
@@ -383,8 +384,8 @@ void ComputationParallel::applyBoundaryValues()
 
     if(!partitioning_->ownPartitionContainsRightBoundary()){
         //wait for send and receive calls to complete
-        MPI_Wait(&uRightSendRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&vRightSendRequest, MPI_STATUS_IGNORE);
+        // MPI_Wait(&uRightSendRequest, MPI_STATUS_IGNORE);
+        // MPI_Wait(&vRightSendRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&uRightReceiveRequest, MPI_STATUS_IGNORE);
         MPI_Wait(&vRightReceiveRequest, MPI_STATUS_IGNORE);
         //write left column from right neighbour into ghost layer on right
