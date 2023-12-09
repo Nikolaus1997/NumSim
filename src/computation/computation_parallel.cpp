@@ -39,7 +39,7 @@ void ComputationParallel::initialize(std::string filename)
     }
 
     // initialize the pressure solver
-    if (settings_.pressureSolver == "SOR")
+    if (settings_.pressureSolver == "SORasdfasdf")
     {
         pressureSolver_ = std::make_unique<SOR>(discretization_, settings_.epsilon,
                                                 settings_.maximumNumberOfIterations, settings_.omega);
@@ -48,7 +48,7 @@ void ComputationParallel::initialize(std::string filename)
     {
         pressureSolver_ = std::make_unique<GaussSeidel>(discretization_, settings_.epsilon,
                                                         settings_.maximumNumberOfIterations);
-    }else if(settings_.pressureSolver == "SORRedBlack")
+    }else if(settings_.pressureSolver == "SOR")
     {   
         std::cout << "Using SORRedBlack..." << std::endl;
         pressureSolver_ = std::make_unique<SORRedBlack>(discretization_, settings_.epsilon,
@@ -69,27 +69,34 @@ void ComputationParallel::runSimulation()
 {
     int t_i = 0;
     double time = 0.0;
+    double timelast = 0.0;
+    int timeprint = 0;
     // main loop of the simulation over time
     while (time < settings_.endTime)
     {
         t_i++;
         applyBoundaryValues();
+        outputWriterText_->writeFile(time);
+        outputWriterParaview_->writeFile(time);
         applyBoundaryValuesFandG();
         computeTimeStepWidth();
-
+        MPI_Allreduce(MPI_IN_PLACE, &dt_, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(MPI_IN_PLACE, &time, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
         if (time + dt_ > settings_.endTime)
         {
             dt_ = settings_.endTime - time;
         }
-        MPI_Allreduce(MPI_IN_PLACE, &dt_, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(MPI_IN_PLACE, &time, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+
         time = time + dt_;
         computePreliminaryVelocities();
         computeRightHandSide();
         computePressure();
         computeVelocities();
-        outputWriterText_->writeFile(time);
-        outputWriterParaview_->writeFile(time);
+
+        //if(time-timelast>=1){
+
+          //  timelast+=1;
+        //}   
     }
 }
 
@@ -328,36 +335,7 @@ void ComputationParallel::applyBoundaryValues()
     }
 
 
-    if(!partitioning_->ownPartitionContainsLeftBoundary()){
-    //wait for send and receive calls to complete
-    MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
-    MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
-    MPI_Wait(&uLeftReceiveRequest, MPI_STATUS_IGNORE);
-    MPI_Wait(&vLeftReceiveRequest, MPI_STATUS_IGNORE);
-    //write right column from left neighbour into ghost layer on left
-    for (int j=uJBeginInter; j<uJEndInter; j++){
-        discretization_->u(discretization_->uIBegin(),j) = uLeftReceiveBuffer.at(j - uJBeginInter); 
-    }
-    for (int j=vJBeginInter; j<vJEndInter; j++){
-        discretization_->v(discretization_->vIBegin(),j) = vLeftReceiveBuffer.at(j - vJBeginInter); 
-    }
-    }
-
-    if(!partitioning_->ownPartitionContainsRightBoundary()){
-        //wait for send and receive calls to complete
-        MPI_Wait(&uRightSendRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&vRightSendRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&uRightReceiveRequest, MPI_STATUS_IGNORE);
-        MPI_Wait(&vRightReceiveRequest, MPI_STATUS_IGNORE);
-        //write left column from right neighbour into ghost layer on right
-        for (int j=uJBeginInter; j<uJEndInter; j++){
-            discretization_->u(discretization_->uIEnd()-1,j) = uRightReceiveBuffer.at(j - uJBeginInter); 
-        }
-        for (int j=vJBeginInter; j<vJEndInter; j++){
-            discretization_->v(discretization_->vIEnd()-1,j) = vRightReceiveBuffer.at(j - vJBeginInter); 
-        }
-    }
-
+   
 
     if(!partitioning_->ownPartitionContainsTopBoundary()){
         //wait for send and receive calls to complete
@@ -386,6 +364,35 @@ void ComputationParallel::applyBoundaryValues()
         }
         for (int i=vIBeginInter; i<vIEndInter; i++){
             discretization_->v(i,discretization_->vJBegin()) = vBottomReceiveBuffer.at(i - vIBeginInter); 
+        }
+    }
+     if(!partitioning_->ownPartitionContainsLeftBoundary()){
+    //wait for send and receive calls to complete
+    MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
+    MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
+    MPI_Wait(&uLeftReceiveRequest, MPI_STATUS_IGNORE);
+    MPI_Wait(&vLeftReceiveRequest, MPI_STATUS_IGNORE);
+    //write right column from left neighbour into ghost layer on left
+    for (int j=uJBeginInter; j<uJEndInter; j++){
+        discretization_->u(discretization_->uIBegin(),j) = uLeftReceiveBuffer.at(j - uJBeginInter); 
+    }
+    for (int j=vJBeginInter; j<vJEndInter; j++){
+        discretization_->v(discretization_->vIBegin(),j) = vLeftReceiveBuffer.at(j - vJBeginInter); 
+    }
+    }
+
+    if(!partitioning_->ownPartitionContainsRightBoundary()){
+        //wait for send and receive calls to complete
+        MPI_Wait(&uRightSendRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&vRightSendRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&uRightReceiveRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&vRightReceiveRequest, MPI_STATUS_IGNORE);
+        //write left column from right neighbour into ghost layer on right
+        for (int j=uJBeginInter; j<uJEndInter; j++){
+            discretization_->u(discretization_->uIEnd()-1,j) = uRightReceiveBuffer.at(j - uJBeginInter); 
+        }
+        for (int j=vJBeginInter; j<vJEndInter; j++){
+            discretization_->v(discretization_->vIEnd()-1,j) = vRightReceiveBuffer.at(j - vJBeginInter); 
         }
     }
 

@@ -190,7 +190,7 @@ void Settings::loadFromFile(std::string filename)
 
     if (parameterName=="maximumNumberOfIterations")
     {
-       maximumNumberOfIterations = atoi(parameterValue.c_str());
+       maximumNumberOfIterations = atof(parameterValue.c_str());
     }
   }
 }
