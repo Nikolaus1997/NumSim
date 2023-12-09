@@ -76,8 +76,7 @@ void ComputationParallel::runSimulation()
     {
         t_i++;
         applyBoundaryValues();
-                    outputWriterText_->writeFile(time);
-            outputWriterParaview_->writeFile(time);
+
         applyBoundaryValuesFandG();
         computeTimeStepWidth();
         MPI_Allreduce(MPI_IN_PLACE, &dt_, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
@@ -93,11 +92,12 @@ void ComputationParallel::runSimulation()
         computePressure();
         computeVelocities();
 
-        //if(time-timelast>=timeprint){
-
-        //    timelast+=1;
-        //    timeprint = 1;
-        //}   
+        if(time-timelast>=timeprint){
+                        //outputWriterText_->writeFile(time);
+            outputWriterParaview_->writeFile(time);
+           timelast+=1;
+           timeprint = 1;
+        }   
     }
 }
 
@@ -228,7 +228,7 @@ void ComputationParallel::applyBoundaryValues()
 
         //write top row to buffer
         for (int i=vIBeginInter; i<vIEndInter; i++){
-            vTopSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJEndInter-1);
+            vTopSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJEndInter-2);
         }
         //send top buffer to top neighbour
         MPI_Isend(vTopSendBuffer.data(), vTopSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 0, MPI_COMM_WORLD, &vTopSendRequest);
@@ -260,7 +260,7 @@ void ComputationParallel::applyBoundaryValues()
 
         //write bottom row to buffer
         for (int i=vIBeginInter; i<vIEndInter; i++){
-            vBottomSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJBeginInter);
+            vBottomSendBuffer.at(i - vIBeginInter) = discretization_->v(i,vJBeginInter+1);
         }
         //send bottom buffer to bottom neighbour
         MPI_Isend(vBottomSendBuffer.data(), vBottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 0, MPI_COMM_WORLD, &vBottomSendRequest);
@@ -285,7 +285,7 @@ void ComputationParallel::applyBoundaryValues()
     {
         //write left row to buffer
         for (int j=uJBeginInter; j<uJEndInter; j++){
-            uLeftSendBuffer.at(j - uJBeginInter) = discretization_->u(uIBeginInter,j);
+            uLeftSendBuffer.at(j - uJBeginInter) = discretization_->u(uIBeginInter+1,j);
         }
         //send left buffer to left neighbour
         MPI_Isend(uLeftSendBuffer.data(), uLeftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 0, MPI_COMM_WORLD, &uLeftSendRequest);
@@ -318,7 +318,7 @@ void ComputationParallel::applyBoundaryValues()
     {
         //write right column to buffer
         for (int j=uJBeginInter; j<uJEndInter; j++){
-            uRightSendBuffer.at(j - uJBeginInter) = discretization_->u(uIEndInter-1,j);
+            uRightSendBuffer.at(j - uJBeginInter) = discretization_->u(uIEndInter-2,j);
         }
         //send right buffer to right neighbour
         MPI_Isend(uRightSendBuffer.data(), uRightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 0, MPI_COMM_WORLD, &uRightSendRequest);
