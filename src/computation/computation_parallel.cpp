@@ -75,9 +75,10 @@ void ComputationParallel::runSimulation()
     while (time < settings_.endTime)
     {
         t_i++;
+        //setTestValues();
         applyBoundaryValues();
-
         applyBoundaryValuesFandG();
+
         computeTimeStepWidth();
         MPI_Allreduce(MPI_IN_PLACE, &dt_, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
         MPI_Allreduce(MPI_IN_PLACE, &time, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
@@ -87,16 +88,21 @@ void ComputationParallel::runSimulation()
         }
 
         time = time + dt_;
+        
+        
         computePreliminaryVelocities();
         computeRightHandSide();
         computePressure();
         computeVelocities();
 
+        //outputWriterText_->writeFile(time);
+        outputWriterParaview_->writeFile(time);
+
         if(time-timelast>=timeprint){
-                        //outputWriterText_->writeFile(time);
+            //outputWriterText_->writeFile(time);
             outputWriterParaview_->writeFile(time);
-           timelast+=1;
-           timeprint = 1;
+            timelast+=1;
+            timeprint = 1;
         }   
     }
 }
@@ -180,7 +186,7 @@ void ComputationParallel::applyBoundaryValues()
 
     int vJBeginInter = discretization_->vJBegin()+1;
     int vJEndInter = discretization_->vJEnd()-1;
-    int vRowSizeInter = uJEndInter-uJBeginInter;
+    int vRowSizeInter = vJEndInter-vJBeginInter;
 
 
     std::vector<double> uBottomSendBuffer(uColSizeInter,0);
@@ -193,15 +199,15 @@ void ComputationParallel::applyBoundaryValues()
     std::vector<double> uLeftReceiveBuffer(uRowSizeInter,0);
     std::vector<double> uRightReceiveBuffer(uRowSizeInter,0);
 
-    std::vector<double> vBottomSendBuffer(uColSizeInter,0);
-    std::vector<double> vTopSendBuffer(uColSizeInter,0);
-    std::vector<double> vLeftSendBuffer(uRowSizeInter,0);
-    std::vector<double> vRightSendBuffer(uRowSizeInter,0);
+    std::vector<double> vBottomSendBuffer(vColSizeInter,0);
+    std::vector<double> vTopSendBuffer(vColSizeInter,0);
+    std::vector<double> vLeftSendBuffer(vRowSizeInter,0);
+    std::vector<double> vRightSendBuffer(vRowSizeInter,0);
 
-    std::vector<double> vBottomReceiveBuffer(uColSizeInter,0);
-    std::vector<double> vTopReceiveBuffer(uColSizeInter,0);
-    std::vector<double> vLeftReceiveBuffer(uRowSizeInter,0);
-    std::vector<double> vRightReceiveBuffer(uRowSizeInter,0);
+    std::vector<double> vBottomReceiveBuffer(vColSizeInter,0);
+    std::vector<double> vTopReceiveBuffer(vColSizeInter,0);
+    std::vector<double> vLeftReceiveBuffer(vRowSizeInter,0);
+    std::vector<double> vRightReceiveBuffer(vRowSizeInter,0);
 
 
     if(partitioning_->ownPartitionContainsTopBoundary())
@@ -368,18 +374,18 @@ void ComputationParallel::applyBoundaryValues()
         }
     }
      if(!partitioning_->ownPartitionContainsLeftBoundary()){
-    //wait for send and receive calls to complete
-    // MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
-    // MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
-    MPI_Wait(&uLeftReceiveRequest, MPI_STATUS_IGNORE);
-    MPI_Wait(&vLeftReceiveRequest, MPI_STATUS_IGNORE);
-    //write right column from left neighbour into ghost layer on left
-    for (int j=uJBeginInter; j<uJEndInter; j++){
-        discretization_->u(discretization_->uIBegin(),j) = uLeftReceiveBuffer.at(j - uJBeginInter); 
-    }
-    for (int j=vJBeginInter; j<vJEndInter; j++){
-        discretization_->v(discretization_->vIBegin(),j) = vLeftReceiveBuffer.at(j - vJBeginInter); 
-    }
+        //wait for send and receive calls to complete
+        // MPI_Wait(&uLeftSendRequest, MPI_STATUS_IGNORE);
+        // MPI_Wait(&vLeftSendRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&uLeftReceiveRequest, MPI_STATUS_IGNORE);
+        MPI_Wait(&vLeftReceiveRequest, MPI_STATUS_IGNORE);
+        //write right column from left neighbour into ghost layer on left
+        for (int j=uJBeginInter; j<uJEndInter; j++){
+            discretization_->u(discretization_->uIBegin(),j) = uLeftReceiveBuffer.at(j - uJBeginInter); 
+        }
+        for (int j=vJBeginInter; j<vJEndInter; j++){
+            discretization_->v(discretization_->vIBegin(),j) = vLeftReceiveBuffer.at(j - vJBeginInter); 
+        }
     }
 
     if(!partitioning_->ownPartitionContainsRightBoundary()){
@@ -398,4 +404,29 @@ void ComputationParallel::applyBoundaryValues()
     }
 
 
+}
+
+void ComputationParallel::setTestValues() {
+    //if (partitioning_->ownRankNo() != 3){return;}
+
+
+    float test = 1.0;
+    //std::cout << discretization_->uIBegin() << " begin I und end: " << discretization_->uIEnd() << " rank " << partitioning_->ownRankNo() << std::endl;
+    //std::cout << discretization_->uJBegin() << " begin J und end: " << discretization_->uJEnd() << " rank " << partitioning_->ownRankNo() << std::endl;
+
+    for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++) {
+        for (int j = discretization_->uJBegin(); j < discretization_->uJEnd(); j++) {
+            discretization_->u(i, j) = test + 0.1 * (partitioning_->ownRankNo() + 1);
+            test++;
+        }
+    }
+    //std::cout << discretization_->vIBegin() << " begin I V und end: " << discretization_->vIEnd() << " rank " << partitioning_->ownRankNo() << std::endl;
+    //std::cout << discretization_->vJBegin() << " begin J V und end: " << discretization_->vJEnd() << " rank " << partitioning_->ownRankNo() << std::endl;
+    test = 1.0;
+    for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++) {
+        for (int j = discretization_->vJBegin(); j < discretization_->vJEnd(); j++) {
+            discretization_->v(i, j) = test + 0.1 * (partitioning_->ownRankNo() + 1);
+            test++;
+        }
+    }
 }

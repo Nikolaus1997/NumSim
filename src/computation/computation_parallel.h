@@ -16,4 +16,5 @@ class ComputationParallel: public Computation{
     protected:
         void computeTimeStepWidth();
         void applyBoundaryValues();
+        void setTestValues();
 };
