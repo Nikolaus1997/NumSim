@@ -117,6 +117,7 @@ void PressureSolverParallel::communicateBoundaries(){
         MPI_Irecv(rightReceiveBuffer.data(), rightReceiveBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 1, MPI_COMM_WORLD, &rightReceiveRequest);
 
     }
+
     if (!partitioning_->ownPartitionContainsTopBoundary()) {
         //wait for send and receive calls to complete
         MPI_Wait(&topSendRequest, MPI_STATUS_IGNORE);
@@ -126,7 +127,7 @@ void PressureSolverParallel::communicateBoundaries(){
             //std::cout << topReceiveBuffer.at(i) << std::endl;
             discretization_->p(i,discretization_->pJEnd()-1) = topReceiveBuffer.at(i+1); 
         }
-    }
+    } 
 
     if (!partitioning_->ownPartitionContainsBottomBoundary()) {
         //wait for send and receive calls to complete
@@ -175,9 +176,7 @@ void PressureSolverParallel::computeResiduum()
 
                     residuum_ += pow(d2pdxx + d2pdyy - discretization_->rhs(i,j),2);
             } 
-
-    //TODO: implement
+        }
     MPI_Allreduce(&residuum_, &holder,  1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
     residuum_ = holder/N_;
-}
 }   
