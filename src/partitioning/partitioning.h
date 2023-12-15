@@ -45,15 +45,15 @@ class Partitioning {
         std::array<int,2> nodeOffset() const;
 
         //! set top
-        void mpiExchangeTop(Array2D data, MPI_Request &request) const;
+        //void mpiExchangeTop(Array2D data, MPI_Request &request) const;
         //! set left
-        void mpiExchangeLeft(Array2D data, MPI_Request &request) const;
+        //void mpiExchangeLeft(Array2D data, MPI_Request &request) const;
         //! set right
-        void mpiExchangeRight(Array2D data, MPI_Request &request) const;
+        //void mpiExchangeRight(Array2D data, MPI_Request &request) const;
         //! set bottom
-        void mpiExchangeBottom(Array2D data, MPI_Request &request) const;
+        //void mpiExchangeBottom(Array2D data, MPI_Request &request) const;
         //! Exchange all above
-        void mpiExchangeAll(Array2D data, MPI_Request &request) const;
+        //void mpiExchangeAll(Array2D data, MPI_Request &request) const;
 
 
     private:

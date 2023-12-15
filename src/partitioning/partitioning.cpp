@@ -43,6 +43,7 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     if (nodeposition_[1] <= remainderRow)
         nCellsLocal_[1]++;
 
+    std::cout<<"Rank: "<< ownRankNo_ <<" Größe: "<< nCellsLocal_[0] <<" | "<< nCellsLocal_[1]<<std::endl;
 
     //setzen der Nachbarn
     if( ownPartitionContainsLeftBoundary()) {
@@ -69,13 +70,13 @@ Partitioning::Partitioning(std::array<int, 2> nCellsGlobal)
     nodeOffset_ = {columnStart, rowStart};
 
 
-    MPI_Type_vector(nCellsLocal_[1], 1, nCellsLocal_[0], MPI_DOUBLE, &column);
-    MPI_Type_commit(&column);
-    MPI_Type_commit(&column);
+    //MPI_Type_vector(nCellsLocal_[1], 1, nCellsLocal_[0], MPI_DOUBLE, &column);
+    //MPI_Type_commit(&column);
+    //MPI_Type_commit(&column);
 
-    MPI_Type_vector(nCellsLocal_[1], 1, 1, MPI_DOUBLE, &row);
-    MPI_Type_commit(&row);
-    MPI_Type_commit(&row);
+    //MPI_Type_vector(nCellsLocal_[1], 1, 1, MPI_DOUBLE, &row);
+    //MPI_Type_commit(&row);
+    //MPI_Type_commit(&row);
 };
 
 int Partitioning::ownRankNo() const{
@@ -180,7 +181,7 @@ int Partitioning::calcRankID(int column, int row) const{
 }
 
 
-void Partitioning::mpiExchangeAll(Array2D data, MPI_Request &request) const{
+/*void Partitioning::mpiExchangeAll(Array2D data, MPI_Request &request) const{
     mpiExchangeTop(data, request);
     mpiExchangeRight(data, request);
     mpiExchangeLeft(data, request);
@@ -226,4 +227,4 @@ void Partitioning::mpiExchangeBottom(Array2D data, MPI_Request &request) const
     if (topNeighbourRankNo() != ownRankNo()){
         MPI_Irecv(data.data(), 1, row, topNeighbourRankNo(), 33, MPI_COMM_WORLD, &request);
     }
-}
+} */
