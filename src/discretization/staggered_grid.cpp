@@ -8,7 +8,7 @@ StaggeredGrid::StaggeredGrid(std::shared_ptr<Partitioning> partitioning, std::ar
     meshWidth_(meshWidth),
         f_({nCells_[0]+2+1, nCells_[1]+3+1}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
         g_({nCells_[0]+3+1, nCells_[1]+2+1}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
-        p_({nCells_[0]+2+1, nCells_[1]+2+1}, {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth),
+        p_({nCells_[0]+2, nCells_[1]+2}, {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth),
         u_({nCells_[0]+2+1, nCells_[1]+3+1}, {meshWidth_[0],        meshWidth_[1]/2.0}, meshWidth),
         v_({nCells_[0]+3+1, nCells_[1]+2+1}, {meshWidth_[0]/2.0,    meshWidth_[1]},     meshWidth),
         rhs_({nCells_[0]+2, nCells_[1]+2},           {meshWidth_[0]/2.0,    meshWidth_[1]/2.0}, meshWidth)

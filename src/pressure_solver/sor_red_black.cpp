@@ -1,5 +1,6 @@
 #include "pressure_solver/sor_red_black.h"
 #include "pressure_solver/pressure_solver_parallel.h"
+#include <iostream>
 
 SORRedBlack::SORRedBlack(std::shared_ptr<Discretization> discretization, 
                     double epsilon, 
@@ -23,7 +24,7 @@ void SORRedBlack::solve() {
     double residuum = 10.;
 
     int offset;
-    if (((partitioning_->nodeOffset()[0] % 2) + (partitioning_->nodeOffset()[0] % 2)) % 2 == 0)
+    if (((partitioning_->nodeOffset()[0] % 2) + (partitioning_->nodeOffset()[1] % 2)) % 2 == 0)
     {
         offset = 0;
     } else {
@@ -61,7 +62,7 @@ void SORRedBlack::solve() {
         //setBoundaryValues();
         //compute residuum and check for convergence
         //TODO: FIX RESIDUUM
-        computeResiduum();  
+        computeResiduum();
         if(residuum_< eps2 || iterations == maximumNumberOfIterations_)
         {
             doSor = false;

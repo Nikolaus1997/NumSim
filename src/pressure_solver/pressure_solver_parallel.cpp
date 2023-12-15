@@ -14,10 +14,10 @@ PressureSolverParallel::PressureSolverParallel(std::shared_ptr< Discretization >
 //TODO: implement communication
 void PressureSolverParallel::communicateBoundaries(){
     //calculate number of inner rows and columns
-    int pIBegin_in = discretization_->pIBegin();
-    int pIEnd_in = discretization_->pIEnd();
-    int pJBegin_in = discretization_->pJBegin();
-    int pJEnd_in = discretization_->pJEnd();
+    int pIBegin_in = discretization_->pIBegin() + 1;
+    int pIEnd_in = discretization_->pIEnd() - 1;
+    int pJBegin_in = discretization_->pJBegin() + 1;
+    int pJEnd_in = discretization_->pJEnd() - 1;
     int NColumns = pIEnd_in-pIBegin_in;
     int NRows = pJEnd_in-pJBegin_in;
     //std::cout << "NColumns " << NColumns << "NRows " << NRows << "pIBegin_in " << pIBegin_in << "pIEnd_in " << pIEnd_in << std::endl;
@@ -52,7 +52,7 @@ void PressureSolverParallel::communicateBoundaries(){
         //write top row to buffer
         for (int i=pIBegin_in; i<pIEnd_in; i++){
             //std::cout <<partitioning_->ownRankNo()<<"  "<<topReceiveBuffer.at(i-pIBegin_in)<<std::endl;
-            topSendBuffer.at(i+1) = discretization_->p(i,discretization_->pJEnd()-2);
+            topSendBuffer.at(i) = discretization_->p(i,discretization_->pJEnd()-2);
         }
         //send top buffer to top neighbour
         MPI_Isend(topSendBuffer.data(), topSendBuffer.size(), MPI_DOUBLE, partitioning_->topNeighbourRankNo(), 1, MPI_COMM_WORLD, &topSendRequest);
@@ -71,7 +71,7 @@ void PressureSolverParallel::communicateBoundaries(){
     } else {
         //write bottom row to buffer
         for (int i=pIBegin_in; i<pIEnd_in; i++){
-            bottomSendBuffer.at(i+1) = discretization_->p(i,discretization_->pJBegin()+1);
+            bottomSendBuffer.at(i) = discretization_->p(i,discretization_->pJBegin()+1);
         }
         //send bottom buffer to bottom neighbour
         MPI_Isend(bottomSendBuffer.data(), bottomSendBuffer.size(), MPI_DOUBLE, partitioning_->bottomNeighbourRankNo(), 1, MPI_COMM_WORLD, &bottomSendRequest);
@@ -90,7 +90,7 @@ void PressureSolverParallel::communicateBoundaries(){
     } else {
         //write left row to buffer
         for (int j=pJBegin_in; j<pJEnd_in; j++){
-            leftSendBuffer.at(j+1) = discretization_->p(discretization_->pIBegin()+1,j);
+            leftSendBuffer.at(j) = discretization_->p(discretization_->pIBegin()+1,j);
         }
         //send left buffer to left neighbour
         MPI_Isend(leftSendBuffer.data(), leftSendBuffer.size(), MPI_DOUBLE, partitioning_->leftNeighbourRankNo(), 1, MPI_COMM_WORLD, &leftSendRequest);
@@ -109,7 +109,7 @@ void PressureSolverParallel::communicateBoundaries(){
     } else {
         //write right column to buffer
         for (int j=pJBegin_in; j<pJEnd_in; j++){
-            rightSendBuffer.at(j+1) = discretization_->p(discretization_->pIEnd()-2,j);
+            rightSendBuffer.at(j) = discretization_->p(discretization_->pIEnd()-2,j);
         }
         //send right buffer to right neighbour
         MPI_Isend(rightSendBuffer.data(), rightSendBuffer.size(), MPI_DOUBLE, partitioning_->rightNeighbourRankNo(), 1, MPI_COMM_WORLD, &rightSendRequest);
@@ -125,7 +125,7 @@ void PressureSolverParallel::communicateBoundaries(){
         //write bottom row from top neighbour into ghost layer on top
         for (int i=pIBegin_in; i<pIEnd_in; i++){
             //std::cout << topReceiveBuffer.at(i) << std::endl;
-            discretization_->p(i,discretization_->pJEnd()-1) = topReceiveBuffer.at(i+1); 
+            discretization_->p(i,discretization_->pJEnd()-1) = topReceiveBuffer.at(i); 
         }
     } 
 
@@ -136,7 +136,7 @@ void PressureSolverParallel::communicateBoundaries(){
         //write bottom row from top neighbour into ghost layer on top
         for (int i=pIBegin_in; i<pIEnd_in; i++){
             //std::cout << bottomReceiveBuffer.at(i) << std::endl;
-            discretization_->p(i,discretization_->pJBegin()) = bottomReceiveBuffer.at(i+1); 
+            discretization_->p(i,discretization_->pJBegin()) = bottomReceiveBuffer.at(i); 
         }
     }
 
@@ -147,7 +147,7 @@ void PressureSolverParallel::communicateBoundaries(){
         //write right column from left neighbour into ghost layer on left
         for (int j=pJBegin_in; j<pJEnd_in; j++){
             //std::cout << leftReceiveBuffer.at(j) << std::endl;
-            discretization_->p(discretization_->pIBegin(),j) = leftReceiveBuffer.at(j+1); 
+            discretization_->p(discretization_->pIBegin(),j) = leftReceiveBuffer.at(j); 
         }
     }
 
@@ -158,7 +158,7 @@ void PressureSolverParallel::communicateBoundaries(){
         //write left column from right neighbour into ghost layer on right
         for (int j=pJBegin_in; j<pJEnd_in; j++){
             //std::cout << rightReceiveBuffer.at(j) << std::endl;
-            discretization_->p(discretization_->pIEnd()-1,j) = rightReceiveBuffer.at(j+1); 
+            discretization_->p(discretization_->pIEnd()-1,j) = rightReceiveBuffer.at(j); 
         }
     }
 }
