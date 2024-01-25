@@ -7,7 +7,7 @@ class CentralGrid
 {
     public:
         CentralGrid(std::array<int, 2> nCells,
-                  std::array<double, 2> meshWidth);
+                  std::array<double, 2> meshWidth, std::array<double,2> NumberLbmDirections);
         int pdfJEnd() const;
         int pdfJBegin() const;
         int pdfIEnd() const;
@@ -19,6 +19,7 @@ class CentralGrid
     protected:
         const std::array<double, 2> meshWidth_;
         const std::array<int, 2> nCells_;
+        std::array<double,2> ci_;
         FieldVariable p_;
         FieldVariable u_;
         FieldVariable v_;
