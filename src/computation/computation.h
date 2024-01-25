@@ -1,5 +1,6 @@
 #pragma once
-
+#include <memory>
+#include <algorithm>
 #include "settings/settings.h"
 #include "discretization/discretization.h"
 #include "discretization/donor_cell.h"
@@ -8,39 +9,71 @@
 #include "output_writer/output_writer_paraview.h"
 #include "output_writer/output_writer_text.h"
 
-#include <memory>
-#include <cmath>
-#include <algorithm>
 
+/** This class handles the main simulation.
+* It implements the time stepping scheme, computes all the terms and calls the pressure solver.
+*/
+class Computation {
+public:
+    /**
+     * Initialize the computation object
+     * 
+     * Parse the settings from the parameter file that is given as the command line argument
+     * It implements the time stepping scheme, computes all the terms and calls the pressure solver.
+     */
+    void initialize(std::string filename);
 
-class Computation
-{
-    public:
-        void initialize(std::string filename);
+    /**
+     * Run the whole simulation until tend
+     */
+    void runSimulation();
 
-        void runSimulation();
-    
-    private:
-        void computeTimeStepWidth();
+private:
+    /**
+     * Set the boundary values of the velocities (u, v)
+     * 
+     * Left and right boundaries should overwrite bottom and top boundaries
+     */
+    void applyBoundaryValues();
 
-        void applyBoundaryValues();
+    /**
+     * Set the boundary values of the preliminary velocities (u, v)
+     * 
+     * Left and right boundaries should overwrite bottom and top boundaries
+     */
+    void applyPreliminaryBoundaryValues();
 
-        void applyBoundaryValuesFandG();
+    /**
+     * Compute the preliminary velocities (F, G) using finite differences
+     */ 
+    void computePreliminaryVelocities();
 
-        void computePreliminaryVelocities();
+    /**
+     * Compute the pressure p by solving the Poisson equation
+     */
+    void computePressure();
 
-        void computeRightHandSide();
+    /**
+     * Compute the right hand side rhs of the pressure Poisson equation 
+     */
+    void computeRightHandSide();
 
-        void computePressure();
+    /**
+     * Compute the time step width dt based on the maximum velocities
+     */
+    void computeTimeStepWidth();
 
-        void computeVelocities();
+    /**
+     * Compute the new velocities (u, v) based on the preliminary velocities (F, G) and the pressure (p)
+     */
+    void computeVelocities();
 
-
-        Settings settings_;
-        std::shared_ptr<Discretization> discretization_;
-        std::unique_ptr<PressureSolver> pressureSolver_;
-        std::unique_ptr<OutputWriterParaview> outputWriterParaview_;
-        std::unique_ptr<OutputWriterText> outputWriterText_;
-        std::array<double, 2> meshWidth_;
-        double dt_;    
+    Settings settings_;
+    std::shared_ptr<Discretization> discretization_;
+    std::unique_ptr<PressureSolver> pressureSolver_;
+    std::unique_ptr<OutputWriterParaview> outputWriterParaview_;
+    std::unique_ptr<OutputWriterText> outputWriterText_;
+    std::array<double, 2> meshWidth_;
+    double dt_;
+    bool doLBM;
 };

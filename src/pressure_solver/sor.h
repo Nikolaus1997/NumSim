@@ -1,14 +1,30 @@
 #pragma once
-#include "pressure_solver/pressure_solver.h"
-#include <cmath>
 
-class SOR : public PressureSolver
-{
-    public:
-        SOR (std::shared_ptr< Discretization > discretization, double epsilon, int maximumNumberOfIterations, double omega);
-    
-        void solve();
-    
-    private:
-        double omega_;
+#include "pressure_solver/pressure_solver.h"
+
+/**
+ * Successive over-relaxation solver for solving a linear system of equations.
+ */
+
+class SOR : public PressureSolver {
+public:
+    /**
+    * constructor
+    * @param discretization
+    * @param epsilon
+    * @param maximumNumberOfIterations
+    * @param omega
+    */
+    SOR(std::shared_ptr <Discretization> discretization,
+        double epsilon,
+        int maximumNumberOfIterations,
+        double omega);
+
+    /**
+     * solve the Poisson problem for the pressure, using the rhs and p field variables in the staggeredGrid
+     */
+    void solve();
+
+private:
+    double omega_;
 };

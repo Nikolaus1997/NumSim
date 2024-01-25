@@ -1,82 +1,98 @@
-#include "discretization/donor_cell.h"
 #include <cmath>
+#include "discretization/donor_cell.h"
 
-DonorCell::DonorCell(std::array<int, 2> nCells, std::array<double, 2> meshWidth, double alpha): 
-Discretization(nCells, meshWidth), alpha_(alpha)
+  /**
+   * calculate derivatives needed for pressure calculations using the donor cell approach
+   * @param nCells: number of inner cells
+   * @param meshWidth: width of a cell in both directions
+   * @param alpha: donor cell weight parameter
+   */
+
+DonorCell::DonorCell(std::array<int, 2> nCells, std::array<double, 2> meshWidth, double alpha) :
+    Discretization(nCells, meshWidth),
+    alpha_(alpha)
 {
-
-};
-
-double DonorCell::computeDu2Dx(int i, int j) const
-{
-    const double u_first  = (u(i,j)+u(i+1,j))/2.0;
-    const double u_second = (u(i-1,j)+u(i,j))/2.0;
-
-    const double u_first_minus  = (u(i,j)-u(i+1,j))/2.0;
-    const double u_second_minus = (u(i-1,j)-u(i,j))/2.0;
     
-    const double first_term = (pow(u_first,2) - pow(u_second,2))/dx();
-    const double secod_term = (fabs(u_first)*u_first_minus - fabs(u_second)*u_second_minus)/dx();
-
-    const double solution   =  first_term + alpha_*secod_term;
-
-    return solution;
-
 }
 
-double DonorCell::computeDv2Dy(int i, int j) const
-{
-    const double v_first  = (v(i,j)+v(i,j+1))/2.0;
-    const double v_second = (v(i,j-1)+v(i,j))/2.0;
+/**
+ * compute the 1st derivative ∂ u^2 / ∂x
+ * @param i: discretized position in x direcetion
+ * @param j: discretiszed position in y direction
+ * @return donor cell derivative approximation of the derivative stated above
+ */
+double DonorCell::computeDu2Dx(int i, int j) const {
+    const double u_interp_right = (u(i+1,j) + u(i,j)) / 2.0;
+    const double u_interp_left = (u(i,j) + u(i-1,j)) / 2.0;
 
-    const double v_first_minus  = (v(i,j)-v(i,j+1))/2.0;
-    const double v_second_minus = (v(i,j-1)-v(i,j))/2.0;
-    
-    const double first_term = (pow(v_first,2) - pow(v_second,2))/dy();
-    const double secod_term = (fabs(v_first)*v_first_minus - fabs(v_second)*v_second_minus)/dy();
+    const double u_interp_right_donor = (u(i,j) - u(i+1,j)) / 2.0;
+    const double u_interp_left_donor = (u(i-1,j) - u(i,j)) / 2.0;
 
-    const double solution   =  first_term + alpha_*secod_term;
+    const double A = (pow(u_interp_right, 2) - pow(u_interp_left, 2)) / dx();
+    const double B = (fabs(u_interp_right) * u_interp_right_donor - fabs(u_interp_left) * u_interp_left_donor) / dx();
 
-    return solution;
-
+    return A + alpha_ * B;
 }
 
-double DonorCell::computeDuvDy(int i, int j) const
-{
-    const double v_first  = (v(i,j)+v(i+1,j))/2.0;
-    const double u_second = (u(i,j)+u(i,j+1))/2.0;
+/**
+ * compute the 1st derivative ∂ v^2 / ∂y
+ * @param i: discretized position in x direcetion
+ * @param j: discretiszed position in y direction
+ * @return donor cell derivative approximation of the derivative stated above
+ */
+double DonorCell::computeDv2Dy(int i, int j) const {
+    const double v_interp_up = (v(i,j+1) + v(i,j)) / 2.0;
+    const double v_interp_down = (v(i,j) + v(i,j-1)) / 2.0;
 
-    const double v_first_minus  = (v(i,j-1)+v(i+1,j-1))/2.0;
-    const double u_second_minus = (u(i,j-1)+u(i,j))/2.0;
+    const double v_interp_up_donor = (v(i,j) - v(i,j+1)) / 2.0;
+    const double v_interp_down_donor = (v(i,j-1) - v(i,j)) / 2.0;
 
-    const double u_first_minus_minus  = (u(i,j)-u(i,j+1))/2.0;
-    const double u_second_minus_minus = (u(i,j-1)-u(i,j))/2.0; 
-    
-    const double first_term = v_first*u_second - v_first_minus*u_second_minus;
-    const double secod_term = fabs(v_first)*u_first_minus_minus - fabs(v_first_minus)*u_second_minus_minus;
+    const double A = (pow(v_interp_up, 2) - pow(v_interp_down, 2)) / dy();
+    const double B = (v_interp_up_donor * fabs(v_interp_up) - v_interp_down_donor * fabs(v_interp_down)) / dy();
 
-    const double solution   =  1/dy() * (first_term + alpha_*secod_term);
-
-    return solution;
+    return A + alpha_ * B;
 }
 
-double DonorCell::computeDuvDx(int i, int j) const
-{
-    const double u_first    = (u(i,j)+u(i,j+1))/2.0;
-    const double v_second   = (v(i,j)+v(i+1,j))/2.0;
+/**
+ * compute the 1st derivative ∂ (uv) / ∂x
+ * @param i: discretized position in x direcetion
+ * @param j: discretiszed position in y direction
+ * @return donor cell derivative approximation of the derivative stated above
+ */
+double DonorCell::computeDuvDx(int i, int j) const {
+    const double u_interp_up = (u(i,j+1) + u(i,j)) / 2.0;
+    const double uLeft_interp_up =  (u(i-1,j+1) + u(i-1,j)) / 2.0;
 
-    const double u_second_minus = (u(i-1,j)+u(i-1,j+1))/2.0;
-    const double v_second_minus = (v(i-1,j)+v(i,j))/2.0;
+    const double v_interp_right = (v(i,j) + v(i+1,j)) / 2.0;
+    const double v_interp_left = (v(i-1,j) + v(i,j)) / 2.0;
 
-    const double v_second_minus_minus       = (v(i,j)-v(i+1,j))/2.0;
-    const double v_second_minus_minus_minus = (v(i-1,j)-v(i,j))/2.0;
+    const double v_interp_right_donor = (v(i,j) - v(i+1,j)) / 2.0;
+    const double v_interp_left_donor = (v(i-1,j) - v(i,j)) / 2.0;
 
-    const double first_term  = u_first*v_second-u_second_minus*v_second_minus;
-    const double second_term = fabs(u_first)*v_second_minus_minus-fabs(u_second_minus*v_second_minus_minus_minus);
-    
-    const double solution = 1/dx()*(first_term + alpha_*second_term);
+    const double A = (u_interp_up * v_interp_right - uLeft_interp_up * v_interp_left) / dx();
+    const double B = (fabs(u_interp_up) * v_interp_right_donor - fabs(uLeft_interp_up) * v_interp_left_donor) / dx();
 
-    return solution;
+    return A + alpha_ * B;
+}
 
+/**
+ * compute the 1st derivative ∂ (uv) / ∂y
+ * @param i: discretized position in x direcetion
+ * @param j: discretiszed position in y direction
+ * @return donor cell derivative approximation of the derivative stated above
+ */
+double DonorCell::computeDuvDy(int i, int j) const {
+    const double u_interp_up = (u(i,j+1) + u(i,j)) / 2.0;
+    const double u_interp_down = (u(i,j) + u(i,j-1)) / 2.0;
 
+    const double v_interp_right = (v(i+1,j) + v(i,j)) / 2.0;
+    const double vDown_interp_right = (v(i+1,j-1) + v(i,j-1)) / 2.0;
+
+    const double u_interp_up_donor = (u(i,j) - u(i,j+1)) / 2.0;
+    const double u_interp_down_donor = (u(i,j-1) - u(i,j)) / 2.0;
+
+    const double A = (u_interp_up * v_interp_right - u_interp_down * vDown_interp_right) / dy();
+    const double B = (u_interp_up_donor * fabs(v_interp_right) -  u_interp_down_donor * fabs(vDown_interp_right)) / dy();
+
+    return A + alpha_ * B;
 }

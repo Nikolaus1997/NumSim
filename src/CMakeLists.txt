@@ -12,7 +12,7 @@ add_executable(${PROJECT_NAME}
    computation/computation.cpp
    
    storage/array2d.cpp
-   storage/field_variable.cpp
+   storage/fieldvariable.cpp
 
    pressure_solver/gauss_seidel.cpp
    pressure_solver/sor.cpp 

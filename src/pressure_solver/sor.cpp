@@ -1,57 +1,46 @@
 #include "pressure_solver/sor.h"
+#include <cmath>
+#include <iostream>
 
-SOR::SOR(std::shared_ptr<Discretization> discretization, double epsilon, int maximumNumberOfIterations, double omega)
-:PressureSolver(discretization, epsilon, maximumNumberOfIterations), omega_(omega)
+/**
+ * Successive over-relaxation solver for solving a linear system of equations.
+ * @param discretization
+ * @param epsilon
+ * @param maximumNumberOfIterations
+ * @param omega
+ */
+
+SOR::SOR(std::shared_ptr <Discretization> discretization,
+         double epsilon,
+         int maximumNumberOfIterations,
+         double omega) :
+        PressureSolver(discretization, epsilon, maximumNumberOfIterations),
+        omega_(omega)
 {
+
 }
+/**
+ * solve the Poisson problem for the pressure, using the rhs and p field variables in the staggeredGrid
+ */
+void SOR::solve() {
+    const double dx2 = pow(discretization_->dx(), 2);
+    const double dy2 = pow(discretization_->dy(), 2);
+    const double k1 = 1 - omega_;
+    const double k2 = omega_ * (dx2 * dy2) / (2.0 * (dx2 + dy2));
+    const double eps2 = pow(epsilon_, 2);
+    int iteration = 0;
+    do {
+        iteration++;
 
-void SOR::solve()
-{
-    double dxdx = pow(discretization_->dx(),2);
-    double dydy = pow(discretization_->dy(),2);
-    double factor_dx_dy =omega_* (dxdx*dydy)/(2*(dxdx+dydy)); 
-    double eps2 = pow(epsilon_,2);
-    const int  N = discretization_->nCells()[0]*discretization_->nCells()[1];
-
-    double  residuum = 0.;
-    int     iterations = 0;
-
-    bool doSor = true;
-
-    while(doSor)
-    {
-        for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++)
-        {
-            for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++)
-            {
-                    double dpdx = (discretization_->p(i-1,j) + discretization_->p(i+1,j))/dxdx;
-                    double dpdy = (discretization_->p(i,j-1) + discretization_->p(i,j+1))/dydy; 
-
-                    discretization_->p(i,j) = (1-omega_)*discretization_->p(i,j)+factor_dx_dy * (dpdx+dpdy - discretization_->rhs(i,j));
-            } 
+        for (int i = discretization_->pInteriorIBegin(); i < discretization_->pInteriorIEnd(); i++) {
+            for (int j = discretization_->pInteriorJBegin(); j < discretization_->pInteriorJEnd(); j++) {
+                double px = (discretization_->p(i - 1, j) + discretization_->p(i + 1, j)) / dx2;
+                double py = (discretization_->p(i, j - 1) + discretization_->p(i, j + 1)) / dy2;
+                discretization_->p(i, j) = k1 * discretization_->p(i, j) + k2 * (px + py - discretization_->rhs(i, j));
+            }
         }
-        
-        
-        iterations++;
         setBoundaryValues();
-
-        for (int i = discretization_->pIBegin()+1; i < discretization_->pIEnd()-1; i++){
-            for (int j = discretization_->pJBegin()+1; j < discretization_->pJEnd()-1; j++){
-                    double d2pdxx = (discretization_->p(i-1,j) - 2 * discretization_->p(i, j) + discretization_->p(i+1,j))/dxdx;
-                    double d2pdyy = (discretization_->p(i,j-1) - 2 * discretization_->p(i, j) + discretization_->p(i,j+1))/dydy; 
-
-                    residuum += pow(d2pdxx + d2pdyy - discretization_->rhs(i,j),2);
-            } 
-            residuum = residuum/N;
-        }
-            
-        if(residuum < eps2)
-        {
-            doSor = false;
-        }
-        else if(iterations == maximumNumberOfIterations_)
-        {
-            doSor = false;
-        }
-    }
-}
+        computeResidualNorm();
+    } while (residualNorm() > eps2 && iteration < maximumNumberOfIterations_);
+    iterations_ = iteration;
+};
