@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-OutputWriter::OutputWriter(std::shared_ptr<Discretization> discretization)
+OutputWriter::OutputWriter(std::shared_ptr<LbmDiscretization> discretization)
  : discretization_(discretization), fileNo_(0)
 {
   // create "out" subdirectory if it does not yet exist

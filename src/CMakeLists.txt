@@ -12,6 +12,9 @@ add_executable(${PROJECT_NAME}
    computation/computation.cpp
    
    storage/array2d.cpp
+   storage/array3d.cpp 
+   storage/array4d.cpp 
+   storage/pdffield.cpp 
    storage/fieldvariable.cpp
 
    pressure_solver/gauss_seidel.cpp
@@ -26,6 +29,8 @@ add_executable(${PROJECT_NAME}
    discretization/discretization.cpp 
    discretization/donor_cell.cpp
    discretization/staggered_grid.cpp
+   discretization/central_grid.cpp 
+   discretization/lbm_discretization.cpp
 )
 # Add the project directory to include directories, to be able to include all project header files from anywhere
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR})

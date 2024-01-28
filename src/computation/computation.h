@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <algorithm>
+#include <cmath>
 #include "settings/settings.h"
 #include "discretization/discretization.h"
 #include "discretization/donor_cell.h"
@@ -8,7 +9,8 @@
 #include "pressure_solver/pressure_solver.h"
 #include "output_writer/output_writer_paraview.h"
 #include "output_writer/output_writer_text.h"
-
+#include "discretization/lbm_discretization.h"
+#include "storage/array2d.h"
 
 /** This class handles the main simulation.
 * It implements the time stepping scheme, computes all the terms and calls the pressure solver.
@@ -68,12 +70,22 @@ private:
      */
     void computeVelocities();
 
+    void LBMapplyBoundaryValues();
+
+    void FillVelocitiesAndPressure();
+
+    void Collision();
+
+    void Streaming();
+
     Settings settings_;
     std::shared_ptr<Discretization> discretization_;
+    std::shared_ptr<LbmDiscretization> cdiscretization_;
     std::unique_ptr<PressureSolver> pressureSolver_;
     std::unique_ptr<OutputWriterParaview> outputWriterParaview_;
     std::unique_ptr<OutputWriterText> outputWriterText_;
     std::array<double, 2> meshWidth_;
     double dt_;
+    double cs_;
     bool doLBM;
 };

@@ -24,7 +24,9 @@ int main(int argc, char *argv[])
   std::string filename = argv[1];
   
   auto computation = Computation();
+    std::cout <<"#########################"<<std::endl;
   computation.initialize(filename);
+
   computation.runSimulation();
 
   return EXIT_SUCCESS;

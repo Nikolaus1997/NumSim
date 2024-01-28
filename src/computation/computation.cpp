@@ -1,6 +1,7 @@
 #include "computation/computation.h"
 #include "pressure_solver/gauss_seidel.h"
 #include "pressure_solver/sor.h"
+#include "discretization/central_grid.h"
 
 /**
  * Initialize the computation object
@@ -8,50 +9,71 @@
  * Parse the settings from the parameter file that is given as the command line argument
  * It implements the time stepping scheme, computes all the terms and calls the pressure solver.
  */
+// Computation::Computation(): ci_(settings_.Q),wi_(settings_.Q)
+// {
+
+// }
 void Computation::initialize(std::string filename)
 {
     settings_ = Settings();
     // Load settings from file
-    settings_.loadFromFile(filename);
+  std::cout <<"#########################"<<std::endl;    
+    //settings_.loadFromFile(filename);
     // Print settings
-#ifndef NDEBUG
-    settings_.printSettings();
-#endif
+
+    //settings_.printSettings();
+
 
     // Initialize discretization
     for (int i = 0; i < 2; i++)
         meshWidth_[i] = settings_.physicalSize[i] / settings_.nCells[i];
 
-    if (settings_.useDonorCell) {
-        discretization_ = std::make_shared<DonorCell>(settings_.nCells, meshWidth_, settings_.alpha);
-    }
-    else {
-        discretization_ = std::make_shared<CentralDifferences>(settings_.nCells, meshWidth_);
-    }
+    // if (settings_.useDonorCell) {
+    //     discretization_ = std::make_shared<DonorCell>(settings_.nCells, meshWidth_, settings_.alpha);
+    // }
+    // else {
+    //     discretization_ = std::make_shared<CentralDifferences>(settings_.nCells, meshWidth_);
+    // }
 
-    // Initialize solver
-    if (settings_.pressureSolver == "SOR") {
-        pressureSolver_ = std::make_unique<SOR>(discretization_, settings_.epsilon,
-                                                settings_.maximumNumberOfIterations, settings_.omega);
-    }
-    else if (settings_.pressureSolver == "GaussSeidel") {
-        pressureSolver_ = std::make_unique<GaussSeidel>(discretization_, settings_.epsilon,
-                                                settings_.maximumNumberOfIterations);
+    // // Initialize solver
+    // if (settings_.pressureSolver == "SOR") {
+    //     pressureSolver_ = std::make_unique<SOR>(discretization_, settings_.epsilon,
+    //                                             settings_.maximumNumberOfIterations, settings_.omega);
+    // }
+    // else if (settings_.pressureSolver == "GaussSeidel") {
+    //     pressureSolver_ = std::make_unique<GaussSeidel>(discretization_, settings_.epsilon,
+    //                                             settings_.maximumNumberOfIterations);
 
-    } else {
-        std::cout << "Solver not found!" << std::endl;
-    }
+    // } else {
+    //     std::cout << "Solver not found!" << std::endl;
+    // }
 
-    if (settings_.useLBM == "LBM"){
+    //if (settings_.useLBM){
         doLBM = true;
-    else 
-    {
-        doLBM = false;
-    }
-    }
-    // Initialize output writers
-    outputWriterText_ = std::make_unique<OutputWriterText>(discretization_);
-    outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_);
+        cdiscretization_ = std::make_shared<LbmDiscretization>(settings_.nCells, meshWidth_);
+        cs_ = 1/sqrt(3);
+        discretization_ = std::make_shared<CentralDifferences>(settings_.nCells, meshWidth_);        // Initialize output writers
+        outputWriterText_ = std::make_unique<OutputWriterText>(cdiscretization_);
+        outputWriterParaview_ = std::make_unique<OutputWriterParaview>(cdiscretization_);    
+                for(int i=cdiscretization_->pIBegin(); i < cdiscretization_->pIEnd();i++)
+                {
+                    for(int j=cdiscretization_->pJBegin(); j < cdiscretization_->pJEnd();j++)
+                        {
+                            cdiscretization_->rho(i,j) = 1.;
+                            for(int k = 0; k<9; k++){
+                                cdiscretization_->pdf(i,j,k) = 1/9;
+                            }                
+                        }
+                }    
+    // }
+    // else 
+    // {
+    //     doLBM = false;
+    //     // Initialize output writers
+    //     outputWriterText_ = std::make_unique<OutputWriterText>(discretization_);
+    //     outputWriterParaview_ = std::make_unique<OutputWriterParaview>(discretization_);        
+    // }
+
 };
 
 /**
@@ -62,63 +84,188 @@ void Computation::runSimulation() {
     double time = 0.0;
     while (time < settings_.endTime){
         t_iter++;
-        if(doLBM == false){
-        /*
-        * 1) Apply boundary values (for u, v, F, G)
-        */
-        applyBoundaryValues();
-        applyPreliminaryBoundaryValues();
+//         if(doLBM == false){
+//         /*
+//         * 1) Apply boundary values (for u, v, F, G)
+//         */
+//         applyBoundaryValues();
+//         applyPreliminaryBoundaryValues();
 
-        /*
-        * 2) Compute the next time step width
-        */
-        computeTimeStepWidth();
-        // endTime should be reached exactly:
-        if (time + dt_ > settings_.endTime) {
-            dt_ = settings_.endTime - time;
-        }
+//         /*
+//         * 2) Compute the next time step width
+//         */
+//         computeTimeStepWidth();
+//         // endTime should be reached exactly:
+//         if (time + dt_ > settings_.endTime) {
+//             dt_ = settings_.endTime - time;
+//         }
+//         time += dt_;
+
+//         /*
+//         * 3) Compute preliminary velocities (F, G)
+//         */
+//         computePreliminaryVelocities();
+
+//         /*
+//         * 4) Compute the right hand side (rhs)
+//         */
+//         computeRightHandSide();
+
+//         /*
+//         * 5) Compute the pressure (p) by solving the Poisson equation
+//         */
+//         computePressure();
+
+//         /*
+//         * 6) Update the velocities (u, v)
+//         */
+//         computeVelocities();
+
+//         /*
+//         * 7) Output debug information and simulation results
+//         */
+// #ifndef NDEBUG
+//         cout << "time step " << t_iter << ", t: " << time << "/" << settings_.endTime << ", dt: " << dt_ <<
+//             ", res. " << pressureSolver_->residualNorm() << ", solver iterations: " << pressureSolver_->iterations() << endl;
+//         //outputWriterText_->writePressureFile();
+//         outputWriterText_->writeFile(time);
+// #endif
+//         outputWriterParaview_->writeFile(time);
+//         }
+//         else
+//         { 
+
+        dt_ = meshWidth_[1];
         time += dt_;
 
-        /*
-        * 3) Compute preliminary velocities (F, G)
-        */
-        computePreliminaryVelocities();
-
-        /*
-        * 4) Compute the right hand side (rhs)
-        */
-        computeRightHandSide();
-
-        /*
-        * 5) Compute the pressure (p) by solving the Poisson equation
-        */
-        computePressure();
-
-        /*
-        * 6) Update the velocities (u, v)
-        */
-        computeVelocities();
-
-        /*
-        * 7) Output debug information and simulation results
-        */
-#ifndef NDEBUG
-        cout << "time step " << t_iter << ", t: " << time << "/" << settings_.endTime << ", dt: " << dt_ <<
-            ", res. " << pressureSolver_->residualNorm() << ", solver iterations: " << pressureSolver_->iterations() << endl;
-        //outputWriterText_->writePressureFile();
-        outputWriterText_->writeFile(time);
-#endif
+        //Collision();
+        //std::cout<<"-------------------"<<std::endl;        
+        //Streaming();
+        //std::cout<<"*******************"<<std::endl; 
+        //LBMapplyBoundaryValues();
+        //std::cout<<"+++++++++++++++++++"<<std::endl;
+        FillVelocitiesAndPressure();
+        //std::cout<<"+++++++++++++++++++"<<std::endl;
+        outputWriterText_->writeFile(time);        
         outputWriterParaview_->writeFile(time);
-        }
-        else
-        { 
-            /**
-             * @brief do LBM here
-             * 
-             */
-        }
+        //}
     }
 
+};
+
+void Computation::LBMapplyBoundaryValues() {
+    //top condition
+    int pdfJEnd = cdiscretization_->pdfJEnd()-1;
+    int pdfJBegin = cdiscretization_->pdfJBegin();
+    int pdfIBegin = cdiscretization_->pdfIBegin();
+    int pdfIEnd = cdiscretization_->pdfIEnd()-1;
+
+    for(int i = cdiscretization_->pdfIBegin(); i < cdiscretization_->pdfIEnd(); i++) {
+
+        double rho_N = 1/(1+settings_.dirichletBcTop[1])*(cdiscretization_->pdf(i,pdfJEnd,0)+cdiscretization_->pdf(i,pdfJEnd,1)+
+            cdiscretization_->pdf(i,pdfJEnd,3)+2*(cdiscretization_->pdf(i,pdfJEnd,2)+cdiscretization_->pdf(i,pdfJEnd,6)+cdiscretization_->pdf(i,pdfJEnd,5)));
+        
+        cdiscretization_->pdf(i,pdfJEnd,4) = cdiscretization_->pdf(i,pdfJEnd,2)-2/3*rho_N*settings_.dirichletBcTop[1];
+        cdiscretization_->pdf(i,pdfJEnd,7) = (cdiscretization_->pdf(i,pdfJEnd,5)+1/2*(cdiscretization_->pdf(i,pdfJEnd,1)-cdiscretization_->pdf(i,pdfJEnd,3)) 
+                                                -1/6*rho_N*settings_.dirichletBcTop[1]-1/2*rho_N*settings_.dirichletBcTop[0]);
+        cdiscretization_->pdf(i,pdfJEnd,8) = (cdiscretization_->pdf(i,pdfJEnd,6)-1/2*(cdiscretization_->pdf(i,pdfJEnd,1)-cdiscretization_->pdf(i,pdfJEnd,3))
+                                                -1/6*rho_N*settings_.dirichletBcTop[1]+1/2*rho_N*settings_.dirichletBcTop[0]);
+
+        cdiscretization_->pdf(i,pdfJBegin,2) =  cdiscretization_->pdf(i,pdfJBegin,4);
+        cdiscretization_->pdf(i,pdfJBegin,5) =  (cdiscretization_->pdf(i,pdfJBegin,7));
+        cdiscretization_->pdf(i,pdfJBegin,6) =  (cdiscretization_->pdf(i,pdfJBegin,8));
+    }
+    for(int j = pdfJBegin; j<pdfJEnd;j++)
+    {
+        cdiscretization_->pdf(pdfIBegin,j,1) = cdiscretization_->pdf(pdfIBegin,j,3); 
+        cdiscretization_->pdf(pdfIBegin,j,8) = cdiscretization_->pdf(pdfIBegin,j,6);
+        cdiscretization_->pdf(pdfIBegin,j,5) = cdiscretization_->pdf(pdfIBegin,j,7);
+
+        cdiscretization_->pdf(pdfIEnd,j,3) = cdiscretization_->pdf(pdfIEnd,j,1);
+        cdiscretization_->pdf(pdfIEnd,j,6) = cdiscretization_->pdf(pdfIEnd,j,8);
+        cdiscretization_->pdf(pdfIEnd,j,7) = cdiscretization_->pdf(pdfIEnd,j,5);         
+    }
+
+};
+
+void Computation::FillVelocitiesAndPressure(){
+    for(int i=cdiscretization_->pIBegin(); i < cdiscretization_->pIEnd();i++)
+    {
+        for(int j=cdiscretization_->pJBegin(); j < cdiscretization_->pJEnd();j++)
+        {
+              double p = 0.;
+              double u = 0.;
+              double v = 0.;
+              double rho = 0.;
+            for(int k =0;k<9;k++)
+            {
+              rho += cdiscretization_->pdf(i,j,k);
+              p += cdiscretization_->pdf(i,j,k)*cs_*cs_;                
+              u += cdiscretization_->pdf(i,j,k)*cdiscretization_->ci_x(k);
+                // std::cout<<"####k: "<< k <<" ######c: "<<cdiscretization_->ci_x(k)<<std::endl;
+                // std::cout<<"####k: "<< k <<" ######c: "<<cdiscretization_->ci_y(k)<<std::endl;
+              v += cdiscretization_->pdf(i,j,k)*cdiscretization_->ci_y(k);  
+            std::cout<<"###### "<<cdiscretization_->pdf(i,j,k)<< "####rho "<<cdiscretization_->rho(i,j)<<std::endl;               
+            }
+
+             cdiscretization_->rho(i,j) = rho;
+             cdiscretization_->p(i,j) = p;
+             cdiscretization_->u(i,j) = u/rho;
+             cdiscretization_->v(i,j) = v/rho;
+        }
+    }
+};
+
+void Computation::Collision(){
+    int pdfJEnd = cdiscretization_->pdfJEnd();
+    int pdfJBegin = cdiscretization_->pdfJBegin();
+    int pdfIBegin = cdiscretization_->pdfIBegin();
+    int pdfIEnd = cdiscretization_->pdfIEnd();
+
+        for(int i = pdfIBegin; i < pdfIEnd; i++){
+            for(int j = pdfJBegin; j<pdfJEnd; j++){
+                for(int k=0;k<9;k++){
+                    cdiscretization_->pdfeq(i,j,k) = cdiscretization_->rho(i,j)*(1+(cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
+                                                                                    +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))/(cs_*cs_)
+                                                        +0.5*((cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
+                                                                +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))/(cs_*cs_))
+                                                        *((cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
+                                                                +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))/(cs_*cs_))
+                                                                -0.5*(cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)*cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
+                                                                +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k)*cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))
+                                                                /(cs_*cs_));
+                std::cout<<"###### "<<cdiscretization_->pdfeq(i,j,k)<< "####rho "<<cdiscretization_->rho(i,j)<<std::endl;
+                }
+            }
+        }
+
+};
+
+void Computation::Streaming(){
+    for(int i=cdiscretization_->pdfIBegin(); i < cdiscretization_->pdfIEnd();i++)
+    {
+        for(int j=cdiscretization_->pdfJBegin(); j < cdiscretization_->pdfJEnd();j++)
+        {
+            for(int k =0;k<9;k++)
+            {        
+                 //std::cout<<"#### i: "<<i<<" "<<"#### j: "<<j << "  #### k: "<<k<<" ####Size "<<sizeof(cdiscretization_->pdf())<<std::endl;                
+                    cdiscretization_->pdfold(i,j,k) = cdiscretization_->pdf(i,j,k);
+            }
+        }
+    }
+    for(int i=cdiscretization_->pdfIBegin()+1; i < cdiscretization_->pdfIEnd()-1;i++)
+    {
+        for(int j=cdiscretization_->pdfJBegin()+1; j < cdiscretization_->pdfJEnd()-1;j++)
+        {
+            for(int k =0;k<9;k++)
+            {        
+                int i1 = (int)round(i+cdiscretization_->ci_x(k)*dt_);
+                int j1 = (int)round(j+cdiscretization_->ci_y(k)*dt_);
+                //std::cout<<"#### i: "<<i1<<" "<<"#### j: "<<j1 << "  #### k: "<<k<<" ####Size "<<sizeof(cdiscretization_->pdf())<<std::endl;                
+                cdiscretization_->pdf(i1,j1,k) = cdiscretization_->pdfold(i,j,k)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,k)-cdiscretization_->pdfeq(i,j,k));
+            }
+        }
+    }
 };
 
 /**

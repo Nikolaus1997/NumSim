@@ -14,6 +14,11 @@ class CentralGrid
         int pdfIEnd() const;
         int pdfIBegin() const;
         
+        int pdfeqJEnd() const;
+        int pdfeqJBegin() const;
+        int pdfeqIEnd() const;
+        int pdfeqIBegin() const;
+
         int pJEnd() const;
         int pJBegin() const;
         int pIEnd() const;
@@ -34,35 +39,51 @@ class CentralGrid
         int rhoIEnd() const;
         int rhoIBegin() const;
 
+        double ci_x(int i) const;
+        double ci_y(int i) const;        
+        double wi(int i) const;        
         double v(int i, int j) const;
         double u(int i, int j) const;
         double p(int i, int j) const;
         double rho(int i, int j) const;
         double pdf(int i, int j, int k) const;
+        double pdfold(int i, int j, int k) const;
+        double pdfeq(int i, int j, int k) const;
 
         double & v(int i, int j);
         double & u(int i, int j);
         double & p(int i, int j);
         double & rho(int i, int j);
         double & pdf(int i, int j, int k);        
+        double & pdfold(int i, int j, int k);          
+        double & pdfeq(int i, int j, int k);        
+
+        double dx() const;
+        double dy() const;
+        const std::array<double, 2> meshWidth() const;
+        const std::array<int, 2> nCells() const;
 
         const FieldVariable & rho() const;
         const FieldVariable & u() const;
         const FieldVariable & v() const;
         const FieldVariable & p() const;
         const PdfField      & pdf() const;
-    
+        const PdfField      & pdfold() const;        
+        const PdfField      & pdfeq() const;    
     protected:
         const std::array<double, 2> meshWidth_;
         const std::array<int, 2> nCells_;
-        
-        Array2D wi_;
-        Array2D ci_;
-        
+    
+        std::array<double,9> cix_;
+        std::array<double,9> ciy_;
+        std::array<double,9> wi_;
+
         FieldVariable p_;
         FieldVariable u_;
         FieldVariable v_;
         FieldVariable rho_;
 
+        PdfField    pdfeq_;
         PdfField    pdf_;
+        PdfField    pdfold_;        
 };
