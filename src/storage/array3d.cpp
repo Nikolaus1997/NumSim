@@ -30,7 +30,7 @@ std::array<int, 3> Array3D::size() const {
  * @return reference to value at the grid cell (i,j)
  */
 double &Array3D::operator()(int i, int j, int k) {
-    const int index = j * size_[0] + i*size_[2] + k;
+    const int index = j * size_[0] + i + k*size_[0]*size_[1];
 
     // assert that indices are in range
     #ifndef NDEBUG
@@ -49,7 +49,7 @@ double &Array3D::operator()(int i, int j, int k) {
  * @return value at the grid cell (i,j)
  */
 double Array3D::operator()(int i, int j, int k) const {
-    const int index = j * size_[0] + i*size_[2] + k;
+    const int index = j * size_[0] + i + k*size_[0]*size_[1];
 
     // assert that indices are in range
     #ifndef NDEBUG

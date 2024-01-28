@@ -51,7 +51,7 @@ void Computation::initialize(std::string filename)
     //if (settings_.useLBM){
         doLBM = true;
         cdiscretization_ = std::make_shared<LbmDiscretization>(settings_.nCells, meshWidth_);
-        cs_ = 1/sqrt(3);
+        cs_ = 1./sqrt(3);
         discretization_ = std::make_shared<CentralDifferences>(settings_.nCells, meshWidth_);        // Initialize output writers
         outputWriterText_ = std::make_unique<OutputWriterText>(cdiscretization_);
         outputWriterParaview_ = std::make_unique<OutputWriterParaview>(cdiscretization_);    
@@ -61,7 +61,7 @@ void Computation::initialize(std::string filename)
                         {
                             cdiscretization_->rho(i,j) = 1.;
                             for(int k = 0; k<9; k++){
-                                cdiscretization_->pdf(i,j,k) = 1/9;
+                                cdiscretization_->pdf(i,j,k) = 1./9.;
                             }                
                         }
                 }    
@@ -137,17 +137,20 @@ void Computation::runSimulation() {
 
         dt_ = meshWidth_[1];
         time += dt_;
-
-        //Collision();
-        //std::cout<<"-------------------"<<std::endl;        
-        //Streaming();
-        //std::cout<<"*******************"<<std::endl; 
-        //LBMapplyBoundaryValues();
-        //std::cout<<"+++++++++++++++++++"<<std::endl;
-        FillVelocitiesAndPressure();
-        //std::cout<<"+++++++++++++++++++"<<std::endl;
+        FillVelocitiesAndPressure();        
         outputWriterText_->writeFile(time);        
         outputWriterParaview_->writeFile(time);
+        Streaming();  
+        //std::cout<<"+++++++++++++++++++"<<std::endl;
+
+        Collision();
+        // //std::cout<<"-------------------"<<std::endl;      
+        
+        // //std::cout<<"*******************"<<std::endl; 
+        LBMapplyBoundaryValues();
+
+        //std::cout<<"+++++++++++++++++++"<<std::endl;
+
         //}
     }
 
@@ -162,14 +165,14 @@ void Computation::LBMapplyBoundaryValues() {
 
     for(int i = cdiscretization_->pdfIBegin(); i < cdiscretization_->pdfIEnd(); i++) {
 
-        double rho_N = 1/(1+settings_.dirichletBcTop[1])*(cdiscretization_->pdf(i,pdfJEnd,0)+cdiscretization_->pdf(i,pdfJEnd,1)+
-            cdiscretization_->pdf(i,pdfJEnd,3)+2*(cdiscretization_->pdf(i,pdfJEnd,2)+cdiscretization_->pdf(i,pdfJEnd,6)+cdiscretization_->pdf(i,pdfJEnd,5)));
+        double rho_N = 1./(1.+settings_.dirichletBcTop[1])*(cdiscretization_->pdf(i,pdfJEnd,0)+cdiscretization_->pdf(i,pdfJEnd,1)+
+            cdiscretization_->pdf(i,pdfJEnd,3)+2.*(cdiscretization_->pdf(i,pdfJEnd,2)+cdiscretization_->pdf(i,pdfJEnd,6)+cdiscretization_->pdf(i,pdfJEnd,5)));
         
-        cdiscretization_->pdf(i,pdfJEnd,4) = cdiscretization_->pdf(i,pdfJEnd,2)-2/3*rho_N*settings_.dirichletBcTop[1];
-        cdiscretization_->pdf(i,pdfJEnd,7) = (cdiscretization_->pdf(i,pdfJEnd,5)+1/2*(cdiscretization_->pdf(i,pdfJEnd,1)-cdiscretization_->pdf(i,pdfJEnd,3)) 
-                                                -1/6*rho_N*settings_.dirichletBcTop[1]-1/2*rho_N*settings_.dirichletBcTop[0]);
-        cdiscretization_->pdf(i,pdfJEnd,8) = (cdiscretization_->pdf(i,pdfJEnd,6)-1/2*(cdiscretization_->pdf(i,pdfJEnd,1)-cdiscretization_->pdf(i,pdfJEnd,3))
-                                                -1/6*rho_N*settings_.dirichletBcTop[1]+1/2*rho_N*settings_.dirichletBcTop[0]);
+        cdiscretization_->pdf(i,pdfJEnd,4) = cdiscretization_->pdf(i,pdfJEnd,2);//-2./3.*rho_N*settings_.dirichletBcTop[1];
+        cdiscretization_->pdf(i,pdfJEnd,7) = (cdiscretization_->pdf(i,pdfJEnd,5));//+1./2.*(cdiscretization_->pdf(i,pdfJEnd,1)-cdiscretization_->pdf(i,pdfJEnd,3)) 
+                                                //-1./6.*rho_N*settings_.dirichletBcTop[1]-1./2.*rho_N*settings_.dirichletBcTop[0]);
+        cdiscretization_->pdf(i,pdfJEnd,8) = (cdiscretization_->pdf(i,pdfJEnd,6));//-1./2.*(cdiscretization_->pdf(i,pdfJEnd,1)-cdiscretization_->pdf(i,pdfJEnd,3))
+                                                //-1./6.*rho_N*settings_.dirichletBcTop[1]+1./2.*rho_N*settings_.dirichletBcTop[0]);
 
         cdiscretization_->pdf(i,pdfJBegin,2) =  cdiscretization_->pdf(i,pdfJBegin,4);
         cdiscretization_->pdf(i,pdfJBegin,5) =  (cdiscretization_->pdf(i,pdfJBegin,7));
@@ -202,10 +205,8 @@ void Computation::FillVelocitiesAndPressure(){
               rho += cdiscretization_->pdf(i,j,k);
               p += cdiscretization_->pdf(i,j,k)*cs_*cs_;                
               u += cdiscretization_->pdf(i,j,k)*cdiscretization_->ci_x(k);
-                // std::cout<<"####k: "<< k <<" ######c: "<<cdiscretization_->ci_x(k)<<std::endl;
-                // std::cout<<"####k: "<< k <<" ######c: "<<cdiscretization_->ci_y(k)<<std::endl;
               v += cdiscretization_->pdf(i,j,k)*cdiscretization_->ci_y(k);  
-            std::cout<<"###### "<<cdiscretization_->pdf(i,j,k)<< "####rho "<<cdiscretization_->rho(i,j)<<std::endl;               
+            //std::cout<<"###### "<<cdiscretization_->pdf(i,j,k)<< "####rho "<<cdiscretization_->rho(i,j)<<std::endl;               
             }
 
              cdiscretization_->rho(i,j) = rho;
@@ -225,16 +226,15 @@ void Computation::Collision(){
         for(int i = pdfIBegin; i < pdfIEnd; i++){
             for(int j = pdfJBegin; j<pdfJEnd; j++){
                 for(int k=0;k<9;k++){
-                    cdiscretization_->pdfeq(i,j,k) = cdiscretization_->rho(i,j)*(1+(cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
+                    cdiscretization_->pdfeq(i,j,k) = cdiscretization_->rho(i,j)*(1.+(cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
                                                                                     +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))/(cs_*cs_)
-                                                        +0.5*((cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
+                                                        +1./2.*((cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
                                                                 +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))/(cs_*cs_))
                                                         *((cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
                                                                 +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))/(cs_*cs_))
-                                                                -0.5*(cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)*cdiscretization_->u(i,j)*cdiscretization_->ci_x(k)
-                                                                +cdiscretization_->v(i,j)*cdiscretization_->ci_y(k)*cdiscretization_->v(i,j)*cdiscretization_->ci_y(k))
-                                                                /(cs_*cs_));
-                std::cout<<"###### "<<cdiscretization_->pdfeq(i,j,k)<< "####rho "<<cdiscretization_->rho(i,j)<<std::endl;
+                                                        -1./2.*(cdiscretization_->u(i,j)*cdiscretization_->u(i,j)
+                                                                +cdiscretization_->v(i,j)*cdiscretization_->v(i,j))/(cs_*cs_));
+                //std::cout<<"###### "<<cdiscretization_->pdfeq(i,j,k)<< "####rho "<<cdiscretization_->rho(i,j)<<std::endl;
                 }
             }
         }
@@ -242,6 +242,9 @@ void Computation::Collision(){
 };
 
 void Computation::Streaming(){
+    std::array<int, 9> cx_ = {0,1,0,-1,0,1,-1,-1,1};
+    std::array<int, 9> cy_ = {0,0,1,0,-1,1,1,-1,-1}; 
+    //write pdf in pdfold
     for(int i=cdiscretization_->pdfIBegin(); i < cdiscretization_->pdfIEnd();i++)
     {
         for(int j=cdiscretization_->pdfJBegin(); j < cdiscretization_->pdfJEnd();j++)
@@ -253,19 +256,76 @@ void Computation::Streaming(){
             }
         }
     }
-    for(int i=cdiscretization_->pdfIBegin()+1; i < cdiscretization_->pdfIEnd()-1;i++)
+
+    for(int i=cdiscretization_->pdfIBegin(); i < cdiscretization_->pdfIEnd();i++)
     {
-        for(int j=cdiscretization_->pdfJBegin()+1; j < cdiscretization_->pdfJEnd()-1;j++)
+        for(int j=cdiscretization_->pdfJBegin(); j < cdiscretization_->pdfJEnd();j++)
         {
-            for(int k =0;k<9;k++)
-            {        
-                int i1 = (int)round(i+cdiscretization_->ci_x(k)*dt_);
-                int j1 = (int)round(j+cdiscretization_->ci_y(k)*dt_);
-                //std::cout<<"#### i: "<<i1<<" "<<"#### j: "<<j1 << "  #### k: "<<k<<" ####Size "<<sizeof(cdiscretization_->pdf())<<std::endl;                
-                cdiscretization_->pdf(i1,j1,k) = cdiscretization_->pdfold(i,j,k)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,k)-cdiscretization_->pdfeq(i,j,k));
+            //streaming for top boundary
+            if(j==cdiscretization_->pdfJEnd()-1)
+            {   
+                                                
+                cdiscretization_->pdf(i+cx_[4],j+cy_[4],4) 
+                                        = cdiscretization_->pdfold(i,j,4)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,4)-cdiscretization_->pdfeq(i,j,4));
+                if(i >cdiscretization_->pdfIBegin()){ 
+                    cdiscretization_->pdf(i+cx_[7],j+cy_[7],7) 
+                                        = cdiscretization_->pdfold(i,j,7)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,7)-cdiscretization_->pdfeq(i,j,7));
+                }
+                if(i <cdiscretization_->pdfIEnd()-1){
+                    cdiscretization_->pdf(i+cx_[8],j+cy_[8],8) 
+                                        = cdiscretization_->pdfold(i,j,8)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,8)-cdiscretization_->pdfeq(i,j,8));
+                }
             }
+            //streaming for bottom boundary
+            else if(j==cdiscretization_->pdfJBegin())
+            {
+                cdiscretization_->pdf(i+cx_[2],j+cy_[2],2) 
+                                        = cdiscretization_->pdfold(i,j,2)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,2)-cdiscretization_->pdfeq(i,j,2));
+                if(i < cdiscretization_->pdfIEnd()-1){ 
+                    cdiscretization_->pdf(i+cx_[5],j+cy_[5],5) 
+                                        = cdiscretization_->pdfold(i,j,5)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,5)-cdiscretization_->pdfeq(i,j,5));
+                }
+                if(i >cdiscretization_->pdfIBegin()){ 
+                    cdiscretization_->pdf(i+cx_[6],j+cy_[6],6) 
+                                        = cdiscretization_->pdfold(i,j,6)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,6)-cdiscretization_->pdfeq(i,j,6));
+                }
+            }
+            //streaming for left boundary
+            else if(i==cdiscretization_->pdfIBegin())
+            {
+                cdiscretization_->pdf(i+cx_[1],j+cy_[1],1) 
+                                                = cdiscretization_->pdfold(i,j,1)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,1)-cdiscretization_->pdfeq(i,j,1));
+                cdiscretization_->pdf(i+cx_[5],j+cy_[5],5) 
+                                                = cdiscretization_->pdfold(i,j,5)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,5)-cdiscretization_->pdfeq(i,j,5));
+                cdiscretization_->pdf(i+cx_[8],j+cy_[8],8) 
+                                                = cdiscretization_->pdfold(i,j,8)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,8)-cdiscretization_->pdfeq(i,j,8));
+            }
+            //streaming for right boundary
+            else if(i==cdiscretization_->pdfIEnd()-1)
+            {
+                cdiscretization_->pdf(i+cx_[3],j+cy_[3],3) 
+                                                = cdiscretization_->pdfold(i,j,3)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,3)-cdiscretization_->pdfeq(i,j,3));
+                cdiscretization_->pdf(i+cx_[6],j+cy_[6],6) 
+                                                = cdiscretization_->pdfold(i,j,6)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,6)-cdiscretization_->pdfeq(i,j,6));
+                cdiscretization_->pdf(i+cx_[7],j+cy_[7],7) 
+                                                = cdiscretization_->pdfold(i,j,7)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,7)-cdiscretization_->pdfeq(i,j,7));
+            }
+            else
+            {
+
+                //streaming for inner cells
+                for(int k =0;k<9;k++)
+                {        
+                    // int i1 = (int)round(i+cdiscretization_->ci_x(k)*dt_);
+                    // int j1 = (int)round(j+cdiscretization_->ci_y(k)*dt_);
+                    //std::cout<<"#### i: "<<i1<<" "<<"#### j: "<<j1 << "  #### k: "<<k<<" ####Size "<<sizeof(cdiscretization_->pdf())<<std::endl;                
+                    cdiscretization_->pdf(i+cx_[k],j+cy_[k],k) = cdiscretization_->pdfold(i,j,k)-dt_/settings_.tau*(cdiscretization_->pdfold(i,j,k)-cdiscretization_->pdfeq(i,j,k));
+                }
+            }
+
         }
     }
+
 };
 
 /**

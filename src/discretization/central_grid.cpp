@@ -36,12 +36,12 @@ CentralGrid::CentralGrid(std::array<int, 2> nCells,
 
         for(int i = 1; i < 5; i++)
         {
-            wi_[i]   = 1/9;
+            wi_[i]   = 1./9.;
         }
 
         for(int i = 5; i<9;i++)
         {
-            wi_[i] = 1/36;
+            wi_[i] = 1./36.;
         }
 };
 
