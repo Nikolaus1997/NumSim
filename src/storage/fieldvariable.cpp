@@ -71,7 +71,7 @@ double FieldVariable::interpolateAt(double x, double y) const
     // 2) Use linear interpolation in y between bottom and top edge
     double interp = ((yTop - y) * interpBottom + (y - yBottom) * interpTop) / (yTop - yBottom);
 
-    return valueLeftBottom;
+    return interp;
 }
 /**
  * Compute absolute maximal value needed in computation to determine optimal time step

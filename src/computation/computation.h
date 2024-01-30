@@ -75,6 +75,8 @@ private:
     void FillVelocitiesAndPressure();
 
     void Collision();
+    
+    void LBMBounceBack();
 
     void Streaming();
 
@@ -88,4 +90,6 @@ private:
     double dt_;
     double cs_;
     bool doLBM;
+    double nu_;
+    double tau_;
 };
