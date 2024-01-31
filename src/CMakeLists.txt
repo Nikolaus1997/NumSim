@@ -17,18 +17,11 @@ add_executable(${PROJECT_NAME}
    storage/pdffield.cpp 
    storage/fieldvariable.cpp
 
-   pressure_solver/gauss_seidel.cpp
-   pressure_solver/sor.cpp 
-   pressure_solver/pressure_solver.cpp 
+
    output_writer/output_writer.cpp
    output_writer/output_writer_text.cpp
    output_writer/output_writer_paraview.cpp 
 
-
-   discretization/central_differences.cpp 
-   discretization/discretization.cpp 
-   discretization/donor_cell.cpp
-   discretization/staggered_grid.cpp
    discretization/central_grid.cpp 
    discretization/lbm_discretization.cpp
 )

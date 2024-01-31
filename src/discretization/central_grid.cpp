@@ -22,7 +22,7 @@ CentralGrid::CentralGrid(std::array<int, 2> nCells,
         cix_[2] = 0.;
         ciy_[2] = 1.;
         
-        cix_[3] = -1;
+        cix_[3] = -1.;
         ciy_[3] = 0.;
         
         cix_[4] = 0.;

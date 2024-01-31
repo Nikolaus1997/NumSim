@@ -1,6 +1,6 @@
 #pragma once
 
-#include "discretization/discretization.h"
+
 #include "discretization/lbm_discretization.h"
 #include <memory>
 

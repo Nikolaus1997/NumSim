@@ -70,7 +70,7 @@ class CentralGrid
         const PdfField      & pdf() const;
         const PdfField      & pdfold() const;        
         const PdfField      & pdfeq() const;    
-    protected:
+
         const std::array<double, 2> meshWidth_;
         const std::array<int, 2> nCells_;
     
