@@ -35,7 +35,7 @@ void OutputWriterParaview::writeFile(double currentTime)
 
   // set number of points in each dimension, 1 cell in z direction
   std::array<int,2> nCells = discretization_->nCells();
-  dataSet->SetDimensions(nCells[0]-1, nCells[1]-1, 1);  // we want to have points at each corner of each cell
+  dataSet->SetDimensions(nCells[0], nCells[1], 1);  // we want to have points at each corner of each cell
   
   // add pressure field variable
   // ---------------------------
@@ -53,14 +53,14 @@ void OutputWriterParaview::writeFile(double currentTime)
   // we only consider the cells that are the actual computational domain, not the helper values in the "halo"
 
   int index = 0;   // index for the vtk data structure, will be incremented in the inner loop
-  for (int j = 0; j < nCells[1]-1; j++)
+  for (int j = 0; j < nCells[1]; j++)
   {
-    for (int i = 0; i < nCells[0]-1; i++, index++)
+    for (int i = 0; i < nCells[0]; i++, index++)
     {
       const double x = i*dx;
       const double y = j*dy;
 
-      arrayPressure->SetValue(index, discretization_->p().interpolateAt(x,y));
+      arrayPressure->SetValue(index, discretization_->p(i,j));//.interpolateAt(x,y));
     }
   }
 
@@ -85,17 +85,17 @@ void OutputWriterParaview::writeFile(double currentTime)
 
   // loop over the mesh where p is defined and assign the values in the vtk data structure
   index = 0;   // index for the vtk data structure
-  for (int j = 0; j < nCells[1]-1; j++)
+  for (int j = 0; j < nCells[1]; j++)
   {
     const double y = j*dy;
 
-    for (int i = 0; i < nCells[0]-1; i++, index++)
+    for (int i = 0; i < nCells[0]; i++, index++)
     {
       const double x = i*dx;
 
       std::array<double,3> velocityVector;
-      velocityVector[0] = discretization_->u().interpolateAt(x,y);
-      velocityVector[1] = discretization_->v().interpolateAt(x,y);
+      velocityVector[0] = discretization_->u(i,j);//.interpolateAt(x,y);
+      velocityVector[1] = discretization_->v(i,j);//.interpolateAt(x,y);
       velocityVector[2] = 0.0;    // z-direction is 0
 
       arrayVelocity->SetTuple(index, velocityVector.data());

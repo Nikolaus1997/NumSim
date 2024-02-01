@@ -39,14 +39,14 @@ double FieldVariable::interpolateAt(double x, double y) const
     #endif
 
     // Determine i and j indices of the corresponding cell (shifted by origin)
-    int i = (x - origin_[0]) / meshWidth_[0] + 1;
-    int j = (y - origin_[1]) / meshWidth_[1] + 1;
+    int i = (x - origin_[0]) / meshWidth_[0];// + 1;
+    int j = (y - origin_[1]) / meshWidth_[1];// + 1;
 
-    // Special case: If we are on the upper of right boundary, use the cell in the interior
-    if (i == size_[0] - 1)
-        i--;
-    if (j == size_[1] - 1)
-        j--;
+    // // Special case: If we are on the upper of right boundary, use the cell in the interior
+    // if (i == size_[0])
+    //     i--;
+    // if (j == size_[1])
+    //     j--;
 
     // Obtain the values of the four neighbouring interpolation points
     double valueLeftBottom = (*this)(i, j);

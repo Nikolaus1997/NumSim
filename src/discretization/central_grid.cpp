@@ -28,18 +28,18 @@ CentralGrid::CentralGrid(std::array<int, 2> nCells,
         cix_[4] = 0.;
         ciy_[4] = -1.;
         
-        cix_[5] = 0.70710678118;
-        ciy_[5] = 0.70710678118;
+        cix_[5] = 1.;//0.70710678118;
+        ciy_[5] = 1.;//0.70710678118;
         
-        cix_[6] = -0.70710678118;
-        ciy_[6] = 0.70710678118;        
+        cix_[6] = -1.;//0.70710678118;
+        ciy_[6] = 1.;//0.70710678118;        
         
         
-        cix_[7] = -0.70710678118;
-        ciy_[7] = -0.70710678118;         
+        cix_[7] = -1.;//0.70710678118;
+        ciy_[7] = -1.;//0.70710678118;         
         
-        cix_[8] = 0.70710678118;
-        ciy_[8] = -0.70710678118;
+        cix_[8] = 1.;//0.70710678118;
+        ciy_[8] = -1.;//0.70710678118;
 
 
         for(int i = 1; i < 5; i++)
@@ -233,6 +233,14 @@ double CentralGrid::ci_x(int i) const
     return cix_[i];
 }
 double CentralGrid::ci_y(int i) const
+{
+    return ciy_[i];
+}
+double &CentralGrid::ci_x(int i) 
+{
+    return cix_[i];
+}
+double &CentralGrid::ci_y(int i) 
 {
     return ciy_[i];
 }

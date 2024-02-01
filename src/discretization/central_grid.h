@@ -40,7 +40,9 @@ class CentralGrid
         int rhoIBegin() const;
 
         double ci_x(int i) const;
-        double ci_y(int i) const;        
+        double ci_y(int i) const; 
+        double & ci_x(int i) ;
+        double & ci_y(int i) ;        
         double wi(int i) const;        
         double v(int i, int j) const;
         double u(int i, int j) const;
