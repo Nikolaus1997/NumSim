@@ -76,13 +76,15 @@ class CentralGrid
         const std::array<double, 2> meshWidth_;
         const std::array<int, 2> nCells_;
     
-        std::array<double,9> cix_;
-        std::array<double,9> ciy_;
-        std::array<double,9> wi_;
+        std::array<double,19> cix_;
+        std::array<double,19> ciy_;
+        std::array<double,19> ciz_;
+        std::array<double,19> wi_;
 
         FieldVariable p_;
         FieldVariable u_;
         FieldVariable v_;
+        FieldVariable w_;
         FieldVariable rho_;
 
         PdfField    pdfeq_;
