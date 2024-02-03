@@ -257,7 +257,7 @@ void Computation::Streaming()
     {
         for (int j = cdiscretization_->pdfJBegin(); j < cdiscretization_->pdfJEnd(); j++)
         {
-            for (int l = cdiscretization_->pdfKBegin(); l < cdiscretization_->pdfKEnd(); k++)
+            for (int l = cdiscretization_->pdfKBegin(); l < cdiscretization_->pdfKEnd(); l++)
             {
                 for (int k = 0; k < 19; k++)
                 {
@@ -317,7 +317,7 @@ void Computation::Streaming()
         {
             for (int k = cdiscretization_->pdfKBegin(); k < cdiscretization_->pdfKEnd(); k++)
             {
-                cdiscretization_->pdf(i, j - 1, 4) = cdiscretization_->pdfold(i, j, 4);
+                cdiscretization_->pdf(i, j - 1,k, 4) = cdiscretization_->pdfold(i, j,k, 4);
             }
         }
     }
