@@ -8,8 +8,8 @@ class LbmDiscretization
                 : public CentralGrid
 {
     public:
-        LbmDiscretization(std::array<int, 2> nCells,
-                  std::array<double, 2> meshWidth); 
+        LbmDiscretization(std::array<int, 3> nCells,
+                  std::array<double, 3> meshWidth); 
         
-        void calcRho(int i, int j);
+        void calcRho(int i, int j, int k);
 };

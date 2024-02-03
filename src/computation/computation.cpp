@@ -22,7 +22,7 @@ void Computation::initialize(std::string filename)
  
 
     // Initialize discretization
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
         meshWidth_[i] = settings_.physicalSize[i] / settings_.nCells[i];
 
         // doLBM = true;
@@ -453,7 +453,10 @@ void Computation::Streaming(){
 
    for(int i = pdfIBeginInner-1; i<pdfIEndInner+1;i++){
         for(int j = pdfJBeginInner-1; j<pdfJEndInner+1;j++){
-                    cdiscretization_->pdf(i,j,0) = cdiscretization_->pdfold(i,j,0);
+            for(int k = cdiscretization_->pdfKBegin(); k <cdiscretization_->pdfKEnd();k++){
+                    cdiscretization_->pdf(i,j,k,0) = cdiscretization_->pdfold(i,j,k,0);
+            }
+
         }
     }
     for(int i = pdfIBeginInner-1; i<pdfIEndInner;i++){
@@ -461,16 +464,18 @@ void Computation::Streaming(){
                     cdiscretization_->pdf(i+1,j,1) = cdiscretization_->pdfold(i,j,1);
         }
     }
+    for(int i = cdiscretization_->pdfIBegin()+1; i<pdfIEndInner+1;i++){
+        for(int j = pdfJBeginInner-1; j<pdfJEndInner+1;j++){
+            for(int k = cdiscretization_->pdfKBegin();k<cdiscretization_->pdfKEnd();k++)
+                    cdiscretization_->pdf(i-1,j,k,2) = cdiscretization_->pdfold(i,j,k,2);
+        }
+    }    
     for(int i = pdfIBeginInner; i<pdfIEndInner+1;i++){
         for(int j = pdfJBeginInner-1; j<pdfJEndInner+1;j++){
                     cdiscretization_->pdf(i-1,j,3) = cdiscretization_->pdfold(i,j,3);
         }
     }
-    for(int i = pdfIBeginInner-1; i<pdfIEndInner+1;i++){
-        for(int j = pdfJBeginInner-1; j<pdfJEndInner;j++){
-                    cdiscretization_->pdf(i,j+1,2) = cdiscretization_->pdfold(i,j,2);
-        }
-    }
+
     for(int i = pdfIBeginInner-1; i<pdfIEndInner+1;i++){
         for(int j = pdfJBeginInner; j<pdfJEndInner+1;j++){
                     cdiscretization_->pdf(i,j-1,4) = cdiscretization_->pdfold(i,j,4);

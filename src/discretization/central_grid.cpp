@@ -1,17 +1,17 @@
 #include "discretization/central_grid.h"
 #include "central_grid.h"
 
-CentralGrid::CentralGrid(std::array<int, 2> nCells,
-                  std::array<double, 2> meshWidth):
+CentralGrid::CentralGrid(std::array<int, 3> nCells,
+                  std::array<double, 3> meshWidth):
                   nCells_(nCells),meshWidth_(meshWidth),
-                    p_({nCells_[0], nCells_[1]}, {0.,0.}, meshWidth),
-                    u_({nCells_[0], nCells_[1]}, {0.,0.}, meshWidth),
-                    v_({nCells_[0], nCells_[1]}, {0.,0.}, meshWidth),
-                    w_({nCells_[0], nCells_[1]}, {0.,0.}, meshWidth),
-                    rho_({nCells_[0], nCells_[1]}, {0.,0.}, meshWidth),
-                    pdf_({nCells_[0], nCells_[1], 19}, {0.,0.}, meshWidth),
-                    pdfold_({nCells_[0], nCells_[1], 19}, {0.,0.}, meshWidth),
-                    pdfeq_({nCells_[0], nCells_[1], 19}, {0.,0.}, meshWidth)
+                    p_({nCells_[0], nCells_[1], nCells_[2]}, {0.,0.,0.}, meshWidth),
+                    u_({nCells_[0], nCells_[1], nCells_[2]}, {0.,0.,0.}, meshWidth),
+                    v_({nCells_[0], nCells_[1], nCells_[2]}, {0.,0.,0.}, meshWidth),
+                    w_({nCells_[0], nCells_[1], nCells_[2]}, {0.,0.,0.}, meshWidth),
+                    rho_({nCells_[0], nCells_[1], nCells_[2]}, {0.,0.,0.}, meshWidth),
+                    pdf_({nCells_[0], nCells_[1], nCells_[2], 19}, {0.,0.,0.}, meshWidth),
+                    pdfold_({nCells_[0], nCells_[1], nCells_[2], 19}, {0.,0.,0.}, meshWidth),
+                    pdfeq_({nCells_[0], nCells_[1], nCells_[2], 19}, {0.,0.,0.}, meshWidth)
 {
         cix_[0] = 0.;
         ciy_[0] = 0.; 
@@ -120,12 +120,12 @@ double CentralGrid::dy() const
 };
 
 
-const std::array<double, 2> CentralGrid::meshWidth() const
+const std::array<double, 3> CentralGrid::meshWidth() const
 {
     return meshWidth_;
 };
 
-const std::array<int, 2> CentralGrid::nCells() const
+const std::array<int, 3> CentralGrid::nCells() const
 {
     return nCells_;
 };
@@ -148,6 +148,16 @@ int CentralGrid::pdfJBegin() const
 int CentralGrid::pdfJEnd() const
 {
     return nCells_[1];
+};
+
+int CentralGrid::pdfKBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::pdfKEnd() const
+{
+    return nCells_[2];
 };
 
 const PdfField &CentralGrid::pdf() const
@@ -178,6 +188,16 @@ int CentralGrid::pdfeqJEnd() const
     return nCells_[1];
 };
 
+int CentralGrid::pdfeqKBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::pdfeqKEnd() const
+{
+    return nCells_[2];
+};
+
 const PdfField &CentralGrid::pdfeq() const
 {
     return pdfeq_;
@@ -203,6 +223,15 @@ int CentralGrid::pJEnd() const
     return nCells_[1];
 };
 
+int CentralGrid::pKBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::pKEnd() const
+{
+    return nCells_[2];
+};
 
 const FieldVariable &CentralGrid::p() const
 {
@@ -229,6 +258,16 @@ int CentralGrid::rhoJEnd() const
     return nCells_[1];
 };
 
+int CentralGrid::rhoKBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::rhoKEnd() const
+{
+    return nCells_[2];
+};
+
 
 const FieldVariable &CentralGrid::rho() const
 {
@@ -253,6 +292,16 @@ int CentralGrid::uJBegin() const
 int CentralGrid::uJEnd() const
 {
     return nCells_[1];
+};
+
+int CentralGrid::uKBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::uKEnd() const
+{
+    return nCells_[2];
 };
 
 
@@ -292,39 +341,43 @@ double &CentralGrid::ci_y(int i)
 {
     return ciy_[i];
 }
+double &CentralGrid::ci_z(int i) 
+{
+    return ciz_[i];
+}
 double CentralGrid::wi(int i) const
 {
     return wi_[i];
 }
 
-double CentralGrid::p(int i, int j) const
+double CentralGrid::p(int i, int j, int k) const
 {
-    return p_(i-pIBegin(),j-pJBegin());
+    return p_(i-pIBegin(),j-pJBegin(), k - pKBegin());
 }
 
-double CentralGrid::u(int i, int j) const
+double CentralGrid::u(int i, int j, int k) const
 {
-    return u_(i-uIBegin(),j-uJBegin());
+    return u_(i-uIBegin(),j-uJBegin(), k-uKBegin());
 }
 
-double CentralGrid::rho(int i, int j) const
+double CentralGrid::rho(int i, int j, int k) const
 {
-    return rho_(i-rhoIBegin(),j-rhoJBegin());
+    return rho_(i-rhoIBegin(),j-rhoJBegin(), k-rhoKBegin());
 }
 
-double CentralGrid::pdf(int i, int j, int k) const
+double CentralGrid::pdf(int i, int j, int k, int l) const
 {
-    return pdf_(i-pdfIBegin(),j-pdfJBegin(), k);
+    return pdf_(i-pdfIBegin(),j-pdfJBegin(), k-pdfKBegin(), l);
 }
 
-double CentralGrid::pdfold(int i, int j, int k) const
+double CentralGrid::pdfold(int i, int j, int k, int l) const
 {
-    return pdfold_(i-pdfIBegin(),j-pdfJBegin(), k);
+    return pdfold_(i-pdfIBegin(),j-pdfJBegin(), k-pdfKBegin(), l);
 }
 
-double CentralGrid::pdfeq(int i, int j, int k) const
+double CentralGrid::pdfeq(int i, int j, int k, int l) const
 {
-    return pdfeq_(i-pdfeqIBegin(),j-pdfeqJBegin(), k);
+    return pdfeq_(i-pdfIBegin(),j-pdfJBegin(), k-pdfKBegin(), l);
 }
 
 int CentralGrid::vJBegin() const
@@ -337,42 +390,52 @@ int CentralGrid::vJEnd() const
     return nCells_[1];
 };
 
+int CentralGrid::vKBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::vKEnd() const
+{
+    return nCells_[2];
+};
+
 const FieldVariable &CentralGrid::v() const
 {
     return v_;
 };
 
 
-double &CentralGrid::p(int i, int j)
+double &CentralGrid::p(int i, int j, int k)
 {
-    return p_(i - pIBegin(), j - pJBegin());
+    return p_(i - pIBegin(), j - pJBegin(), k-pKBegin());
 };
 
-double &CentralGrid::u(int i, int j)
+double &CentralGrid::u(int i, int j, int k)
 {
-    return u_(i - uIBegin(), j - uJBegin());
+    return u_(i - uIBegin(), j - uJBegin(), k-uKBegin());
 };
 
-double &CentralGrid::v(int i, int j)
+double &CentralGrid::v(int i, int j, int k)
 {
-    return v_(i - vIBegin(), j - vJBegin());
+    return v_(i - vIBegin(), j - vJBegin(), k-vKBegin());
 };
 
-double &CentralGrid::rho(int i, int j)
+double &CentralGrid::rho(int i, int j, int k)
 {
-    return rho_(i - rhoIBegin(), j - rhoJBegin());
+    return rho_(i - rhoIBegin(), j - rhoJBegin(), k-rhoKBegin());
 };
 
-double &CentralGrid::pdf(int i, int j, int k)
+double &CentralGrid::pdf(int i, int j, int k, int l)
 {
-    return pdf_(i - pdfIBegin(), j - pdfJBegin(), k);
+    return pdf_(i-pdfIBegin(),j-pdfJBegin(), k-pdfKBegin(), l);
 };
-double &CentralGrid::pdfold(int i, int j, int k)
+double &CentralGrid::pdfold(int i, int j, int k, int l)
 {
-    return pdfold_(i - pdfIBegin(), j - pdfJBegin(), k);
+    return pdfold_(i-pdfIBegin(),j-pdfJBegin(), k-pdfKBegin(), l);
 };
 
-double &CentralGrid::pdfeq(int i, int j, int k)
+double &CentralGrid::pdfeq(int i, int j, int k, int l)
 {
-    return pdfeq_(i - pdfeqIBegin(), j - pdfeqJBegin(), k);
+    return pdfeq_(i-pdfIBegin(),j-pdfJBegin(), k-pdfKBegin(), l);
 };

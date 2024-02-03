@@ -48,7 +48,7 @@ private:
     std::shared_ptr<LbmDiscretization> cdiscretization_;
     std::unique_ptr<OutputWriterParaview> outputWriterParaview_;
     std::unique_ptr<OutputWriterText> outputWriterText_;
-    std::array<double, 2> meshWidth_;
+    std::array<double, 3> meshWidth_;
     double dt_;
     double cs_;
     bool doLBM;

@@ -1,16 +1,16 @@
 #include "discretization/lbm_discretization.h"
 
-LbmDiscretization::LbmDiscretization(std::array<int, 2> nCells, std::array<double, 2> meshWidth):
+LbmDiscretization::LbmDiscretization(std::array<int, 3> nCells, std::array<double, 3> meshWidth):
                                     CentralGrid(nCells, meshWidth)
 {
 };
 
-void LbmDiscretization::calcRho(int i, int j)
+void LbmDiscretization::calcRho(int i, int j, int k)
 {
     double sum = 0.0;
-        for(int k; k < 9 ; k++)
+        for(int l; l < 19 ; k++)
             {
-                sum = sum + pdf(i,j,k);
+                sum = sum + pdf(i,j,k,l);
             }
-    rho(i,j) = sum;
+    rho(i,j, k) = sum;
 };

@@ -1,9 +1,9 @@
 #include "storage/pdffield.h"
 
-PdfField::PdfField(std::array<int, 3> size,
-                             std::array<double, 2> origin,
-                             std::array<double, 2> meshWidth) :
-    Array3D(size),
+PdfField::PdfField(std::array<int, 4> size,
+                             std::array<double, 3> origin,
+                             std::array<double, 3> meshWidth) :
+    Array4D(size),
     origin_(origin),
     meshWidth_(meshWidth)
 {

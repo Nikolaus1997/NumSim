@@ -1,6 +1,6 @@
 #pragma once
 
-#include "storage/array3d.h"
+#include "storage/array4d.h"
 
 /**
  * A field variable is the discretization of a scalar function f(x) with x in the computational domain.
@@ -11,15 +11,15 @@
  * @param meshWidth: width of cells in both directions
  */
 
-class PdfField: public Array3D
+class PdfField: public Array4D
 {
 public:
     /*
      * constructor
      */
-    PdfField(std::array<int, 3> size,
-                  std::array<double, 2> origin,
-                  std::array<double, 2> meshWidth);
+    PdfField(std::array<int, 4> size,
+                  std::array<double, 3> origin,
+                  std::array<double, 3> meshWidth);
     
     // interpolate at arbitrary position
     double interpolateAt(double x, double y) const;
@@ -27,6 +27,6 @@ public:
     double absMax() const;
 
 private:
-    std::array<double, 2> meshWidth_;
-    std::array<double, 2> origin_;
+    std::array<double, 3> meshWidth_;
+    std::array<double, 3> origin_;
 };
