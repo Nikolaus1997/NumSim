@@ -177,7 +177,7 @@ void Computation::LBMapplyBoundaryValues() {
     int pdfIBegin = cdiscretization_->pdfIBegin();
     int pdfIEnd = cdiscretization_->pdfIEnd()-1;
 //left
-    for(int j = cdiscretization_->pdfJBegin(); j < cdiscretization_->pdfJEnd(); j++) {
+    for(int j = cdiscretization_->pdfJBegin()+1; j < cdiscretization_->pdfJEnd()-1; j++) {
 
         double rho_N = 1./(1.-settings_.dirichletBcLeft[0])*(cdiscretization_->pdf(pdfIBegin,j,0)+cdiscretization_->pdf(pdfIBegin,j,2)+
             cdiscretization_->pdf(pdfIBegin,j,4)+2.*(cdiscretization_->pdf(pdfIBegin,j,3)+cdiscretization_->pdf(pdfIBegin,j,6)+cdiscretization_->pdf(pdfIBegin,j,7)));
@@ -190,7 +190,7 @@ void Computation::LBMapplyBoundaryValues() {
 
     }
 //right
-    for(int j = cdiscretization_->pdfJBegin(); j < cdiscretization_->pdfJEnd(); j++) {
+    for(int j = cdiscretization_->pdfJBegin()+1; j < cdiscretization_->pdfJEnd()-1; j++) {
 
         double rho_N = 1.0/(1.0+settings_.dirichletBcRight[0])*(cdiscretization_->pdf(pdfIEnd,j,0)+cdiscretization_->pdf(pdfIEnd,j,2)+
             cdiscretization_->pdf(pdfIEnd,j,4)+2.*(cdiscretization_->pdf(pdfIEnd,j,5)+cdiscretization_->pdf(pdfIEnd,j,1)+cdiscretization_->pdf(pdfIEnd,j,8)));
@@ -213,7 +213,7 @@ void Computation::LBMapplyBoundaryValues() {
         //                                         //-1./6.*rho_N*settings_.dirichletBcRight[0]+1./2.*rho_N*settings_.dirichletBcRight[1]);
    }    
 //top
-    for(int i = cdiscretization_->pdfIBegin(); i < cdiscretization_->pdfIEnd(); i++) {
+    for(int i = cdiscretization_->pdfIBegin()+1; i < cdiscretization_->pdfIEnd()-1; i++) {
 
         double rho_N = 1.0/(1.0+settings_.dirichletBcTop[1])*(cdiscretization_->pdf(i,pdfJEnd,0)+cdiscretization_->pdf(i,pdfJEnd,1)+
             cdiscretization_->pdf(i,pdfJEnd,3)+2.0*(cdiscretization_->pdf(i,pdfJEnd,2)+cdiscretization_->pdf(i,pdfJEnd,6)+cdiscretization_->pdf(i,pdfJEnd,5)));
@@ -229,7 +229,7 @@ void Computation::LBMapplyBoundaryValues() {
 
      }
 //Bottom
-    for(int i = cdiscretization_->pdfIBegin(); i < cdiscretization_->pdfIEnd(); i++) {
+    for(int i = cdiscretization_->pdfIBegin()+1; i < cdiscretization_->pdfIEnd()-1; i++) {
 
         double rho_N = 1./(1.-settings_.dirichletBcBottom[1])*(cdiscretization_->pdf(i,pdfJBegin,0)+cdiscretization_->pdf(i,pdfJBegin,1)+
             cdiscretization_->pdf(i,pdfJBegin,3)+2.*(cdiscretization_->pdf(i,pdfJBegin,4)+cdiscretization_->pdf(i,pdfJBegin,7)+cdiscretization_->pdf(i,pdfJBegin,8)));
