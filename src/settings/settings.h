@@ -19,10 +19,10 @@ struct Settings
   bool useDonorCell = false;         //< if the donor cell scheme schould be used
   double alpha = 0.5;                //< factor for donor-cell scheme
 
-  std::array<double,2> dirichletBcBottom{0.,0.};  //< prescribed values of u,v at bottom of domain
-  std::array<double,2> dirichletBcTop{.2,0.};     //< prescribed values of u,v at top of domain
-  std::array<double,2> dirichletBcLeft{0.,0.};    //< prescribed values of u,v at left of domain
-  std::array<double,2> dirichletBcRight{0.,0.};   //< prescribed values of u,v at right of domain
+  std::array<double,3> dirichletBcBottom{0.,0.,0.};  //< prescribed values of u,v at bottom of domain
+  std::array<double,3> dirichletBcTop{.2,0.,0.};     //< prescribed values of u,v at top of domain
+  std::array<double,3> dirichletBcLeft{0.,0.,0.};    //< prescribed values of u,v at left of domain
+  std::array<double,3> dirichletBcRight{0.,0.,0.};   //< prescribed values of u,v at right of domain
 
 
 
