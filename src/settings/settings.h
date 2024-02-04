@@ -23,7 +23,8 @@ struct Settings
   std::array<double,3> dirichletBcTop{.2,0.,0.};     //< prescribed values of u,v at top of domain
   std::array<double,3> dirichletBcLeft{0.,0.,0.};    //< prescribed values of u,v at left of domain
   std::array<double,3> dirichletBcRight{0.,0.,0.};   //< prescribed values of u,v at right of domain
-
+  std::array<double,3> dirichletBcFront{0.,0.,0.};   //< prescribed values of u,v at right of domain
+  std::array<double,3> dirichletBcBack{0.,0.,0.};   //< prescribed values of u,v at right of domain
 
 
   std::string pressureSolver = "SOR";      //< which pressure solver to use, "GaussSeidel" or "SOR"
