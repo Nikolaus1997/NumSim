@@ -85,6 +85,7 @@ class CentralGrid
 
         double dx() const;
         double dy() const;
+        double dz() const;
         const std::array<double, 3> meshWidth() const;
         const std::array<int, 3> nCells() const;
 

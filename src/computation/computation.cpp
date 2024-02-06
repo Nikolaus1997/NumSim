@@ -29,7 +29,7 @@ void Computation::initialize(std::string filename)
 
     cs_ = (double)1. / sqrt(3);
     nu_ = settings_.dirichletBcTop[0] * settings_.L_lbm / settings_.re;
-    tau_ = 0.5 + nu_ / (cs_ * cs_);
+    tau_ = 1. + nu_ / (cs_ * cs_);
     // tau_ =0.65;
     dt_ = 1.; // settings_.re*nu_/(settings_.nCells[0]*settings_.nCells[0]);
     std::cout << dt_ << std::endl;
@@ -82,52 +82,61 @@ void Computation::runSimulation()
         // std::cout<<"+++++++++++++++++++"<<std::endl;
         if (time == 0.0)
         {
-            for (int i = cdiscretization_->pIBegin(); i < cdiscretization_->pIEnd(); i++)
-            {
-                for(int j = cdiscretization_->pIBegin(); j <cdiscretization_->pIEnd(); j++){
-                cdiscretization_->u(i,j, cdiscretization_->uJBegin()) = settings_.dirichletBcBottom[0];
-                cdiscretization_->u(i,j,cdiscretization_->uJEnd() - 1) = settings_.dirichletBcTop[0];
-                cdiscretization_->v(i,j, cdiscretization_->vJBegin()) = settings_.dirichletBcBottom[1];
-                cdiscretization_->v(i,j, cdiscretization_->vJEnd() - 1) = settings_.dirichletBcTop[1];
-                cdiscretization_->v(i,j, cdiscretization_->vJBegin()) = settings_.dirichletBcBottom[1];
-                cdiscretization_->v(i,j, cdiscretization_->vJEnd() - 1) = settings_.dirichletBcTop[1];
-                }
-            }
-            for (int j = cdiscretization_->pJBegin(); j < cdiscretization_->pJEnd(); j++)
-            {
-                //cdiscretization_->u(cdiscretization_->uJBegin(), j) = settings_.dirichletBcLeft[0];
-                //cdiscretization_->u(cdiscretization_->uJEnd() - 1, j) = settings_.dirichletBcRight[0];
-                //cdiscretization_->v(cdiscretization_->vJBegin(), j) = settings_.dirichletBcLeft[1];
-                //cdiscretization_->v(cdiscretization_->vJEnd() - 1, j) = settings_.dirichletBcRight[1];
-            }
+            // for (int i = cdiscretization_->pIBegin(); i < cdiscretization_->pIEnd(); i++)
+            // {
+            //     // for(int j = cdiscretization_->pIBegin(); j <cdiscretization_->pIEnd(); j++){
+            //     // cdiscretization_->u(i,j, cdiscretization_->uJBegin()) = settings_.dirichletBcBottom[0];
+            //     // cdiscretization_->u(i,j,cdiscretization_->uJEnd() - 1) = settings_.dirichletBcTop[0];
+            //     // cdiscretization_->v(i,j, cdiscretization_->vJBegin()) = settings_.dirichletBcBottom[1];
+            //     // cdiscretization_->v(i,j, cdiscretization_->vJEnd() - 1) = settings_.dirichletBcTop[1];
+            //     // cdiscretization_->v(i,j, cdiscretization_->vJBegin()) = settings_.dirichletBcBottom[1];
+            //     // cdiscretization_->v(i,j, cdiscretization_->vJEnd() - 1) = settings_.dirichletBcTop[1];
+            //     // }
+            // }
+            // for (int j = cdiscretization_->pJBegin(); j < cdiscretization_->pJEnd(); j++)
+            // {
+            //     //cdiscretization_->u(cdiscretization_->uJBegin(), j) = settings_.dirichletBcLeft[0];
+            //     //cdiscretization_->u(cdiscretization_->uJEnd() - 1, j) = settings_.dirichletBcRight[0];
+            //     //cdiscretization_->v(cdiscretization_->vJBegin(), j) = settings_.dirichletBcLeft[1];
+            //     //cdiscretization_->v(cdiscretization_->vJEnd() - 1, j) = settings_.dirichletBcRight[1];
+            // }
             for (int i = cdiscretization_->pIBegin(); i < cdiscretization_->pIEnd(); i++)
             {
                 for (int j = cdiscretization_->pJBegin(); j < cdiscretization_->pJEnd(); j++)
                 {
                     for (int k = cdiscretization_->pKBegin();k<cdiscretization_->pKEnd();k++){
                         cdiscretization_->rho(i, j,k) = 1.;
+
+
                     }
                 }
             }            
 
+                        //for(int l = 0; l<19;l++)
+                        //    cdiscretization_->u(4,4,4) = 0.1;        
+                        // for(int l = 0; l<19;l++)
+                        //     cdiscretization_->pdf(10,10,10,l) = cdiscretization_->wi(l);                            
         }
 
         Collision();
+        //std::cout<<"*******************"<<std::endl;        
         Streaming();
-        // FillVelocitiesAndPressure();
-        // FillVelocitiesAndPressure();
-        LBMapplyBoundaryValues();
+        //std::cout<<"-------------------"<<std::endl;        
 
+        LBMapplyBoundaryValues();
         FillVelocitiesAndPressure();
-        // std::cout<<"*******************"<<std::endl;
+        outputWriterParaview_->writeFile(time); 
+        //std::cout<<"+++++++++++++++++++"<<std::endl;
+
+        //std::cout<<"*******************"<<std::endl;  
 
         // LBMBounceBack();
+// outputWriterParaview_->writeFile(time);
 
-        // std::cout<<"-------------------"<<std::endl;
         // FillVelocitiesAndPressure();
-        // std::cout<<"+++++++++++++++++++"<<std::endl;
-        outputWriterText_->writeFile(time);
-        outputWriterParaview_->writeFile(time);
+
+        //outputWriterText_->writeFile(time);
+
 
         // std::cout<<"                 "<<std::endl;
         // for(int k = 0; k<9;k++){
@@ -151,10 +160,10 @@ void Computation::LBMapplyBoundaryValues()
     int pdfKEnd  = cdiscretization_->pdfKEnd() - 1;
 
     //set top inner
-    for(int i = pdfIBegin+1; i<pdfIEnd;i++)
+    for(int i = pdfIBegin; i<pdfIEnd+1;i++)
     {
 
-            for(int j = pdfJBegin+1;j<pdfJEnd;j++)
+            for(int j = pdfJBegin;j<pdfJEnd+1;j++)
             {
                 double rho_N = 1./(1.+settings_.dirichletBcTop[2])*(cdiscretization_->pdf(i,j,pdfKEnd,0)+cdiscretization_->pdf(i,j,pdfKEnd,1)+cdiscretization_->pdf(i,j,pdfKEnd,2)
                                                                     +cdiscretization_->pdf(i,j,pdfKEnd,3)+cdiscretization_->pdf(i,j,pdfKEnd,4)+cdiscretization_->pdf(i,j,pdfKEnd,7)
@@ -351,14 +360,15 @@ void Computation::FillVelocitiesAndPressure()
     {
         for (int j = cdiscretization_->pJBegin(); j < cdiscretization_->pJEnd(); j++)
         {
-            double p = 0.;
-            double u = 0.;
-            double v = 0.;
-            double w = 0.;
-            double rho = 0.;
+
             for (int k = cdiscretization_->pdfKBegin(); k < cdiscretization_->pdfKEnd(); k++)
             {
-                for (int l = 0; l < 9; l++)
+                            double p = 0.;
+                            double u = 0.;
+                            double v = 0.;
+                            double w = 0.;
+                            double rho = 0.;
+                for (int l = 0; l < 19; l++)
                 {
                     rho += cdiscretization_->pdf(i, j, k, l);
                     p += cdiscretization_->pdf(i, j, k, l) * cs_ * cs_;

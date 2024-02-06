@@ -49,7 +49,9 @@ void OutputWriterText::writeFile(double currentTime)
     file << std::setw(fieldWidth) << j << "|";
     for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++)
     {
-      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->u(i,j);
+      for(int k = discretization_->uKBegin(); k < discretization_->uKEnd(); k++){
+      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->u(i,j,k);
+      }
     }
     file << std::endl;
   }
@@ -72,7 +74,10 @@ void OutputWriterText::writeFile(double currentTime)
     file << std::setw(fieldWidth) << j << "|";
     for (int i = discretization_->vIBegin(); i < discretization_->vIEnd(); i++)
     {
-      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->v(i,j);
+        for (int k = discretization_->vKBegin(); i < discretization_->vKEnd(); k++)
+    {
+      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->v(i,j,k);
+    }
     }
     file << std::endl;
   }
@@ -95,7 +100,10 @@ void OutputWriterText::writeFile(double currentTime)
     file << std::setw(fieldWidth) << j << "|";
     for (int i = discretization_->pIBegin(); i < discretization_->pIEnd(); i++)
     {
-      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->rho(i,j);
+    for (int k = discretization_->pKBegin(); i < discretization_->pKEnd(); k++)
+    {      
+      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->rho(i,j,k);
+    }
     }
     file << std::endl;
   }
@@ -143,7 +151,10 @@ void OutputWriterText::writePressureFile()
     file << std::setw(fieldWidth) << j << "|";
     for (int i = discretization_->pIBegin(); i < discretization_->pIEnd(); i++)
     {
-      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->p(i,j);
+    for (int k = discretization_->pKBegin(); i < discretization_->pKEnd(); k++)
+    {        
+      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->p(i,j,k);
+    }
     }
     file << std::endl;
   }

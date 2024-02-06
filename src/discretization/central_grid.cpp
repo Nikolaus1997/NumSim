@@ -95,7 +95,7 @@ CentralGrid::CentralGrid(std::array<int, 3> nCells,
             wi_[i]   = 1./18.;
         }
 
-        for(int i = 8; i<19;i++)
+        for(int i = 7; i<19;i++)
         {
             wi_[i] = 1./36.;
         }
@@ -108,6 +108,10 @@ CentralGrid::CentralGrid(std::array<int, 3> nCells,
 double CentralGrid::dx() const
 {
     return meshWidth_[0];
+};
+double CentralGrid::dz() const
+{
+    return meshWidth_[2];
 };
 
 /**
@@ -320,9 +324,14 @@ int CentralGrid::vIEnd() const
     return nCells_[0];
 };
 
-double CentralGrid::v(int i, int j) const
+double CentralGrid::v(int i, int j, int k) const
 {
-    return v_(i-vIBegin(),j-vJBegin());
+    return v_(i-vIBegin(),j-vJBegin(),k -vKBegin());
+}
+
+double CentralGrid::w(int i, int j, int k) const
+{
+    return w_(i-wIBegin(),j-wJBegin(),k -wKBegin());
 }
 
 double CentralGrid::ci_x(int i) const
@@ -400,11 +409,46 @@ int CentralGrid::vKEnd() const
     return nCells_[2];
 };
 
+int CentralGrid::wIBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::wIEnd() const
+{
+    return nCells_[0];
+};
+
+int CentralGrid::wJBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::wJEnd() const
+{
+    return nCells_[1];
+};
+
+int CentralGrid::wKBegin() const
+{
+    return 0;
+};
+
+int CentralGrid::wKEnd() const
+{
+    return nCells_[2];
+};
+
+
 const FieldVariable &CentralGrid::v() const
 {
     return v_;
 };
 
+const FieldVariable &CentralGrid::w() const
+{
+    return w_;
+};
 
 double &CentralGrid::p(int i, int j, int k)
 {
@@ -419,6 +463,11 @@ double &CentralGrid::u(int i, int j, int k)
 double &CentralGrid::v(int i, int j, int k)
 {
     return v_(i - vIBegin(), j - vJBegin(), k-vKBegin());
+};
+
+double &CentralGrid::w(int i, int j, int k)
+{
+    return w_(i - wIBegin(), j - wJBegin(), k-wKBegin());
 };
 
 double &CentralGrid::rho(int i, int j, int k)
