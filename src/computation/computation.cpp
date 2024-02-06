@@ -29,7 +29,7 @@ void Computation::initialize(std::string filename)
 
     cs_ = (double)1. / sqrt(3);
     nu_ = settings_.dirichletBcTop[0] * settings_.L_lbm / settings_.re;
-    tau_ = 1. + nu_ / (cs_ * cs_);
+    tau_ = .5 + nu_ / (cs_ * cs_);
     // tau_ =0.65;
     dt_ = 1.; // settings_.re*nu_/(settings_.nCells[0]*settings_.nCells[0]);
     std::cout << dt_ << std::endl;
@@ -185,10 +185,10 @@ void Computation::LBMapplyBoundaryValues()
     }
 
     //set bot inner
-    for(int i = pdfIBegin+1; i<pdfIEnd;i++)
+    for(int i = pdfIBegin; i<pdfIEnd+1;i++)
     {
 
-            for(int j = pdfJBegin+1;j<pdfJEnd;j++)
+            for(int j = pdfJBegin;j<pdfJEnd+1;j++)
             {
                 double rho_N = 1./(1.-settings_.dirichletBcBottom[2])*(cdiscretization_->pdf(i,j,pdfKBegin,0)+cdiscretization_->pdf(i,j,pdfKBegin,1)+cdiscretization_->pdf(i,j,pdfKBegin,2)
                                                                     +cdiscretization_->pdf(i,j,pdfKBegin,3)+cdiscretization_->pdf(i,j,pdfKBegin,4)+cdiscretization_->pdf(i,j,pdfKBegin,7)
@@ -210,9 +210,9 @@ void Computation::LBMapplyBoundaryValues()
     }
 
     //set left inner
-    for(int j = pdfJBegin+1;j<pdfJEnd;j++)
+    for(int j = pdfJBegin;j<pdfJEnd+1;j++)
     {
-        for(int k = pdfKBegin+1;k<pdfKEnd;k++)
+        for(int k = pdfKBegin;k<pdfKEnd+1;k++)
         {
             double rho_N = 1./(1.+settings_.dirichletBcLeft[0])*(cdiscretization_->pdf(pdfIBegin,j,k,0)+cdiscretization_->pdf(pdfIBegin,j,k,3)+cdiscretization_->pdf(pdfIBegin,j,k,15)
                                                                 +cdiscretization_->pdf(pdfIBegin,j,k,5)+cdiscretization_->pdf(pdfIBegin,j,k,18)+cdiscretization_->pdf(pdfIBegin,j,k,4)
@@ -233,32 +233,32 @@ void Computation::LBMapplyBoundaryValues()
     }
 
     //set right inner
-    for(int j = pdfJBegin+1;j<pdfJEnd;j++)
+    for(int j = pdfJBegin;j<pdfJEnd+1;j++)
     {
-        for(int k = pdfKBegin+1;k<pdfKEnd;k++)
+        for(int k = pdfKBegin;k<pdfKEnd+1;k++)
         {
-            double rho_N = 1./(1.-settings_.dirichletBcRight[0])*(cdiscretization_->pdf(pdfIBegin,j,k,0)+cdiscretization_->pdf(pdfIBegin,j,k,3)+cdiscretization_->pdf(pdfIBegin,j,k,15)
-                                                                +cdiscretization_->pdf(pdfIBegin,j,k,5)+cdiscretization_->pdf(pdfIBegin,j,k,18)+cdiscretization_->pdf(pdfIBegin,j,k,4)
-                                                                +cdiscretization_->pdf(pdfIBegin,j,k,17)+cdiscretization_->pdf(pdfIBegin,j,k,6)+cdiscretization_->pdf(pdfIBegin,j,k,16)+
-                                                                2.*(cdiscretization_->pdf(pdfIBegin,j,k,1)+cdiscretization_->pdf(pdfIBegin,j,k,7)+cdiscretization_->pdf(pdfIBegin,j,k,11)
-                                                                    +cdiscretization_->pdf(pdfIBegin,j,k,10)+cdiscretization_->pdf(pdfIBegin,j,k,12)));
-            double N_y = 1./2.*(cdiscretization_->pdf(pdfIBegin,j,k,3)+cdiscretization_->pdf(pdfIBegin,j,k,15)+cdiscretization_->pdf(pdfIBegin,j,k,16)-(cdiscretization_->pdf(pdfIBegin,j,k,4)
-                                        +cdiscretization_->pdf(pdfIBegin,j,k,18)+cdiscretization_->pdf(pdfIBegin,j,k,17)))-1./3.*rho_N*settings_.dirichletBcRight[1];                                       
-            double N_z = 1./2.*(cdiscretization_->pdf(pdfIBegin,j,k,5)+cdiscretization_->pdf(pdfIBegin,j,k,8)+cdiscretization_->pdf(pdfIBegin,j,k,15)-
-                                                    (cdiscretization_->pdf(pdfIBegin,j,k,6)+cdiscretization_->pdf(pdfIBegin,j,k,16)+cdiscretization_->pdf(pdfIBegin,j,k,17)))-1./3.*rho_N*settings_.dirichletBcRight[2];
-            cdiscretization_->pdf(pdfIBegin,j,k,2) = cdiscretization_->pdf(pdfIBegin,j,k,1)-1./3.*rho_N*settings_.dirichletBcRight[0];
-            cdiscretization_->pdf(pdfIBegin,j,k,8) = cdiscretization_->pdf(pdfIBegin,j,k,10)-rho_N/6.*(settings_.dirichletBcRight[0]-settings_.dirichletBcRight[1])-N_y;
-            cdiscretization_->pdf(pdfIBegin,j,k,9) = cdiscretization_->pdf(pdfIBegin,j,k,7)-rho_N/6.*(settings_.dirichletBcRight[0]+settings_.dirichletBcRight[1])+N_y;  
-            cdiscretization_->pdf(pdfIBegin,j,k,13) = cdiscretization_->pdf(pdfIBegin,j,k,11)-rho_N/6.*(settings_.dirichletBcRight[0]+settings_.dirichletBcRight[2])+N_z;
-            cdiscretization_->pdf(pdfIBegin,j,k,14) = cdiscretization_->pdf(pdfIBegin,j,k,12)-rho_N/6.*(settings_.dirichletBcRight[0]-settings_.dirichletBcRight[2])-N_z;            
+            double rho_N = 1./(1.-settings_.dirichletBcRight[0])*(cdiscretization_->pdf(pdfIEnd,j,k,0)+cdiscretization_->pdf(pdfIEnd,j,k,3)+cdiscretization_->pdf(pdfIEnd,j,k,15)
+                                                                +cdiscretization_->pdf(pdfIEnd,j,k,5)+cdiscretization_->pdf(pdfIEnd,j,k,18)+cdiscretization_->pdf(pdfIEnd,j,k,4)
+                                                                +cdiscretization_->pdf(pdfIEnd,j,k,17)+cdiscretization_->pdf(pdfIEnd,j,k,6)+cdiscretization_->pdf(pdfIEnd,j,k,16)+
+                                                                2.*(cdiscretization_->pdf(pdfIEnd,j,k,1)+cdiscretization_->pdf(pdfIEnd,j,k,7)+cdiscretization_->pdf(pdfIEnd,j,k,11)
+                                                                    +cdiscretization_->pdf(pdfIEnd,j,k,10)+cdiscretization_->pdf(pdfIEnd,j,k,12)));
+            double N_y = 1./2.*(cdiscretization_->pdf(pdfIEnd,j,k,3)+cdiscretization_->pdf(pdfIEnd,j,k,15)+cdiscretization_->pdf(pdfIEnd,j,k,16)-(cdiscretization_->pdf(pdfIEnd,j,k,4)
+                                        +cdiscretization_->pdf(pdfIEnd,j,k,18)+cdiscretization_->pdf(pdfIEnd,j,k,17)))-1./3.*rho_N*settings_.dirichletBcRight[1];                                       
+            double N_z = 1./2.*(cdiscretization_->pdf(pdfIEnd,j,k,5)+cdiscretization_->pdf(pdfIEnd,j,k,8)+cdiscretization_->pdf(pdfIEnd,j,k,15)-
+                                                    (cdiscretization_->pdf(pdfIEnd,j,k,6)+cdiscretization_->pdf(pdfIEnd,j,k,16)+cdiscretization_->pdf(pdfIEnd,j,k,17)))-1./3.*rho_N*settings_.dirichletBcRight[2];
+            cdiscretization_->pdf(pdfIEnd,j,k,2) = cdiscretization_->pdf(pdfIEnd,j,k,1)-1./3.*rho_N*settings_.dirichletBcRight[0];
+            cdiscretization_->pdf(pdfIEnd,j,k,8) = cdiscretization_->pdf(pdfIEnd,j,k,10)-rho_N/6.*(settings_.dirichletBcRight[0]-settings_.dirichletBcRight[1])-N_y;
+            cdiscretization_->pdf(pdfIEnd,j,k,9) = cdiscretization_->pdf(pdfIEnd,j,k,7)-rho_N/6.*(settings_.dirichletBcRight[0]+settings_.dirichletBcRight[1])+N_y;  
+            cdiscretization_->pdf(pdfIEnd,j,k,13) = cdiscretization_->pdf(pdfIEnd,j,k,11)-rho_N/6.*(settings_.dirichletBcRight[0]+settings_.dirichletBcRight[2])+N_z;
+            cdiscretization_->pdf(pdfIEnd,j,k,14) = cdiscretization_->pdf(pdfIEnd,j,k,12)-rho_N/6.*(settings_.dirichletBcRight[0]-settings_.dirichletBcRight[2])-N_z;            
 
         }
     }
 
     //set front inner
-    for(int i = pdfIBegin+1;i<pdfIEnd;i++)
+    for(int i = pdfIBegin;i<pdfIEnd+1;i++)
     {
-        for(int k = pdfKBegin+1;k<pdfKEnd;k++)
+        for(int k = pdfKBegin;k<pdfKEnd+1;k++)
         {
             double rho_N = 1./(1.-settings_.dirichletBcFront[1])*(cdiscretization_->pdf(i,pdfJBegin,k,0)+cdiscretization_->pdf(i,pdfJBegin,k,1)+cdiscretization_->pdf(i,pdfJBegin,k,2)
                                                                 +cdiscretization_->pdf(i,pdfJBegin,k,5)+cdiscretization_->pdf(i,pdfJBegin,k,6)+cdiscretization_->pdf(i,pdfJBegin,k,12)
@@ -282,9 +282,9 @@ void Computation::LBMapplyBoundaryValues()
     }
 
     //set back inner
-    for(int i = pdfIBegin+1;i<pdfIEnd;i++)
+    for(int i = pdfIBegin;i<pdfIEnd+1;i++)
     {
-        for(int k = pdfKBegin+1;k<pdfKEnd;k++)
+        for(int k = pdfKBegin;k<pdfKEnd+1;k++)
         {
             double rho_N = 1./(1.+settings_.dirichletBcBack[1])*(cdiscretization_->pdf(i,pdfJEnd,k,0)+cdiscretization_->pdf(i,pdfJEnd,k,1)+cdiscretization_->pdf(i,pdfJEnd,k,2)
                                                                 +cdiscretization_->pdf(i,pdfJEnd,k,5)+cdiscretization_->pdf(i,pdfJEnd,k,6)+cdiscretization_->pdf(i,pdfJEnd,k,12)
@@ -306,47 +306,225 @@ void Computation::LBMapplyBoundaryValues()
 
         }
     }
+// //set bottom left edge
+// for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+// {                                                         
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,7) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,9) + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,10) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,8) + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,15) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,17) + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,18) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,16) + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+// }
+// //set top left edge
+// for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+// {                                                         
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,7) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,9) + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,10) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,8)+ 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,17) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,15) - 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+//                 cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,16) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,18) - 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+// }
+// //set top right edge
+// for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+// {
 
-// //top left
-    // cdiscretization_->u(0,pdfJEnd) = 0.0;
-    // cdiscretization_->v(0,pdfJEnd) = 0.0;
-    // cdiscretization_->pdf(0,pdfJEnd,8) = cdiscretization_->pdf(0,pdfJEnd,6);
-    // cdiscretization_->pdf(0,pdfJEnd,4) = cdiscretization_->pdf(0,pdfJEnd,2);
-    // cdiscretization_->pdf(0,pdfJEnd,1) = cdiscretization_->pdf(0,pdfJEnd,3);
-    // cdiscretization_->pdf(0,pdfJEnd,7) = 0.5*(cdiscretization_->rho(0,pdfJEnd)-(cdiscretization_->pdf(0,pdfJEnd,0)+cdiscretization_->pdf(0,pdfJEnd,1)+cdiscretization_->pdf(0,pdfJEnd,2)
-    //                                         +cdiscretization_->pdf(0,pdfJEnd,3)+cdiscretization_->pdf(0,pdfJEnd,4)+cdiscretization_->pdf(0,pdfJEnd,6)+cdiscretization_->pdf(0,pdfJEnd,8)));
-    // cdiscretization_->pdf(0,pdfJEnd,5) = cdiscretization_->pdf(0,pdfJEnd,7);
-    // //top right
-    // cdiscretization_->u(pdfIEnd,pdfJEnd) = 0.0;
-    // cdiscretization_->v(pdfIEnd,pdfJEnd) = 0.0;
-    // cdiscretization_->pdf(pdfIEnd,pdfJEnd,7) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,5);
-    // cdiscretization_->pdf(pdfIEnd,pdfJEnd,4) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,2);
-    // cdiscretization_->pdf(pdfIEnd,pdfJEnd,1) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,3);
-    // cdiscretization_->pdf(pdfIEnd,pdfJEnd,8) = 0.5*(cdiscretization_->rho(pdfIEnd,pdfJEnd)-(cdiscretization_->pdf(pdfIEnd,pdfJEnd,0)
-    //                                         +cdiscretization_->pdf(pdfIEnd,pdfJEnd,1)+cdiscretization_->pdf(pdfIEnd,pdfJEnd,2)
-    //                                         +cdiscretization_->pdf(pdfIEnd,pdfJEnd,3)+cdiscretization_->pdf(pdfIEnd,pdfJEnd,4)
-    //                                         +cdiscretization_->pdf(pdfIEnd,pdfJEnd,5)+cdiscretization_->pdf(pdfIEnd,pdfJEnd,7)));
-    // cdiscretization_->pdf(pdfIEnd,pdfJEnd,6) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,8);
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,9) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,7) - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,8) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,10) - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,17) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,15) - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,16) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,18) - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
 
-    // //bottom right
-    // cdiscretization_->u(pdfIEnd,0) = 0.0;
-    // cdiscretization_->v(pdfIEnd,0) = 0.0;
-    // cdiscretization_->pdf(pdfIEnd,0,6) = cdiscretization_->pdf(pdfIEnd,0,8);
-    // cdiscretization_->pdf(pdfIEnd,0,2) = cdiscretization_->pdf(pdfIEnd,0,4);
-    // cdiscretization_->pdf(pdfIEnd,0,3) = cdiscretization_->pdf(pdfIEnd,0,1);
-    // cdiscretization_->pdf(pdfIEnd,0,7) = 0.5*(cdiscretization_->rho(pdfIEnd,0)-(cdiscretization_->pdf(pdfIEnd,0,0)+cdiscretization_->pdf(pdfIEnd,0,1)+cdiscretization_->pdf(pdfIEnd,0,2)
-    //                                         +cdiscretization_->pdf(pdfIEnd,0,3)+cdiscretization_->pdf(pdfIEnd,0,4)+cdiscretization_->pdf(pdfIEnd,0,8)+cdiscretization_->pdf(pdfIEnd,0,6)));
-    // cdiscretization_->pdf(pdfIEnd,0,5) = cdiscretization_->pdf(pdfIEnd,0,7);
+// }
+// //
+// //set bottom right edge
+// for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+// {
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,9) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,7)- 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,8) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,10) - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,15) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,17) + 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
+//     cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,18) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,16) + 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
 
-    // //bottom left
-    // cdiscretization_->u(0,0) = 0.0;
-    // cdiscretization_->v(0,0) = 0.0;
-    // cdiscretization_->pdf(0,0,5) = cdiscretization_->pdf(0,0,7);
-    // cdiscretization_->pdf(0,0,2) = cdiscretization_->pdf(0,0,4);
-    // cdiscretization_->pdf(0,0,1) = cdiscretization_->pdf(0,0,3);
-    // cdiscretization_->pdf(0,0,8) = 0.5*(cdiscretization_->rho(0,0)-(cdiscretization_->pdf(0,0,0)+cdiscretization_->pdf(0,0,1)+cdiscretization_->pdf(0,0,2)
-    //                                         +cdiscretization_->pdf(0,0,3)+cdiscretization_->pdf(0,0,4)+cdiscretization_->pdf(0,0,5)+cdiscretization_->pdf(0,0,7)));
-    // cdiscretization_->pdf(0,0,6) = cdiscretization_->pdf(0,0,8);
+// }
+// //set front bottom edge
+// for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+// {
+//     double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,1)-cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,2));
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,7) = cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,9)+N_x;
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,8) =     cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,10)+N_x;
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,11) =    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,13)+N_x;
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,14) =    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,12)+N_x;
+// }
+// //set front top edge
+// for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+// {
+//     double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,1)-cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,2));
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,7) = cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,9)+N_x;
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,8) =     cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,10)+N_x;
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,13) =    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,11)-N_x;
+//     cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,12) =    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,14)-N_x;
+// }
+// //set back bottom edge
+// for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+// {
+//     double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,1)-cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,2));
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,9) = cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,7)-N_x;
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,10) =     cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,8)-N_x;
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,11) =    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,13)+N_x;
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,14) =    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,12)+N_x;
+// }
+// //set back top edge
+// for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+// {
+//     double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,1)-cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,2));
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,9) = cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,7)-N_x;
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,10) =     cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,8)-N_x;
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,13) =    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,11)-N_x;
+//     cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,12) =    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,14)-N_x;
+// }
+// //set front left edge
+// for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+// {
+//     double N_z = 1./4.*(cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,5)-cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,6));
+//     cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,11) =  cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,13) + N_z;
+//     cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,12) = cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,14) + N_z;
+//     cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,15) = cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,17) + N_z;
+//     cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,16) = cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,18) + N_z;
+// }
+// //set back left edge
+// for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+// {
+//     double N_z = 1./4.*(cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,5)-cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,6));
+//     cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,11) =  cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,13) + N_z;
+//     cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,12) = cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,14) + N_z;
+//     cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,17) = cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,15) - N_z;
+//     cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,18) = cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,16) - N_z;
+// }
+
+// //set front right edge
+// for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+// {
+//     double N_z = 1./4.*(cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,5)-cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,6));
+//     cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,13) =  cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,11) - N_z;
+//     cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,14) = cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,12) - N_z;
+//     cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,15) = cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,17) + N_z;
+//     cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,16) = cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,18) + N_z;
+// }
+// //set front right edge
+// for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+// {
+//     double N_z = 1./4.*(cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,5)-cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,6));
+//     cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,13) =  cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,11) - N_z;
+//     cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,14) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,12) - N_z;
+//     cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,17) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,15) - N_z;
+//     cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,18) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,16) - N_z;
+// }
+
+//set bottom left edge
+for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+{                                                         
+                cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,7) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,9);// + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+                cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,10) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,8);//  + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+                cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,15) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,17);//  + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+                cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,18) = cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,16);//  + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKBegin,4));
+}
+//set top left edge
+for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+{                                                         
+                cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,7) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,9);//  + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+                cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,10) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,8);// + 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+                cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,17) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,15);//  - 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+                cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,16) = cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,18);//  - 1./4.*(cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIBegin,j,pdfKEnd,4));
+}
+//set top right edge
+for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+{
+
+    cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,9) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,7);//  - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
+    cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,8) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,10);//  - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
+    cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,17) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,15);//  - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
+    cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,16) = cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,18);//  - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKEnd,4));
+
+}
+//
+//set bottom right edge
+for(int j = pdfJBegin; j<pdfJEnd+1; j++)
+{
+    cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,9) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,7);// - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
+    cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,8) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,10);//  - 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
+    cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,15) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,17);//  + 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
+    cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,18) = cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,16);//  + 1./4.*(cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,3)-cdiscretization_->pdf(pdfIEnd,j,pdfKBegin,4));
+
+}
+//set front bottom edge
+for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+{
+    double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,1)-cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,2));
+    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,7) = cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,9);// +N_x;
+    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,8) =     cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,10);// +N_x;
+    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,11) =    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,13);// +N_x;
+    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,14) =    cdiscretization_->pdf(i,pdfJBegin,pdfKBegin,12);// +N_x;
+}
+//set front top edge
+for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+{
+    double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,1)-cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,2));
+    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,7) = cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,9);// +N_x;
+    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,8) =     cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,10);// +N_x;
+    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,13) =    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,11);// -N_x;
+    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,12) =    cdiscretization_->pdf(i,pdfJBegin,pdfKEnd,14);// -N_x;
+}
+//set back bottom edge
+for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+{
+    double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,1)-cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,2));
+    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,9) = cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,7);// -N_x;
+    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,10) =     cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,8);// -N_x;
+    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,11) =    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,13);// +N_x;
+    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,14) =    cdiscretization_->pdf(i,pdfJEnd,pdfKBegin,12);// +N_x;
+}
+//set back top edge
+for(int i = pdfIBegin; i<pdfIEnd+1;i++)
+{
+    double N_x = 1./4.*(cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,1)-cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,2));
+    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,9) = cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,7);// -N_x;
+    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,10) =     cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,8);// -N_x;
+    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,13) =    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,11);// -N_x;
+    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,12) =    cdiscretization_->pdf(i,pdfJEnd,pdfKEnd,14);// -N_x;
+}
+//set front left edge
+for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+{
+    double N_z = 1./4.*(cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,5)-cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,6));
+    cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,11) =  cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,13);//  + N_z;
+    cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,12) = cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,14);//  + N_z;
+    cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,15) = cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,17);//  + N_z;
+    cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,16) = cdiscretization_->pdf(pdfIBegin,pdfJBegin,k,18);//  + N_z;
+}
+//set back left edge
+for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+{
+    double N_z = 1./4.*(cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,5)-cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,6));
+    cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,11) =  cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,13);//  + N_z;
+    cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,12) = cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,14);//  + N_z;
+    cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,17) = cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,15);//  - N_z;
+    cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,18) = cdiscretization_->pdf(pdfIBegin,pdfJEnd,k,16);//  - N_z;
+}
+
+//set front right edge
+for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+{
+    double N_z = 1./4.*(cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,5)-cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,6));
+    cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,13) =  cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,11);// - N_z;
+    cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,14) = cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,12);// - N_z;
+    cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,15) = cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,17);// + N_z;
+    cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,16) = cdiscretization_->pdf(pdfIEnd,pdfJBegin,k,18);// + N_z;
+}
+//set front right edge
+for(int k = pdfKBegin; k<pdfKEnd+1;k++)
+{
+    double N_z = 1./4.*(cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,5)-cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,6));
+    cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,13) =  cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,11);// - N_z;
+    cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,14) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,12);// - N_z;
+    cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,17) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,15);// - N_z;
+    cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,18) = cdiscretization_->pdf(pdfIEnd,pdfJEnd,k,16);// - N_z;
+}
 };
 
 void Computation::LBMBounceBack(){
