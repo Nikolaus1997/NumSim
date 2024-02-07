@@ -78,6 +78,7 @@ void Computation::runSimulation() {
     double time = 0.0;
     double holder = settings_.dirichletBcTop[0];
     double dtp_ = settings_.re*nu_/(settings_.nCells[0]*settings_.nCells[0]);
+    int dtwrite_ = settings_.deltawrite;
             std::cout<<dtp_<<std::endl;
     while (time < settings_.endTime){
 
@@ -133,8 +134,8 @@ void Computation::runSimulation() {
         //std::cout<<"-------------------"<<std::endl;      
         //FillVelocitiesAndPressure();        
         //std::cout<<"+++++++++++++++++++"<<std::endl;
-        if(t_iter%100 == 0 ||time == 0.0){
-            outputWriterText_->writeFile(time);        
+        if((t_iter % dtwrite_) == 0 ||time == 0.0){
+            //outputWriterText_->writeFile(time);        
             outputWriterParaview_->writeFile(time);
 
         }
