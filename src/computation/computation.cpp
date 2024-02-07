@@ -30,10 +30,11 @@ void Computation::initialize(std::string filename)
 
         cs_ =(double) 1./sqrt(3);
         nu_ = settings_.dirichletBcTop[0]*settings_.L_lbm/settings_.re;
-        tau_ = 0.5 + nu_/(cs_);
+        tau_ = (6*nu_+1)/2.;
         //tau_ =0.65;
-        dt_ = 1.;//settings_.re*nu_/(settings_.nCells[0]*settings_.nCells[0]);
-        std::cout<<dt_<<std::endl;
+        dt_ = 1.;
+
+
 //(settings_.nCells[1]/settings_.re)*settings_.dirichletBcTop[0]+.5;
 
 
@@ -76,6 +77,8 @@ void Computation::runSimulation() {
     int t_iter = 0;
     double time = 0.0;
     double holder = settings_.dirichletBcTop[0];
+    double dtp_ = settings_.re*nu_/(settings_.nCells[0]*settings_.nCells[0]);
+            std::cout<<dtp_<<std::endl;
     while (time < settings_.endTime){
 
 
@@ -111,30 +114,7 @@ void Computation::runSimulation() {
                     }}
                     
         } 
-
-
-        if(time == 0.0 ){
-std::cout<<"YES"<<std::endl;
-            Collision(); 
-            for(int i=cdiscretization_->pIBegin(); i < cdiscretization_->pIEnd();i++)
-            {
-                for(int j=cdiscretization_->pJBegin(); j < cdiscretization_->pJEnd();j++)
-                    {
-                        for(int k = 0; k<9; k++)
-                            cdiscretization_->pdf(i,j,k) = cdiscretization_->pdfeq(i,j,k);
-                    
-                // cdiscretization_->rho(i,j)= cdiscretization_->pdf(i,j,0)+cdiscretization_->pdf(i,j,1)+cdiscretization_->pdf(i,j,2)+
-                //     cdiscretization_->pdf(i,j,3)+cdiscretization_->pdf(i,j,4)+cdiscretization_->pdf(i,j,5)+cdiscretization_->pdf(i,j,6)+cdiscretization_->pdf(i,j,7)
-                //     +cdiscretization_->pdf(i,j,8);
-                //     cdiscretization_->u(i,j) = (cdiscretization_->pdf(i,j,1)+cdiscretization_->pdf(i,j,5)+cdiscretization_->pdf(i,j,8)-cdiscretization_->pdf(i,j,3)-cdiscretization_->pdf(i,j,6)-cdiscretization_->pdf(i,j,7))*
-                //                                 (1.-(cdiscretization_->rho(i,j)-1.)+(cdiscretization_->rho(i,j)-1)*(cdiscretization_->rho(i,j)-1));
-                //     cdiscretization_->v(i,j) = (cdiscretization_->pdf(i,j,2)+cdiscretization_->pdf(i,j,5)+cdiscretization_->pdf(i,j,6)-cdiscretization_->pdf(i,j,4)-cdiscretization_->pdf(i,j,7)-cdiscretization_->pdf(i,j,8))*
-                //                                 (1.-(cdiscretization_->rho(i,j)-1.)+(cdiscretization_->rho(i,j)-1)*(cdiscretization_->rho(i,j)-1)); 
-                    }                            
-            }     
-
-            //FillVelocitiesAndPressure();  
-        }        
+     
         
         Collision();
         Streaming();
@@ -153,8 +133,12 @@ std::cout<<"YES"<<std::endl;
         //std::cout<<"-------------------"<<std::endl;      
         //FillVelocitiesAndPressure();        
         //std::cout<<"+++++++++++++++++++"<<std::endl;
-        outputWriterText_->writeFile(time);        
-        outputWriterParaview_->writeFile(time);
+        if(t_iter%100 == 0 ||time == 0.0){
+            outputWriterText_->writeFile(time);        
+            outputWriterParaview_->writeFile(time);
+
+        }
+
 
 
         // std::cout<<"                 "<<std::endl;
@@ -162,7 +146,7 @@ std::cout<<"YES"<<std::endl;
         //     std::cout<<"  dt:  "<<dt_<<"  "<<"########pdf0/2: "<<cdiscretization_->pdf(0,4,k)<<" "<<"           ########pdf0/1: "<<cdiscretization_->pdf(1,2,k)<<" "<<"            ########pdf0/0: "<<cdiscretization_->pdf(1,3,k)<<std::endl;
         // }
 
-        time += dt_;
+        time += dtp_;
 
 
         //}
