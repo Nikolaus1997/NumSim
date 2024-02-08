@@ -8,6 +8,7 @@
 #include "discretization/lbm_discretization.h"
 #include "storage/array2d.h"
 
+
 /** This class handles the main simulation.
 * It implements the time stepping scheme, computes all the terms and calls the pressure solver.
 */
@@ -39,8 +40,6 @@ private:
     void FillVelocitiesAndPressure();
 
     void Collision();
-    
-    void LBMBounceBack();
 
     void Streaming();
 
