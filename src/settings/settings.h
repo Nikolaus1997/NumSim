@@ -21,8 +21,8 @@ struct Settings
   int deltawrite_ = 5;
   double rhoRight = 1. ;
   std::array<double,3> dirichletBcBottom{0.,0.,0.};  //< prescribed values of u,v at bottom of domain
-  std::array<double,3> dirichletBcTop{0.,0.,0.};     //< prescribed values of u,v at top of domain
-  std::array<double,3> dirichletBcLeft{2./3.*0.1,0.,0.};    //< prescribed values of u,v at left of domain
+  std::array<double,3> dirichletBcTop{0.8,0.,0.};     //< prescribed values of u,v at top of domain
+  std::array<double,3> dirichletBcLeft{0.,0.,0.};    //< prescribed values of u,v at left of domain
   std::array<double,3> dirichletBcRight{0.,0.,0.};   //< prescribed values of u,v at right of domain
   std::array<double,3> dirichletBcFront{0.,0.,0.};   //< prescribed values of u,v at right of domain
   std::array<double,3> dirichletBcBack{0.,0.,0.};   //< prescribed values of u,v at right of domain
