@@ -7,21 +7,22 @@
  */
 struct Settings
 {
-  std::array<int,3> nCells{80,80,80};          //< number of cells in x and y direction
+  std::array<int,3> nCells{40,40,40};          //< number of cells in x and y direction
   std::array<double,3> physicalSize{1.,1.,1.}; //< physical size of the domain
-  double re =1000.;                 //< reynolds number
+  double re =600.;                 //< reynolds number
   double endTime = 10.0;             //< end time of the simulation
   double tau = .6;                  //< safety factor for time step width
   double maximumDt = 10.0;            //< maximum time step width
-  double L_lbm = 80.;
+  double L_lbm = 40.;
   std::array<double,2> g{0., 0.};    //< external forces
 
   bool useDonorCell = false;         //< if the donor cell scheme schould be used
   double alpha = 0.5;                //< factor for donor-cell scheme
-  int deltawrite_ = 100;
+  int deltawrite_ = 5;
+  double rhoRight = 1. ;
   std::array<double,3> dirichletBcBottom{0.,0.,0.};  //< prescribed values of u,v at bottom of domain
-  std::array<double,3> dirichletBcTop{.6,0.,0.};     //< prescribed values of u,v at top of domain
-  std::array<double,3> dirichletBcLeft{0.,0.,0.};    //< prescribed values of u,v at left of domain
+  std::array<double,3> dirichletBcTop{0.,0.,0.};     //< prescribed values of u,v at top of domain
+  std::array<double,3> dirichletBcLeft{2./3.*0.1,0.,0.};    //< prescribed values of u,v at left of domain
   std::array<double,3> dirichletBcRight{0.,0.,0.};   //< prescribed values of u,v at right of domain
   std::array<double,3> dirichletBcFront{0.,0.,0.};   //< prescribed values of u,v at right of domain
   std::array<double,3> dirichletBcBack{0.,0.,0.};   //< prescribed values of u,v at right of domain
