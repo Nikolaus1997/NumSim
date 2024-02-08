@@ -80,6 +80,11 @@ void Settings::loadFromFile(std::string filename)
     {
       physicalSize[1] = atoi(parameterValue.c_str());
     }
+    
+    if (parameterName=="physicalSizeZ")
+    {
+      physicalSize[2] = atoi(parameterValue.c_str());
+    }
     if (parameterName=="re")
     {
       re = atoi(parameterValue.c_str());
@@ -105,6 +110,11 @@ void Settings::loadFromFile(std::string filename)
       dirichletBcBottom[1] = atof(parameterValue.c_str());  
     }    
 
+    if (parameterName=="dirichletBottomZ")
+    {
+      dirichletBcBottom[2] = atof(parameterValue.c_str());  
+    }
+
     if (parameterName=="dirichletTopX")
     {
         dirichletBcTop[0] = atof(parameterValue.c_str());  
@@ -113,6 +123,11 @@ void Settings::loadFromFile(std::string filename)
     if (parameterName=="dirichletTopY")
     {
         dirichletBcTop[1] = atof(parameterValue.c_str());      
+    }
+
+    if (parameterName=="dirichletTopZ")
+    {
+        dirichletBcTop[2] = atof(parameterValue.c_str());      
     }
 
     if (parameterName=="dirichletLeftX")
@@ -125,6 +140,11 @@ void Settings::loadFromFile(std::string filename)
         dirichletBcLeft[1] = atof(parameterValue.c_str());
     }
 
+    if (parameterName=="dirichletLeftZ")
+    {
+        dirichletBcLeft[2] = atof(parameterValue.c_str());
+    }
+
     if (parameterName=="dirichletRightX")
     {
        dirichletBcRight[0] = atof(parameterValue.c_str()); 
@@ -135,6 +155,11 @@ void Settings::loadFromFile(std::string filename)
        dirichletBcRight[1] = atof(parameterValue.c_str()); 
     }
 
+    if (parameterName=="dirichletRightZ")
+    {
+       dirichletBcRight[2] = atof(parameterValue.c_str()); 
+    }    
+
     if (parameterName=="nCellsX")
     {
          nCells[0] = atof(parameterValue.c_str());
@@ -144,6 +169,16 @@ void Settings::loadFromFile(std::string filename)
     {
          nCells[1] = atof(parameterValue.c_str());
     }
+
+    if (parameterName=="nCellsZ")
+    {
+         nCells[2] = atof(parameterValue.c_str());
+    }
+
+    if (parameterName=="L_lbm")
+    {
+         L_lbm = atof(parameterValue.c_str());
+    }    
 
     if (parameterName=="useDonorCell")
     {

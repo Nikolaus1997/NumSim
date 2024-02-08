@@ -14,7 +14,7 @@
 void Computation::initialize(std::string filename)
 {
     settings_ = Settings();
-
+    
     for (int i = 0; i < 3; i++)
         meshWidth_[i] = settings_.physicalSize[i] / settings_.nCells[i];
 
@@ -46,6 +46,7 @@ void Computation::runSimulation()
     int t_iter = 0;
     double time = 0.0;
     double dtp_ = settings_.re*nu_/(settings_.nCells[0]*settings_.nCells[0]);
+    std::cout<< dtp_<<std::endl;
     while (time < settings_.endTime)
     {
 
