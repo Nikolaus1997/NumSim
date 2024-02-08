@@ -49,7 +49,7 @@ void OutputWriterText::writeFile(double currentTime)
     file << std::setw(fieldWidth) << j << "|";
     for (int i = discretization_->uIBegin(); i < discretization_->uIEnd(); i++)
     {
-      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-6) << discretization_->u(i,j);
+      file << std::setw(fieldWidth) << std::setprecision(fieldWidth-3) << discretization_->u(i,j);
     }
     file << std::endl;
   }

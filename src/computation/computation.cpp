@@ -75,6 +75,7 @@ void Computation::runSimulation() {
         FillVelocitiesAndPressure();         
 
         if(time == 0.0 || t_iter%100 == 0.){       
+        outputWriterText_->writeFile(time);    
         outputWriterParaview_->writeFile(time);
         }
 
